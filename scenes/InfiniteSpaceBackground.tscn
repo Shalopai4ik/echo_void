@@ -1,0 +1,43 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/space_background/infinite_space_background.gd" id="1_bg"]
+[ext_resource type="Script" path="res://scripts/space_background/space_spawner.gd" id="2_sp"]
+[ext_resource type="Script" path="res://scripts/space_background/space_layer.gd" id="3_ly"]
+
+[node name="InfiniteSpaceBackground" type="Node2D"]
+z_index = -100
+script = ExtResource("1_bg")
+asset_dir = "res://assets/space_bg/"
+show_midground = false
+show_near_objects = false
+show_anomalies = false
+
+[node name="ProceduralSpawner" type="Node2D" parent="."]
+script = ExtResource("2_sp")
+
+[node name="BaseBackground" type="Node2D" parent="."]
+script = ExtResource("3_ly")
+
+[node name="BaseBackgroundEcho" type="Node2D" parent="."]
+script = ExtResource("3_ly")
+
+[node name="NebulaField" type="Node2D" parent="."]
+script = ExtResource("3_ly")
+
+[node name="DeepStars" type="Node2D" parent="."]
+script = ExtResource("3_ly")
+
+[node name="NearStars" type="Node2D" parent="."]
+script = ExtResource("3_ly")
+
+[node name="FarNebulaLayer" type="Node2D" parent="."]
+script = ExtResource("3_ly")
+
+[node name="DistantStarsLayer" type="Node2D" parent="."]
+script = ExtResource("3_ly")
+
+[node name="MidgroundLayer" type="Node2D" parent="."]
+script = ExtResource("3_ly")
+
+[node name="NearObjectsLayer" type="Node2D" parent="."]
+script = ExtResource("3_ly")

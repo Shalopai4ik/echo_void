@@ -1,0 +1,206 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://scripts/ship/ship_controller.gd" id="1_ship"]
+[ext_resource type="Script" path="res://scripts/ship/ship_camera.gd" id="2_cam"]
+[ext_resource type="Texture2D" path="res://assets/fighter.png" id="3_fighter"]
+[ext_resource type="Script" path="res://scripts/ship/ship_debug.gd" id="4_debug"]
+[ext_resource type="Resource" path="res://assets/ship/engine_parameters.tres" id="5_engines"]
+[ext_resource type="Script" path="res://scripts/ship/engine_controller.gd" id="6_plant"]
+[ext_resource type="Script" path="res://scripts/ship/engine_visuals.gd" id="7_visuals"]
+[ext_resource type="Script" path="res://scripts/ship/engine_nozzle.gd" id="8_nozzle"]
+[ext_resource type="PackedScene" path="res://scenes/ship/NozzleJet.tscn" id="9_jet"]
+[ext_resource type="Resource" path="res://assets/ship/assist_parameters.tres" id="10_assists"]
+[ext_resource type="Resource" path="res://assets/ship/world_parameters.tres" id="11_world"]
+[ext_resource type="Script" path="res://scripts/ship/ship_audio.gd" id="12_audio"]
+[ext_resource type="Resource" path="res://assets/ship/audio_parameters.tres" id="13_audioparams"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_hull"]
+friction = 0.4
+bounce = 0.5
+
+[node name="Ship" type="RigidBody2D"]
+collision_layer = 2
+collision_mask = 1
+gravity_scale = 0.0
+can_sleep = false
+continuous_cd = true
+contact_monitor = true
+max_contacts_reported = 4
+linear_damp_mode = 1
+linear_damp = 0.0
+angular_damp_mode = 1
+angular_damp = 0.0
+physics_material_override = SubResource("PhysicsMaterial_hull")
+script = ExtResource("1_ship")
+parameters = ExtResource("5_engines")
+assists = ExtResource("10_assists")
+world = ExtResource("11_world")
+
+[node name="Hull01" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-141, -1, -109, -17, -109, 17, -141, 1)
+
+[node name="Hull02" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-121, -9, -117, -13, -89, -37, -83, -37, -83, 37, -89, 37, -117, 13, -121, 9)
+
+[node name="Hull03" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-95, -29, -93, -33, -57, -77, -57, 77, -93, 33, -95, 29)
+
+[node name="Hull04" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-69, -41, -57, -77, -49, -89, -45, -93, -31, -93, -31, 93, -45, 93, -49, 89, -57, 77, -69, 41)
+
+[node name="Hull05" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-43, -93, -19, -93, -7, -81, -5, -77, -5, 77, -7, 81, -19, 93, -43, 93)
+
+[node name="Hull06" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(-17, -89, -15, -89, 21, -61, 21, 61, -15, 89, -17, 89)
+
+[node name="Hull07" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(9, -61, 21, -61, 29, -57, 47, -41, 47, 41, 29, 57, 21, 61, 9, 61)
+
+[node name="Hull08" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(35, -41, 49, -41, 65, -37, 73, -33, 73, 33, 65, 37, 49, 41, 35, 41)
+
+[node name="Hull09" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(61, -37, 65, -37, 81, -33, 99, -25, 99, 25, 81, 33, 65, 37, 61, 37)
+
+[node name="Hull10" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(87, -29, 89, -29, 121, -21, 125, -17, 125, 17, 121, 21, 89, 29, 87, 29)
+
+[node name="Hull11" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(113, -21, 121, -21, 141, -1, 141, 1, 121, 21, 113, 21)
+
+[node name="Engines" type="Node" parent="."]
+script = ExtResource("6_plant")
+
+[node name="Audio" type="Node" parent="."]
+script = ExtResource("12_audio")
+parameters = ExtResource("13_audioparams")
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Visuals"]
+scale = Vector2(2, 2)
+texture = ExtResource("3_fighter")
+
+[node name="EngineFx" type="Node2D" parent="."]
+script = ExtResource("7_visuals")
+controller = NodePath("../Engines")
+
+[node name="MainAft" type="Marker2D" parent="EngineFx"]
+position = Vector2(-141, 0)
+script = ExtResource("8_nozzle")
+thruster = "main"
+thrust_local = Vector2(1, 0)
+spin = 0
+
+[node name="Jet" parent="EngineFx/MainAft" instance=ExtResource("9_jet")]
+size = 1.0
+
+[node name="BrakeForePort" type="Marker2D" parent="EngineFx"]
+position = Vector2(40, -64)
+script = ExtResource("8_nozzle")
+thruster = "brake"
+thrust_local = Vector2(-0.8, -0.6)
+spin = 0
+
+[node name="Jet" parent="EngineFx/BrakeForePort" instance=ExtResource("9_jet")]
+size = 0.55
+
+[node name="BrakeForeStarboard" type="Marker2D" parent="EngineFx"]
+position = Vector2(40, 64)
+script = ExtResource("8_nozzle")
+thruster = "brake"
+thrust_local = Vector2(-0.8, 0.6)
+spin = 0
+
+[node name="Jet" parent="EngineFx/BrakeForeStarboard" instance=ExtResource("9_jet")]
+size = 0.55
+
+[node name="BrakeAftPort" type="Marker2D" parent="EngineFx"]
+position = Vector2(-92, -33)
+script = ExtResource("8_nozzle")
+thruster = "brake"
+thrust_local = Vector2(0.8, -0.6)
+spin = 0
+
+[node name="Jet" parent="EngineFx/BrakeAftPort" instance=ExtResource("9_jet")]
+size = 0.55
+
+[node name="BrakeAftStarboard" type="Marker2D" parent="EngineFx"]
+position = Vector2(-92, 33)
+script = ExtResource("8_nozzle")
+thruster = "brake"
+thrust_local = Vector2(0.8, 0.6)
+spin = 0
+
+[node name="Jet" parent="EngineFx/BrakeAftStarboard" instance=ExtResource("9_jet")]
+size = 0.55
+
+[node name="StrafeToStarboard" type="Marker2D" parent="EngineFx"]
+position = Vector2(0, -77)
+script = ExtResource("8_nozzle")
+thruster = "strafe"
+thrust_local = Vector2(0.0, 1.0)
+spin = 0
+
+[node name="Jet" parent="EngineFx/StrafeToStarboard" instance=ExtResource("9_jet")]
+size = 0.5
+
+[node name="StrafeToPort" type="Marker2D" parent="EngineFx"]
+position = Vector2(0, 77)
+script = ExtResource("8_nozzle")
+thruster = "strafe"
+thrust_local = Vector2(0.0, -1.0)
+spin = 0
+
+[node name="Jet" parent="EngineFx/StrafeToPort" instance=ExtResource("9_jet")]
+size = 0.5
+
+[node name="SpinClockwisePort" type="Marker2D" parent="EngineFx"]
+position = Vector2(-20, -97)
+script = ExtResource("8_nozzle")
+thruster = "rotation"
+thrust_local = Vector2(1.0, 0.0)
+spin = 1
+
+[node name="Jet" parent="EngineFx/SpinClockwisePort" instance=ExtResource("9_jet")]
+size = 0.45
+
+[node name="SpinClockwiseStarboard" type="Marker2D" parent="EngineFx"]
+position = Vector2(-20, 97)
+script = ExtResource("8_nozzle")
+thruster = "rotation"
+thrust_local = Vector2(-1.0, 0.0)
+spin = 1
+
+[node name="Jet" parent="EngineFx/SpinClockwiseStarboard" instance=ExtResource("9_jet")]
+size = 0.45
+
+[node name="SpinCounterPort" type="Marker2D" parent="EngineFx"]
+position = Vector2(50, -44)
+script = ExtResource("8_nozzle")
+thruster = "rotation"
+thrust_local = Vector2(-1.0, 0.0)
+spin = -1
+
+[node name="Jet" parent="EngineFx/SpinCounterPort" instance=ExtResource("9_jet")]
+size = 0.45
+
+[node name="SpinCounterStarboard" type="Marker2D" parent="EngineFx"]
+position = Vector2(50, 44)
+script = ExtResource("8_nozzle")
+thruster = "rotation"
+thrust_local = Vector2(1.0, 0.0)
+spin = -1
+
+[node name="Jet" parent="EngineFx/SpinCounterStarboard" instance=ExtResource("9_jet")]
+size = 0.45
+
+[node name="Camera" type="Camera2D" parent="."]
+top_level = true
+script = ExtResource("2_cam")
+
+[node name="FlightDebug" type="Node2D" parent="."]
+top_level = true
+visible = false
+script = ExtResource("4_debug")

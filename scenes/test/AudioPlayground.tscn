@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/test/TestControlMap.tscn" id="1_map"]
+
+[node name="AudioPlayground" type="Node2D"]
+
+[node name="TestControlMap" parent="." instance=ExtResource("1_map")]
+
+[node name="Hud" type="CanvasLayer" parent="."]
+
+[node name="Help" type="Label" parent="Hud"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 760.0
+offset_bottom = 130.0
+theme_override_colors/font_color = Color(0.62, 0.9, 1, 0.85)
+theme_override_font_sizes/font_size = 14
+text = "AUDIO PLAYGROUND (optional, not part of the game flow)
+W / S  thrust and retro     Q / E  strafe     A / D  yaw
+Space  emergency brake      Shift  boost      Z  stabilization      F3  debug overlay
+Drop files into res://assets/audio/ship/ to hear them; the panel reports the inventory."

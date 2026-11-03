@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/obstacles/rock.gd" id="1_rock"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_rock"]
+friction = 0.2
+bounce = 0.5
+
+[node name="Rock" type="RigidBody2D"]
+collision_layer = 1
+collision_mask = 0
+freeze = true
+gravity_scale = 0.0
+can_sleep = false
+physics_material_override = SubResource("PhysicsMaterial_rock")
+script = ExtResource("1_rock")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+
+[node name="Hull" type="CollisionPolygon2D" parent="."]

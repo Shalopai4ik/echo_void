@@ -1,0 +1,4 @@
+﻿# Text files are stored with LF endings; Godot does not care, diffs do.
+* text=auto eol=lf
+*.png binary
+*.import binary

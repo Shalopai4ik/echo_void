@@ -1,0 +1,126 @@
+[gd_resource type="Resource" script_class="SpaceGenerationSettings" format=3]
+
+[ext_resource type="Script" path="res://scripts/world/space_object_kind.gd" id="1_xlma2"]
+[ext_resource type="PackedScene" path="res://scenes/obstacles/Rock.tscn" id="2_tu64w"]
+[ext_resource type="Script" path="res://scripts/world/size_class.gd" id="3_i8jp2"]
+[ext_resource type="Script" path="res://scripts/world/generation_settings.gd" id="4_ubb3v"]
+
+[sub_resource type="Resource" id="Resource_3nyo8"]
+script = ExtResource("3_i8jp2")
+label = "pebble"
+weight = 0.7
+size_min = 0.85
+size_max = 1.35
+art_max_px = 34.0
+
+[sub_resource type="Resource" id="Resource_lbv44"]
+script = ExtResource("3_i8jp2")
+label = "chunk"
+weight = 0.22
+size_min = 1.4
+size_max = 2.4
+art_min_px = 30.0
+art_max_px = 68.0
+
+[sub_resource type="Resource" id="Resource_iyf2c"]
+script = ExtResource("3_i8jp2")
+label = "hill"
+weight = 0.08
+size_min = 2.6
+size_max = 4.2
+art_min_px = 48.0
+
+[sub_resource type="Resource" id="Resource_nm6sq"]
+script = ExtResource("1_xlma2")
+label = "asteroids"
+salt = 3
+physics = true
+body_scene = ExtResource("2_tu64w")
+tint_from = Color(0.9, 0.96, 1.06, 1)
+tint_to = Color(1.3, 1.34, 1.44, 1)
+classes = Array[ExtResource("3_i8jp2")]([SubResource("Resource_3nyo8"), SubResource("Resource_lbv44"), SubResource("Resource_iyf2c")])
+min_distance = 80.0
+max_distance = 340.0
+chance = 0.3
+cluster_chance = 0.14
+cluster_gap = 60.0
+max_per_chunk = 9
+max_live = 60
+
+[sub_resource type="Resource" id="Resource_eyav4"]
+script = ExtResource("1_xlma2")
+label = "fragments"
+salt = 34
+alpha_min = 0.5
+spin_max = 0.05
+size_min = 0.3
+size_max = 0.55
+min_distance = 240.0
+max_distance = 620.0
+chance = 0.5
+patch_block = 5
+patch_floor = 0.1
+parallax = 0.55
+max_per_chunk = 4
+max_live = 40
+
+[sub_resource type="Resource" id="Resource_nr4wd"]
+script = ExtResource("1_xlma2")
+label = "wrecks"
+salt = 907
+art_dir = "res://assets/world/"
+art_prefix = "wreck_"
+alpha_min = 0.5
+spin_max = 0.05
+size_min = 0.7
+size_max = 1.3
+min_distance = 520.0
+max_distance = 900.0
+chance = 0.12
+patch_block = 5
+patch_floor = 0.1
+parallax = 0.62
+max_per_chunk = 4
+max_live = 40
+
+[sub_resource type="Resource" id="Resource_gw6fe"]
+script = ExtResource("1_xlma2")
+label = "structures"
+salt = 3409
+art_dir = "res://assets/world/"
+art_prefix = "structure_"
+alpha_min = 0.5
+spin_max = 0.05
+size_max = 1.7
+min_distance = 900.0
+max_distance = 1400.0
+chance = 0.3
+patch_block = 5
+patch_floor = 0.1
+parallax = 0.3
+max_per_chunk = 4
+max_live = 40
+
+[sub_resource type="Resource" id="Resource_cjltl"]
+script = ExtResource("1_xlma2")
+label = "beacons"
+salt = 2617
+art_dir = "res://assets/world/"
+art_prefix = "beacon_"
+add_blend = true
+alpha_min = 0.5
+spin_max = 0.05
+size_min = 0.8
+size_max = 1.4
+min_distance = 1200.0
+max_distance = 1800.0
+chance = 0.22
+patch_block = 5
+patch_floor = 0.1
+parallax = 0.34
+max_per_chunk = 4
+max_live = 40
+
+[resource]
+script = ExtResource("4_ubb3v")
+kinds = Array[ExtResource("1_xlma2")]([SubResource("Resource_nm6sq"), SubResource("Resource_eyav4"), SubResource("Resource_nr4wd"), SubResource("Resource_gw6fe"), SubResource("Resource_cjltl")])

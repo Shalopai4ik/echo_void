@@ -1,0 +1,102 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/ship/Ship.tscn" id="2_ship"]
+[ext_resource type="PackedScene" path="res://scenes/obstacles/Rock.tscn" id="3_rock"]
+[ext_resource type="PackedScene" path="res://scenes/InfiniteSpaceBackground.tscn" id="4_bg"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
+size = Vector2(4600, 200)
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_wall"]
+friction = 0.3
+bounce = 0.4
+
+[node name="TestControlMap" type="Node2D"]
+
+[node name="Void" type="ColorRect" parent="."]
+z_index = -200
+offset_left = -40000.0
+offset_top = -40000.0
+offset_right = 40000.0
+offset_bottom = 40000.0
+mouse_filter = 2
+color = Color(0.016, 0.031, 0.055, 1)
+
+[node name="Background" parent="." instance=ExtResource("4_bg")]
+
+[node name="Rocks" type="Node2D" parent="."]
+
+[node name="Rock24" parent="Rocks" instance=ExtResource("3_rock")]
+position = Vector2(500, 650)
+rotation = 0.4
+shape = "16"
+px_scale = 1.5
+
+[node name="Rock32" parent="Rocks" instance=ExtResource("3_rock")]
+position = Vector2(-520, 1300)
+rotation = 1.1
+shape = "09"
+px_scale = 1.6
+tint = Color(1.05, 1.12, 1.25, 1)
+
+[node name="Rock41a" parent="Rocks" instance=ExtResource("3_rock")]
+position = Vector2(2100, 1600)
+rotation = 2.2
+shape = "01"
+px_scale = 2.6
+
+[node name="Rock41b" parent="Rocks" instance=ExtResource("3_rock")]
+position = Vector2(-2600, -1700)
+rotation = 0.8
+shape = "15"
+px_scale = 1.8
+tint = Color(0.95, 1.05, 1.2, 1)
+
+[node name="Rock56" parent="Rocks" instance=ExtResource("3_rock")]
+position = Vector2(1200, -3200)
+rotation = 1.7
+shape = "06"
+px_scale = 2.2
+
+[node name="Rock65" parent="Rocks" instance=ExtResource("3_rock")]
+position = Vector2(1900, -3350)
+rotation = 2.9
+shape = "10"
+px_scale = 2.0
+tint = Color(1.0, 1.08, 1.2, 1)
+
+[node name="Rock89" parent="Rocks" instance=ExtResource("3_rock")]
+position = Vector2(-4200, 2300)
+rotation = 0.2
+shape = "12"
+px_scale = 2.6
+tint = Color(0.85, 0.95, 1.15, 1)
+
+[node name="Rock92" parent="Rocks" instance=ExtResource("3_rock")]
+position = Vector2(2600, 4200)
+rotation = 1.4
+shape = "03"
+px_scale = 3.0
+
+[node name="Rock152" parent="Rocks" instance=ExtResource("3_rock")]
+position = Vector2(5200, -3800)
+rotation = 2.4
+shape = "04"
+px_scale = 3.5
+tint = Color(0.8, 0.9, 1.1, 1)
+
+[node name="Wall" type="StaticBody2D" parent="."]
+position = Vector2(0, -11000)
+collision_layer = 1
+collision_mask = 0
+physics_material_override = SubResource("PhysicsMaterial_wall")
+
+[node name="Shape" type="CollisionShape2D" parent="Wall"]
+shape = SubResource("RectangleShape2D_wall")
+
+[node name="Face" type="Polygon2D" parent="Wall"]
+color = Color(0.2, 0.25, 0.32, 1)
+polygon = PackedVector2Array(-2300, -100, 2300, -100, 2300, 100, -2300, 100)
+
+[node name="Ship" parent="." instance=ExtResource("2_ship")]
+position = Vector2(0, 1000)
