@@ -49,6 +49,13 @@ func _run() -> void:
 	var cam: Camera2D = ship.get_node("Camera")
 	var field = _scene.get_node("Field")
 	var giant = _scene.get_node("GasGiant")
+	# This suite measures the world: the sky, the planet, the belt and the seam.
+	# The glass is an overlay on top of it, and the radar's needle and ticks read
+	# as a straight seam across the frame, so the glass is put away for these
+	# shots - it has its own suite (tests/hud_test.gd).
+	var glass := _scene.get_node_or_null("HUD") as CanvasLayer
+	if glass != null:
+		glass.visible = false
 
 	await _settle()
 	var shot := _save("01_start")

@@ -14,6 +14,13 @@ func _initialize() -> void:
 
 
 func _run() -> void:
+	# This diagnostic writes frames, so it needs a framebuffer. In headless there
+	# is none, and waiting for a frame that will never be drawn is how a
+	# diagnostic turns into a hang: say so and leave.
+	if DisplayServer.get_name() == "headless":
+		print("headless: no framebuffer, so there is nothing to diagnose here")
+		quit()
+		return
 	var scene: Node = load("res://scenes/space_bg_test.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame

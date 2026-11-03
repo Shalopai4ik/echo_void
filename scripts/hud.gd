@@ -6,6 +6,15 @@ extends Control
 ## The bars read the ship. The radar does not: it holds the last picture the
 ## scanner took, so what the pilot flies at is what he paid for, and contacts
 ## slide off the edge as he flies away from them until he sweeps again.
+##
+## One HUD, two hulls. The legacy hull carries armour and reports it through
+## `shield_ratio()`, so it gets the bars and the glyphs. The current hull has no
+## armour at all, and a glass that shows full bars for a ship that cannot be
+## hurt is a lie - so the current slice gets a telemetry block instead, and the
+## bars come back by themselves the day `ShipController` grows a shield. The
+## radar works with either hull: the legacy field hands over its contacts, the
+## current world field is asked for its bodies and they are dressed in the same
+## shape.
 
 const ACCENT := Color(0.24, 0.80, 0.92)
 const TRACK := Color(0.02, 0.13, 0.18)
@@ -25,6 +34,13 @@ const BULLET_X := 40.0
 const BULLET_SIZE := 6.0
 const BULLET_DROP := 8.0
 const ROW_NAMES := ["MissionTitle", "Objective1", "Objective2", "Objective3"]
+
+## The current slice has no armour to show, so it shows what it does have: a
+## telemetry block where the legacy bars sit, bottom-left, out of the radar's
+## way and clear of the scanner prompt in the other corner.
+const TELEMETRY_POS := Vector2(40.0, 452.0)
+const TELEMETRY_STEP := 18.0
+const TELEMETRY_FONT_SIZE := 14
 
 ## World pixels the radar disc covers. Measured off the reference: the dish spans
 ## a little over three ship lengths, so a stone on the glass is the size it really
@@ -57,6 +73,20 @@ var _swept := 0.0
 
 var _ship: Node2D
 var _belt: Node2D
+## The current slice's world field. The legacy one is `_belt`; both answer the
+## radar, each in its own way.
+var _world: Node2D
+## Optional objective provider: a node in the "mission" group that answers
+## `objective_lines() -> Array[String]` and may answer
+## `objective_title() -> String`.
+var _mission: Node
+## Which hull the glass is talking to: "legacy", "current" or "" before the
+## first ship shows up.
+var _slice := ""
+var _armour := false
+var _rows_visible := true
+var _row_nodes: Array[Control] = []
+var _row_texts: Array[String] = []
 
 var _time := 0.0
 var _sweep := 0.0
@@ -69,7 +99,12 @@ var _glow_box := StyleBoxFlat.new()
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for row_name in ROW_NAMES:
-		_rows.append((get_node(row_name) as Control).position.y)
+		var row := get_node_or_null(row_name) as Control
+		if row == null:
+			continue
+		_rows.append(row.position.y)
+		_row_nodes.append(row)
+		_row_texts.append((row as Label).text if row is Label else "")
 	_track_box.bg_color = TRACK
 	_track_box.set_corner_radius_all(int(BAR_SIZE.y * 0.5))
 	_track_box.anti_aliasing = true
@@ -105,22 +140,84 @@ func _process(delta: float) -> void:
 func _find_ship() -> void:
 	if _ship == null or not is_instance_valid(_ship):
 		_ship = get_tree().get_first_node_in_group("player")
+	if _ship == null or not is_instance_valid(_ship):
+		_ship = get_tree().get_first_node_in_group("ship")
+
+
+func _find_world() -> void:
 	if _belt == null or not is_instance_valid(_belt):
 		_belt = get_tree().get_first_node_in_group("asteroid_field")
+	if _world == null or not is_instance_valid(_world):
+		_world = get_tree().get_first_node_in_group("world_field")
+
+
+func _find_mission() -> void:
+	if _mission == null or not is_instance_valid(_mission):
+		_mission = get_tree().get_first_node_in_group("mission")
 
 ## Pull the bars off the ship rather than tracking its signals: the HUD is a
 ## sibling under a CanvasLayer and would otherwise have to care about load order.
 func _read_ship(delta: float) -> void:
 	_find_ship()
-	if _ship == null or not _ship.has_method("shield_ratio"):
+	_find_world()
+	_find_mission()
+	_armour = _ship != null and _ship.has_method("shield_ratio")
+	_slice = ""
+	if _ship != null:
+		_slice = "legacy" if _armour else "current"
+	if _armour:
+		_shield = _ship.shield_ratio()
+		_hull = _ship.hull_ratio()
+		_wreck = bool(_ship.get("destroyed"))
+		if _hull < _last_hull - 0.001:
+			_hurt = 1.0
+		_last_hull = _hull
+		_drain_shield(delta)
+	_refresh_rows()
+
+
+## The objective rows are the legacy slice's authored mission text. The current
+## slice has no mission system yet and does not pretend to have one - the rows
+## come back the moment a provider (the "mission" group) shows up.
+func _refresh_rows() -> void:
+	var provider := _mission != null and is_instance_valid(_mission) \
+		and _mission.has_method("objective_lines")
+	var wanted := _slice != "current" or provider
+	if provider:
+		_apply_objectives()
+	else:
+		_restore_objectives()
+	for row in _row_nodes:
+		row.visible = wanted
+	_rows_visible = wanted
+
+
+func _apply_objectives() -> void:
+	if _row_nodes.is_empty() or not _mission.has_method("objective_lines"):
 		return
-	_shield = _ship.shield_ratio()
-	_hull = _ship.hull_ratio()
-	_wreck = bool(_ship.get("destroyed"))
-	if _hull < _last_hull - 0.001:
-		_hurt = 1.0
-	_last_hull = _hull
-	_drain_shield(delta)
+	if _mission.has_method("objective_title"):
+		var title := _row_nodes[0] as Label
+		if title != null:
+			var want := str(_mission.objective_title())
+			if title.text != want:
+				title.text = want
+	var lines: Array = _mission.objective_lines()
+	for i in range(1, _row_nodes.size()):
+		var label := _row_nodes[i] as Label
+		if label == null:
+			continue
+		var want := str(lines[i - 1]) if i - 1 < lines.size() else ""
+		if label.text != want:
+			label.text = want
+
+
+func _restore_objectives() -> void:
+	for i in _row_nodes.size():
+		if i >= _row_texts.size():
+			break
+		var label := _row_nodes[i] as Label
+		if label != null and label.text != _row_texts[i]:
+			label.text = _row_texts[i]
 
 
 ## The bar chases the real number instead of snapping to it. The solid fill closes
@@ -161,11 +258,79 @@ func shield_ghost() -> float:
 
 func _scan() -> void:
 	_find_ship()
+	_find_world()
 	_contacts.clear()
-	if _ship == null or _belt == null or not _belt.has_method("radar_contacts"):
+	if _ship == null:
 		return
-	_contacts = _belt.radar_contacts(_ship.global_position, radar_range)
-	_swept = _time
+	if _belt != null and is_instance_valid(_belt) and _belt.has_method("radar_contacts"):
+		_contacts = _belt.radar_contacts(_ship.global_position, radar_range)
+		_mark_solid()
+		_swept = _time
+		return
+	if _world != null and is_instance_valid(_world) and _world.has_method("bodies"):
+		_contacts = _world_contacts()
+		_mark_solid()
+		_swept = _time
+
+
+## The current slice's stones, dressed in the same shape the legacy field hands
+## over: a world position, the body's own turn and the collision silhouette, so
+## the dish draws the rock at its true proportion and not as a dot that says
+## nothing about size.
+func _world_contacts() -> Array:
+	var out: Array = []
+	if _world == null or not _world.has_method("bodies"):
+		return out
+	for body in _world.bodies():
+		if not is_instance_valid(body):
+			continue
+		var at: Vector2 = body.global_position
+		if at.distance_to(_ship.global_position) > radar_range:
+			continue
+		var shape: Array = []
+		var piece: Variant = body.get("piece")
+		if piece is PackedVector2Array and (piece as PackedVector2Array).size() >= 3:
+			shape.append(piece)
+		var extent := 0.0
+		var raw: Variant = body.get("extent")
+		if raw != null:
+			extent = float(raw)
+		out.append({"at": at, "rot": body.global_rotation, "shape": shape,
+			"hot": extent > 60.0})
+	return out
+
+
+## Whether a silhouette can be filled at all. A stone cut from the alpha of its
+## own picture can come out with a doubled edge or a notch, and a fill that
+## cannot be triangulated is an engine error, so the radar asks once per sweep
+## and draws such a stone as an outline alone.
+func _is_solid(shape: Variant) -> bool:
+	if not shape is Array:
+		return false
+	for poly in (shape as Array):
+		if not poly is PackedVector2Array:
+			continue
+		var clean := _clean_ring(poly as PackedVector2Array)
+		if clean.size() >= 3 and not Geometry2D.triangulate_polygon(clean).is_empty():
+			return true
+	return false
+
+
+## A polygon without doubled edges and without a doubled closing point: the
+## shape the engine can actually fill.
+func _clean_ring(points: PackedVector2Array) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	for v in points:
+		if out.is_empty() or out[out.size() - 1].distance_squared_to(v) > 0.01:
+			out.append(v)
+	if out.size() >= 2 and out[0].distance_squared_to(out[out.size() - 1]) <= 0.01:
+		out.remove_at(out.size() - 1)
+	return out
+
+
+func _mark_solid() -> void:
+	for contact in _contacts:
+		contact["solid"] = _is_solid(contact.get("shape", []))
 
 
 ## The picture currently on the glass, as the world positions the last sweep
@@ -176,12 +341,68 @@ func contacts() -> Array:
 # ---------------------------------------------------------------------- drawing
 
 func _draw() -> void:
-	_draw_bullets()
-	_draw_bar(0, _shield_fill, BAR_FILL, _shield_ghost)
-	_draw_shield_glyph()
-	_draw_bar(1, _hull, HULL_LOW if _hull < 0.35 else HULL_FILL)
-	_draw_core_glyph()
+	if _rows_visible:
+		_draw_bullets()
+	if _armour:
+		_draw_bar(0, _shield_fill, BAR_FILL, _shield_ghost)
+		_draw_shield_glyph()
+		_draw_bar(1, _hull, HULL_LOW if _hull < 0.35 else HULL_FILL)
+		_draw_core_glyph()
+	else:
+		_draw_telemetry()
 	_draw_radar()
+
+
+## What a hull without armour can still be honest about: how fast it is going,
+## what it is doing, how much boost is left and how much world is around it.
+func _draw_telemetry() -> void:
+	var lines := telemetry_lines()
+	if lines.is_empty():
+		return
+	var font := get_theme_default_font()
+	if font == null:
+		return
+	var y := TELEMETRY_POS.y
+	for line in lines:
+		draw_string(font, Vector2(TELEMETRY_POS.x, y), line,
+			HORIZONTAL_ALIGNMENT_LEFT, -1.0, TELEMETRY_FONT_SIZE,
+			Color(0.66, 0.79, 0.84, 0.95))
+		y += TELEMETRY_STEP
+
+
+## The readouts themselves, as lines - the drawing above and any test read the
+## same list, so what the glass says and what the glass shows cannot drift apart.
+func telemetry_lines() -> Array[String]:
+	var lines: Array[String] = []
+	if _ship == null or not is_instance_valid(_ship):
+		return lines
+	if _ship.has_method("speed"):
+		lines.append("СКОРОСТЬ   %d px/s" % roundi(_ship.speed()))
+	if _ship.has_method("mode_name"):
+		lines.append("РЕЖИМ      %s" % _ship.mode_name())
+	if _ship.has_method("state_name"):
+		lines.append("СОСТОЯНИЕ  %s" % _ship.state_name())
+	var boost: Variant = _ship.get("boost")
+	if boost != null and boost.has_method("percent"):
+		lines.append("ЗАРЯД      %d%%" % roundi(boost.percent()))
+	if _world != null and is_instance_valid(_world) and _world.has_method("stats"):
+		var stats: Dictionary = _world.stats()
+		lines.append("МИР        %d тел / %d чанков" % [
+			int(stats.get("live", 0)), int(stats.get("chunks", 0))])
+	return lines
+
+
+## What the glass believes it is attached to. A test reads this instead of
+## guessing from the drawing.
+func hud_state() -> Dictionary:
+	return {
+		"slice": _slice,
+		"ship_bound": _ship != null and is_instance_valid(_ship),
+		"armour": _armour,
+		"contacts": _contacts.size(),
+		"rows": _rows_visible,
+		"telemetry": telemetry_lines(),
+	}
 
 func _draw_bullets() -> void:
 	for top in _rows:
@@ -316,17 +537,23 @@ func _draw_contacts(c: Vector2, r: float) -> void:
 		var blink := 0.75 + 0.25 * sin(_time * 2.2 + centre.x)
 		var line := Color(tone, 0.85 * fade * blink)
 		var drawn := false
+		var solid := bool(contact.get("solid", true))
 		for piece in contact["shape"]:
 			var poly: PackedVector2Array = piece
 			if poly.size() < 3:
 				continue
-			drawn = true
 			var ring := PackedVector2Array()
 			for v in poly:
 				ring.append(centre + (v * k).rotated(contact["rot"] + frame))
-			ring.append(ring[0])
-			draw_colored_polygon(ring, Color(tone, 0.07 * fade))
-			draw_polyline(ring, line, 1.0, true)
+			var clean := _clean_ring(ring)
+			if clean.size() < 3:
+				continue
+			drawn = true
+			if solid:
+				draw_colored_polygon(clean, Color(tone, 0.07 * fade))
+			var closed := clean.duplicate()
+			closed.append(closed[0])
+			draw_polyline(closed, line, 1.0, true)
 		if not drawn:
 			draw_rect(Rect2(centre - Vector2(1.0, 1.0), Vector2(2.0, 2.0)), line)
 

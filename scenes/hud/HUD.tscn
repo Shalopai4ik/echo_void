@@ -1,0 +1,117 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/hud.gd" id="1_hud"]
+
+[sub_resource type="SystemFont" id="SystemFont_hud"]
+font_names = PackedStringArray("Bahnschrift", "Segoe UI")
+font_weight = 300
+subpixel_positioning = 1
+
+[sub_resource type="FontVariation" id="FontVariation_hud"]
+base_font = SubResource("SystemFont_hud")
+spacing_glyph = 1.5
+
+[node name="HUD" type="CanvasLayer"]
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_hud")
+
+[node name="MissionTitle" type="Label" parent="Root"]
+offset_left = 62.0
+offset_top = 18.0
+offset_right = 340.0
+offset_bottom = 44.0
+theme_override_colors/font_color = Color(0.76, 0.87, 0.91, 1)
+theme_override_colors/font_shadow_color = Color(0.35, 0.72, 0.85, 0.3)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 3
+theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = SubResource("FontVariation_hud")
+text = "ЗАДАНИЕ:"
+
+[node name="Objective1" type="Label" parent="Root"]
+offset_left = 62.0
+offset_top = 49.0
+offset_right = 560.0
+offset_bottom = 74.0
+theme_override_colors/font_color = Color(0.66, 0.79, 0.84, 1)
+theme_override_colors/font_shadow_color = Color(0.35, 0.72, 0.85, 0.22)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 3
+theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = SubResource("FontVariation_hud")
+text = "Найти следы пропавшей экспедиции."
+
+[node name="Objective2" type="Label" parent="Root"]
+offset_left = 62.0
+offset_top = 80.0
+offset_right = 560.0
+offset_bottom = 105.0
+theme_override_colors/font_color = Color(0.66, 0.79, 0.84, 1)
+theme_override_colors/font_shadow_color = Color(0.35, 0.72, 0.85, 0.22)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 3
+theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = SubResource("FontVariation_hud")
+text = "Собрать научные данные."
+
+[node name="Objective3" type="Label" parent="Root"]
+offset_left = 62.0
+offset_top = 112.0
+offset_right = 560.0
+offset_bottom = 137.0
+theme_override_colors/font_color = Color(0.66, 0.79, 0.84, 1)
+theme_override_colors/font_shadow_color = Color(0.35, 0.72, 0.85, 0.22)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 3
+theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = SubResource("FontVariation_hud")
+text = "Вернуться на орбиту."
+
+[node name="Scanner" type="HBoxContainer" parent="Root"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -220.0
+offset_top = -37.0
+offset_right = -40.0
+offset_bottom = -11.0
+grow_horizontal = 0
+grow_vertical = 0
+alignment = 2
+theme_override_constants/separation = 6
+
+[node name="Label" type="Label" parent="Root/Scanner"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.79, 0.84, 1)
+theme_override_colors/font_shadow_color = Color(0.35, 0.72, 0.85, 0.22)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 3
+theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = SubResource("FontVariation_hud")
+text = "Сканер"
+
+[node name="Key" type="Label" parent="Root/Scanner"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.76, 0.87, 0.91, 1)
+theme_override_colors/font_shadow_color = Color(0.35, 0.72, 0.85, 0.32)
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_offset_y = 0
+theme_override_constants/shadow_outline_size = 3
+theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = SubResource("FontVariation_hud")
+text = "[R]"

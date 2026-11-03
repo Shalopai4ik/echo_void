@@ -71,6 +71,11 @@ echo_void/
 └─ screenshots/bg/                  результат работы bg_screens.gd
 ```
 
+> В дереве показаны только файлы системы фона. Стекло и корабль живут
+> отдельно: `scenes/hud/HUD.tscn` — общее HUD (его инстанцируют и
+> `scenes/main.tscn`, и `scenes/world/SpaceMap.tscn`), `scripts/hud.gd` — его
+> логика. Карта готовности к Этапу 3 — `docs/stage3_readiness.md`.
+
 ---
 
 ## 2. Архитектура сцены

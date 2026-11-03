@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/ship/Ship.tscn" id="1_ship"]
 [ext_resource type="PackedScene" path="res://scenes/InfiniteSpaceBackground.tscn" id="2_bg"]
 [ext_resource type="PackedScene" path="res://scenes/world/GasGiant.tscn" id="3_giant"]
 [ext_resource type="Script" path="res://scripts/world/world_field.gd" id="4_field"]
 [ext_resource type="Resource" path="res://assets/world/space_generation.tres" id="5_set"]
+[ext_resource type="PackedScene" path="res://scenes/hud/HUD.tscn" id="6_hud"]
 
 [node name="SpaceMap" type="Node2D"]
 
@@ -17,3 +18,5 @@ script = ExtResource("4_field")
 settings = ExtResource("5_set")
 
 [node name="Ship" parent="." instance=ExtResource("1_ship")]
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]
