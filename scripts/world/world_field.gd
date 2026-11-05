@@ -22,16 +22,40 @@ class_name EchoWorldField
 ##
 ## Where the later stages plug in without touching this file:
 ## - new content: another `SpaceObjectKind` in the settings, art dropped in a
-##   folder, `physics` set to whichever it needs.
-## - destruction: `bodies()` hands out the live stones; one that comes apart simply
-##   stops being where it was planned, and its chunk is rebuilt from the seed when
-##   the ship returns.
+##   folder, `physics` set to whichever it needs. Each kind hashes with its own
+##   salt, so adding one cannot move the stones of the ones already here.
+## - destruction: `remove_object()` takes a stone out of the world and remembers
+##   that it is gone, so a chunk rebuilt on the way back does not resurrect it.
 ## - encounters: `_claim()` and `_dress()` are the only place that knows what a cell
 ##   holds, so a derelict with something inside it is one more roll in there.
+##
+## The chunk layer itself, since sub-stage 3.3:
+##
+## - a chunk has an id (`CHUNK.id_of`), bounds, a generation seed
+##   (`CHUNK.seed_of`: hash of world seed, coordinates and the plane's salt), and a
+##   state - UNLOADED, GENERATING (wanted, waiting for budget), ACTIVE, UNLOADING
+##   (out of the window, waiting for the unload budget). `chunk_info()` reports all
+##   of it, `chunk_state_counts()` counts it, `debug_lines()` prints it.
+## - every plane streams in its own chunks, sized from its own lattice, and each is
+##   marked `barren` once generated empty; the world-chunk grid the HUD reports on
+##   is `chunk_size` square and is a reading aid, not a second bookkeeping system.
+## - a frame spends its work in a fixed order: mark what fell out of the keep
+##   window, release it (largest backlog first, farthest chunk first, no more than
+##   `max_chunk_unloads_per_frame`), then build (nearest first, no more than
+##   `max_chunk_generations_per_frame` starts, `build_per_frame` objects and
+##   `build_microseconds` of clock).
+## - what the player changed is kept in `ChunkStateStore`, keyed by chunk id and the
+##   object's stable item id (`cell:slot`), and applied at build time. The generated
+##   content is never stored: the seed rebuilds it.
 
 const HASH := preload("res://scripts/space_background/space_hash.gd")
 const SHAPES := preload("res://scripts/asteroid_shapes.gd")
-const ROCK_SCENE := "res://scenes/obstacles/Rock.tscn"
+const DEBRIS_SCENE := "res://scenes/world/Debris.tscn"
+## The chunk vocabulary and the memory of what was changed in one. Preloaded
+## rather than named: a fresh clone of the project has not imported these yet, and
+## a script that only compiles after an editor pass is a script that fails in CI.
+const CHUNK := preload("res://scripts/world/world_chunk.gd")
+const CHUNK_STATE := preload("res://scripts/world/chunk_state_store.gd")
 
 @export_group("Source")
 ## The whole tuning surface. Left empty, the field builds the shipped default belt
@@ -65,12 +89,27 @@ class Population:
 	## Chunks that were planned and came out empty. Kept so an empty cell is not
 	## re-planned every frame; pruned with the chunks, so it stays window-sized.
 	var barren := {}
+	## Chunks the frame wanted but could not afford yet. Reported as GENERATING and
+	## rebuilt from the window on the next frame rather than carried as work: the
+	## window is the authority on what should exist, so a queue that outlived it
+	## could only ever ask for something the ship has already left.
+	var queued := {}
+	## Chunks that fell out of the keep window but are still waiting for their turn
+	## in the unload budget. Reported as UNLOADING; their contents are still alive,
+	## off screen, which is why they are released before anything new is planned.
+	var closing := {}
 	var live := 0
 	var pool_chunks: Array[Node2D] = []
 	var pool_sprites: Array[Sprite2D] = []
 	var pool_bodies: Array[RigidBody2D] = []
 	var build_us := 0                     ## microseconds spent generating
 	var worst_chunk_us := 0
+	## The scroll every sprite in this plane was last turned for. A decorative
+	## plane's rotation is a function of the view point, so a frame that did not
+	## move the view cannot change a single sprite's picture - and skipping the
+	## pass then is the difference between a loop over every silhouette and
+	## nothing. A commit resets it, because new sprites have to be turned once.
+	var turn_scroll := Vector2.INF
 
 
 var _pops: Array[Population] = []
@@ -81,6 +120,26 @@ var _frame_start := 0
 var _worst_frame_us := 0
 var _was_enabled := true
 var _time := 0.0
+
+## What the last frame cost in chunks rather than in objects, and what the whole
+## session has created. The counters are reset at the top of `_physics_process`,
+## because a generation budget that is checked against a total is not a budget.
+var _generations := 0
+var _generations_last := 0
+var _unloads := 0
+var _unloads_last := 0
+var _created_total := 0
+## What one whole pass of this file's `_physics_process` cost, in microseconds.
+## Kept apart from `_worst_frame_us`, which only times the per-plane build pass:
+## this one is the number a profile of the running game is asking for, and it is
+## the only way to see a bookkeeping cost that the build budget by design cannot
+## see (marking, releasing, moving chunks, the decorative turn pass).
+var _frame_us := 0
+var _worst_pass_us := 0
+
+## The deltas a chunk accumulates while it is loaded. Generated content is never
+## in here: the seed rebuilds that, this only remembers what somebody changed.
+var _store := CHUNK_STATE.new()
 
 
 func _ready() -> void:
@@ -95,14 +154,18 @@ func _ready() -> void:
 func rebuild() -> void:
 	clear()
 	_pops.clear()
+	# the art tables and the seed are about to be re-read, so state remembered
+	# against the old world describes objects that no longer exist
+	_store.clear()
 	if settings == null:
 		settings = default_settings()
 	settings.seeded()
 	_seed = settings.world_seed
-	if settings.drop_behind_chunks <= settings.look_ahead_chunks:
+	var ahead := settings.look_ahead_chunks + maxf(settings.preload_chunks, 0.0)
+	if settings.drop_behind_chunks <= ahead:
 		# the drop window has to be the wider one or a chunk on the edge is rebuilt
 		# every frame
-		settings.drop_behind_chunks = settings.look_ahead_chunks + 0.75
+		settings.drop_behind_chunks = ahead + 0.75
 	for res in settings.kinds:
 		if res == null or not res.enabled:
 			continue
@@ -121,7 +184,17 @@ func rebuild() -> void:
 func default_settings() -> SpaceGenerationSettings:
 	var s := SpaceGenerationSettings.new()
 	s.kinds = [
+		# Unknown metallic fragments close enough to read as separate pieces of a
+		# larger machine. Their own salt keeps this stream independent from both
+		# the stones and the distant wreck silhouettes. This rare solid population
+		# is planned first so the shared per-frame chunk budget cannot starve it
+		# behind a denser belt.
+		_default_debris(),
 		_default_rocks(),
+		# The same stones with the light taken out of them: a shape in the distance
+		# that a hull passes through. Planned right after the belt so the eye reads
+		# them as one population, not as two.
+		_default_shadows(),
 		# Dust that is close enough to read as motion: small, fairly often, on a
 		# plane that almost keeps up with the ship.
 		_default_decor("fragments", "res://assets/asteroids/", "asteroid_", 0.5,
@@ -139,22 +212,25 @@ func default_settings() -> SpaceGenerationSettings:
 	return s
 
 
+## The stones the hull can hit, and the only ones drawn bright enough to read as
+## solid matter: the art is a dark plate, so the tint lifts it instead of filtering
+## it (values above 1 brighten). Same picture, same plane and same bodies the world
+## always had; what changed is that the dim ones moved to `shadows`.
 func _default_rocks() -> SpaceObjectKind:
 	var k := SpaceObjectKind.new()
 	k.label = "asteroids"
 	k.salt = 3
 	k.physics = true
+	k.object_kind = "asteroid"
 	k.art_dir = "res://assets/asteroids/"
 	k.art_prefix = "asteroid_"
-	k.body_scene = load(ROCK_SCENE) as PackedScene
+	k.body_scene = load("res://scenes/obstacles/Rock.tscn") as PackedScene
 	k.min_distance = 80.0
 	k.max_distance = 340.0
 	# The lattice offers a candidate to this much of itself, and then the patch field
-	# takes most of those back: its gate averages under half of this number, so what
-	# reaches the screen is a handful of stones with room-sized gaps between them
-	# rather than a field. Tuned against the flight test, not by eye: the belt has
-	# to leave a corridor a ship can hold a course down, and at 0.42 on a 250 px
-	# lattice a cruise run was stopped every 400 px.
+	# takes most of those back: what reaches the screen is a handful of stones with
+	# room-sized gaps between them rather than a field. Tuned against the flight test,
+	# not by eye: the belt has to leave a corridor a ship can hold a course down.
 	k.chance = 0.30
 	k.patch_block = 7
 	k.patch_floor = 0.05
@@ -163,13 +239,49 @@ func _default_rocks() -> SpaceObjectKind:
 	k.cluster_gap = 60.0
 	k.max_per_chunk = 9
 	k.max_live = 60
-	k.tint_from = Color(0.9, 0.96, 1.06, 1.0)
-	k.tint_to = Color(1.3, 1.34, 1.44, 1.0)
+	k.tint_from = Color(1.12, 1.16, 1.26, 1.0)
+	k.tint_to = Color(1.45, 1.50, 1.62, 1.0)
 	k.classes = [
 		_tier("pebble", 0.70, 0.85, 1.35, 0.0, 34.0),
 		_tier("chunk", 0.22, 1.4, 2.4, 30.0, 68.0),
 		_tier("hill", 0.08, 2.6, 4.2, 48.0, 4096.0),
 	]
+	return k
+
+
+## The same stones, pushed back and put out: dimmed far enough that they read as a
+## shape in the dark rather than as a rock in front of the ship, on a plane that keeps
+## only 55% of the ship's motion. They carry no body, so the hull passes through them;
+## that is the whole point - a silhouette that cannot say which side the light is on
+## should not be a wall.
+func _default_shadows() -> SpaceObjectKind:
+	var k := SpaceObjectKind.new()
+	k.label = "shadows"
+	k.salt = 71
+	k.physics = false
+	k.object_kind = "decorative"
+	k.parallax = 0.55
+	k.art_dir = "res://assets/asteroids/"
+	k.art_prefix = "asteroid_"
+	k.size_min = 0.8
+	k.size_max = 2.2
+	k.min_distance = 260.0
+	k.max_distance = 520.0
+	k.chance = 0.55
+	k.patch_block = 7
+	k.patch_floor = 0.06
+	k.cluster_chance = 0.14
+	k.cluster_extra = 3
+	k.cluster_gap = 60.0
+	k.max_per_chunk = 7
+	k.max_live = 56
+	# Below 1 darkens: the same plate the solid belt is cut from, without the light
+	# that tells a pilot there is something to steer around.
+	k.tint_from = Color(0.50, 0.53, 0.62, 1.0)
+	k.tint_to = Color(0.72, 0.75, 0.85, 1.0)
+	k.alpha_min = 0.45
+	k.alpha_max = 0.80
+	k.spin_max = 0.05
 	return k
 
 
@@ -184,6 +296,36 @@ func _tier(name: String, w: float, lo: float, hi: float, amin: float, amax: floa
 	return c
 
 
+func _default_debris() -> SpaceObjectKind:
+	var k := SpaceObjectKind.new()
+	k.label = "debris"
+	k.salt = 617
+	k.physics = true
+	k.object_kind = "debris"
+	k.body_scene = load(DEBRIS_SCENE) as PackedScene
+	k.art_dir = "res://assets/world/debris/"
+	k.art_prefix = "debris_"
+	k.min_distance = 360.0
+	k.max_distance = 880.0
+	k.chance = 0.08
+	k.patch_block = 9
+	k.patch_floor = 0.02
+	k.cluster_chance = 0.22
+	k.cluster_extra = 2
+	k.cluster_gap = 135.0
+	k.size_min = 0.62
+	k.size_max = 1.12
+	k.alpha_min = 0.78
+	k.alpha_max = 1.0
+	k.parallax = 1.0
+	k.spin_max = 0.0
+	k.max_per_chunk = 2
+	k.max_live = 16
+	k.tint_from = Color(0.92, 1.0, 1.12, 1.0)
+	k.tint_to = Color(1.22, 1.18, 1.10, 1.0)
+	return k
+
+
 func _default_decor(name: String, dir: String, prefix: String, chance: float,
 				   size: Vector2, parallax: float, salt: int,
 				   min_d: float, max_d: float) -> SpaceObjectKind:
@@ -191,6 +333,7 @@ func _default_decor(name: String, dir: String, prefix: String, chance: float,
 	k.label = name
 	k.salt = salt
 	k.physics = false
+	k.object_kind = "decorative"
 	k.art_dir = dir
 	k.art_prefix = prefix
 	k.min_distance = min_d
@@ -220,17 +363,38 @@ func _physics_process(_delta: float) -> void:
 		if _was_enabled:
 			clear()
 		_was_enabled = false
+		_frame_us = 0
 		return
 	_was_enabled = true
+	var pass_started := Time.get_ticks_usec()
 	_view = _view_point()
+	_generations = 0
+	_unloads = 0
 	_budget = maxi(settings.build_per_frame, 1)
 	_frame_start = Time.get_ticks_usec()
 	var worst := 0
+	# 1. what every plane no longer wants. Marking is all that happens here: a
+	# chunk that is merely out of the window still holds its objects, and dropping
+	# it is the expensive half.
+	for pop in _pops:
+		var shift := (1.0 - pop.res.parallax) * _view
+		_mark_closing(pop, _window(pop, shift, settings.drop_behind_chunks))
+	# 2. hand it back, biggest backlog first and within the frame's budget. One
+	# shared cap with a fixed order would let the first plane eat it every frame of
+	# a long boost run, which is how a distant plane's chunk count grows without
+	# anything looking wrong up close.
+	_release_pass()
+	# 3. build what the frame can afford
 	for pop in _pops:
 		var before := Time.get_ticks_usec()
 		_advance(pop)
 		worst = maxi(worst, Time.get_ticks_usec() - before)
 	_worst_frame_us = maxi(_worst_frame_us, worst)
+	# the report describes the frame that has just finished, not the one before it
+	_generations_last = _generations
+	_unloads_last = _unloads
+	_frame_us = Time.get_ticks_usec() - pass_started
+	_worst_pass_us = maxi(_worst_pass_us, _frame_us)
 
 
 func set_seed(value: int) -> void:
@@ -238,7 +402,12 @@ func set_seed(value: int) -> void:
 		return
 	_seed = value
 	settings.world_seed = value
+	# a different seed is a different universe: what the old one had changed does
+	# not describe anything in this one. Release before clearing, because releasing
+	# asks each live object for its state and that would write the old world into
+	# the new store.
 	clear()
+	_store.clear()
 
 
 func get_seed() -> int:
@@ -251,6 +420,12 @@ func clear() -> void:
 			_release(pop, key)
 		pop.chunks.clear()
 		pop.barren.clear()
+		pop.queued.clear()
+		pop.closing.clear()
+	_generations = 0
+	_generations_last = 0
+	_unloads = 0
+	_unloads_last = 0
 
 
 ## Every body alive right now, for a caller that wants to damage or study one.
@@ -295,23 +470,79 @@ func chunk_count() -> int:
 	return n
 
 
+## Chunks that have been generated and came out empty. They hold no nodes, but
+## they are part of the loaded window all the same.
+func barren_count() -> int:
+	var n := 0
+	for pop in _pops:
+		n += pop.barren.size()
+	return n
+
+
+## The population with this label, or null. Labels are the identity the rest of
+## the game uses (`bodies_of`, the HUD, the debug panel), so it is the right key
+## for a lookup from outside.
+func _pop_of(label: String) -> Population:
+	for pop in _pops:
+		if pop.res.label == label:
+			return pop
+	return null
+
+
+## Settings may legitimately be missing on a node that has never run `_ready` -
+## a test that only instantiates the script, for instance - and a report is not
+## worth a crash.
+func _chunk_size_px() -> float:
+	return maxf(settings.chunk_size, 16.0) if settings != null else 1024.0
+
+
+## How many chunks one frame may start. Never zero: a field that can build nothing
+## is a field that never fills.
+func _generation_cap() -> int:
+	return maxi(int(settings.max_chunk_generations_per_frame), 1) if settings != null else 4
+
+
 ## What the generator is doing right now, and what it cost. The frame figure is a
 ## running maximum since the last `reset_report()`, which is what an endurance run
 ## needs to catch: a build hitch only happens once, on the chunk that comes first.
 func stats() -> Dictionary:
 	var kinds := {}
 	var rejects := 0
+	var categories := {"asteroid": 0, "debris": 0, "decorative": 0}
 	for pop in _pops:
 		kinds[pop.res.label] = {
 			"live": pop.live, "chunks": pop.chunks.size(),
+			"barren": pop.barren.size(),
 			"solid": pop.res.physics,
 			"pooled": pop.pool_bodies.size() + pop.pool_sprites.size(),
 			"us": pop.build_us,
 		}
+		var category := pop.res.object_kind
+		if not categories.has(category):
+			category = "decorative"
+		categories[category] += pop.live
+	var worst_chunk := 0
+	for pop in _pops:
+		worst_chunk = maxi(worst_chunk, pop.worst_chunk_us)
+	var size := _chunk_size_px()
 	return {
 		"seed": _seed, "live": live_count(), "chunks": chunk_count(),
-		"kinds": kinds,
+		"kinds": kinds, "categories": categories,
 		"worst_frame_us": _worst_frame_us, "pooled_nodes": pooled_nodes(),
+		# the whole pass, not only the build half of it
+		"frame_us": _frame_us, "worst_pass_us": _worst_pass_us,
+		# the streaming report: how much of the world exists, how much is waiting,
+		# and how wide the window that decides it is
+		"states": chunk_state_counts(),
+		"generations": _generations_last, "unloads": _unloads_last,
+		"objects_created": _created_total,
+		"worst_chunk_us": worst_chunk,
+		"chunk_size": size,
+		"load_px": settings.look_ahead_chunks * size if settings != null else 0.0,
+		"preload_px": settings.preload_chunks * size if settings != null else 0.0,
+		"unload_px": settings.drop_behind_chunks * size if settings != null else 0.0,
+		"state_chunks": _store.chunk_count(),
+		"state_objects": _store.object_total(),
 	}
 
 
@@ -324,6 +555,7 @@ func pooled_nodes() -> int:
 
 func reset_report() -> void:
 	_worst_frame_us = 0
+	_worst_pass_us = 0
 	for pop in _pops:
 		pop.build_us = 0
 
@@ -336,6 +568,338 @@ func build_total() -> int:
 	for pop in _pops:
 		n += pop.build_us
 	return n
+
+
+# ---------------------------------------------------------------- chunk report
+
+## The names the field streams, in settings order. Each one is a plane: its own
+## lattice, its own chunk size, its own parallax. The label is also the `category`
+## half of every chunk seed, so it has to be stable across builds - renaming a
+## population re-rolls the world built from it.
+func plane_labels() -> Array[String]:
+	var out: Array[String] = []
+	for pop in _pops:
+		out.append(pop.res.label)
+	return out
+
+
+## The plane solid objects live on: the first population with `physics`. "Which
+## chunk is the ship in" means this one, because the other planes are distant
+## silhouettes whose chunks are not where the hull is.
+func gameplay_plane() -> String:
+	# The asteroid plane is the reference gameplay plane even when another solid
+	# population is planned first for budget fairness.
+	for pop in _pops:
+		if pop.res.physics and pop.res.label == "asteroids":
+			return pop.res.label
+	for pop in _pops:
+		if pop.res.physics:
+			return pop.res.label
+	return _pops[0].res.label if not _pops.is_empty() else ""
+
+
+## The point every plane scrolls around, as the field last saw it. One frame behind
+## a teleport by nature - the window is rebuilt in `_physics_process` - and the
+## honest answer to "where does the field think the camera is".
+func view_point() -> Vector2:
+	return _view
+
+
+## The chunk size the settings name, in world pixels. This is the reference grid
+## `ship_chunk()` reports on; a streamed plane may use a larger chunk of its own,
+## because a sparse population needs a chunk that can hold one of its lattice
+## cells without changing its spacing.
+func chunk_size_px() -> float:
+	return _chunk_size_px()
+
+
+## The chunk the ship is in, on the `chunk_size` world grid. Deliberately computed
+## from a position rather than remembered: a teleport, a respawn and a test that
+## never flew here must all get the same answer.
+func ship_chunk(at: Vector2 = Vector2.INF) -> Vector2i:
+	var p := _view
+	if at.is_finite():
+		p = at
+	var size := Vector2(_chunk_size_px(), _chunk_size_px())
+	return CHUNK.key_at(p, size)
+
+
+func chunk_id(key: Vector2i, kind_label: String) -> String:
+	return CHUNK.id_of(key, kind_label)
+
+
+## `ChunkSeed = Hash(world_seed, chunk_x, chunk_y, category)`, for one plane's
+## chunk. Computed, never stored: the same coordinate has to answer the same
+## number in a fresh process, after a reload, and in a test that only ever loaded
+## the script.
+func chunk_seed(key: Vector2i, kind_label: String) -> int:
+	var pop := _pop_of(kind_label)
+	if pop == null:
+		return 0
+	return CHUNK.seed_of(key, pop.res.salt, _seed)
+
+
+## The pattern-space rectangle a chunk covers. For a solid plane this is a true
+## world rectangle; for a distant one the plane is shifted on screen as the ship
+## flies, and `chunk_view_bounds()` is the rectangle's place in the world right now.
+func chunk_bounds(key: Vector2i, kind_label: String) -> Rect2:
+	var pop := _pop_of(kind_label)
+	if pop == null:
+		return Rect2()
+	return Rect2(Vector2(key) * pop.chunk_px, pop.chunk_px)
+
+
+func chunk_view_bounds(key: Vector2i, kind_label: String) -> Rect2:
+	var pop := _pop_of(kind_label)
+	if pop == null:
+		return Rect2()
+	var shift := (1.0 - pop.res.parallax) * _view
+	return Rect2(Vector2(key) * pop.chunk_px + shift, pop.chunk_px)
+
+
+## What the chunk is doing right now. An empty chunk is ACTIVE: it has been
+## generated, there is simply nothing in it, and re-planning it every frame would
+## be the same work with the same answer.
+func chunk_state(key: Vector2i, kind_label: String) -> int:
+	var pop := _pop_of(kind_label)
+	if pop == null:
+		return CHUNK.State.UNLOADED
+	if pop.closing.has(key):
+		return CHUNK.State.UNLOADING
+	if pop.chunks.has(key) or pop.barren.has(key):
+		return CHUNK.State.ACTIVE
+	if pop.queued.has(key):
+		return CHUNK.State.GENERATING
+	return CHUNK.State.UNLOADED
+
+
+## How many chunks of each plane are in each state. A chunk that is on its way out
+## is counted as UNLOADING rather than ACTIVE and never as both; `empty` counts the
+## chunks that are loaded with nothing in them - they hold no node, but they are
+## just as generated as the ones that do.
+##
+## There is deliberately no `unloaded` figure here. Every chunk the window wants is
+## either ACTIVE, GENERATING or UNLOADING by the end of a frame, so a global
+## "unloaded" count could only ever read zero and would be a number that looks like
+## information. A specific chunk's UNLOADED state is what `chunk_state()` answers.
+func chunk_state_counts() -> Dictionary:
+	var counts := {"active": 0, "generating": 0, "unloading": 0, "empty": 0}
+	for pop in _pops:
+		for key in pop.chunks.keys():
+			if pop.closing.has(key):
+				counts["unloading"] += 1
+			else:
+				counts["active"] += 1
+		counts["empty"] += pop.barren.size()
+		counts["generating"] += pop.queued.size()
+	return counts
+
+
+## The stable item ids of everything alive in one chunk, sorted. This is what a
+## test compares between two visits: node ids are meaningless across a rebuild,
+## item ids are the same stone.
+func chunk_objects(key: Vector2i, kind_label: String) -> Array[String]:
+	var out: Array[String] = []
+	var pop := _pop_of(kind_label)
+	if pop == null or not pop.chunks.has(key):
+		return out
+	for child in (pop.chunks[key] as Node2D).get_children():
+		var item_id := String(child.get_meta("item_id", ""))
+		if not item_id.is_empty():
+			out.append(item_id)
+	out.sort()
+	return out
+
+
+## Everything about one chunk that can be known without touching its nodes.
+## `objects` is empty for an unloaded chunk - what it will contain is a function
+## of the seed, and nothing has to remember it.
+func chunk_info(key: Vector2i, kind_label: String) -> Dictionary:
+	var pop := _pop_of(kind_label)
+	var state := chunk_state(key, kind_label)
+	return {
+		"id": chunk_id(key, kind_label),
+		"plane": kind_label,
+		"key": key,
+		"state": state,
+		"state_name": CHUNK.state_name(state),
+		"seed": chunk_seed(key, kind_label),
+		"bounds": chunk_bounds(key, kind_label),
+		"view_bounds": chunk_view_bounds(key, kind_label),
+		"size": pop.chunk_px if pop != null else Vector2.ZERO,
+		"objects": chunk_objects(key, kind_label) if pop != null else [],
+	}
+
+
+## Every chunk that currently has a node, for the debug overlay. A rectangle per
+## chunk per plane, with the colour the state asks for chosen by the caller.
+func active_chunk_rects() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for pop in _pops:
+		var shift := (1.0 - pop.res.parallax) * _view
+		for key in pop.chunks.keys():
+			out.append({
+				"id": CHUNK.id_of(key, pop.res.label),
+				"plane": pop.res.label,
+				"key": key,
+				"state": chunk_state(key, pop.res.label),
+				"rect": Rect2(Vector2(key) * pop.chunk_px + shift, pop.chunk_px),
+				"seed": CHUNK.seed_of(key, pop.res.salt, _seed),
+			})
+	return out
+
+
+# ------------------------------------------------------------- remembered state
+
+## The store itself, for a save system that wants to serialize it. Reading is safe;
+## writing through it is not, because the field applies deltas at commit time and
+## would never hear about a dictionary edited behind its back.
+func chunk_store() -> CHUNK_STATE:
+	return _store
+
+
+## Mark one live object as gone for the rest of this world's life, and take it out
+## of the world now. The next build of its chunk skips it, so flying away and back
+## does not resurrect it. Returns false for a node this field did not create.
+func remove_object(node: Node, remember := true) -> bool:
+	if node == null or not is_instance_valid(node):
+		return false
+	var chunk_id := String(node.get_meta("chunk_id", ""))
+	var item_id := String(node.get_meta("item_id", ""))
+	if chunk_id.is_empty() or item_id.is_empty():
+		return false
+	var pop := _pop_of(CHUNK.plane_of(chunk_id))
+	if pop == null:
+		return false
+	var chunk := node.get_parent() as Node2D
+	if chunk == null or chunk.get_parent() != self:
+		return false
+	var key: Vector2i = chunk.get_meta("key", Vector2i.ZERO)
+	if pop.chunks.get(key) != chunk:
+		return false
+	if remember:
+		_store.remove_object(chunk_id, item_id)
+	_recycle(pop, chunk, node)
+	if chunk.get_child_count() == 0:
+		# the last thing in the chunk is gone: hand the empty node back and remember
+		# the chunk as empty, exactly as one whose stones were all broken at build
+		# time. An empty chunk node is a node the pilot can never see and the
+		# scene graph still pays for.
+		_release(pop, key)
+		pop.barren[key] = true
+	return true
+
+
+## What the world remembers about one live object, or `{}` for an untouched one.
+func object_state_of(node: Node) -> Dictionary:
+	if node == null or not is_instance_valid(node):
+		return {}
+	return _store.object_state(String(node.get_meta("chunk_id", "")),
+		String(node.get_meta("item_id", "")))
+
+
+## Remember something about one live object. `removed` and `transform` are applied
+## by the field itself the next time the chunk is built; anything else is handed to
+## the object's own `world_object_restore()` if it has one. The live node is told
+## immediately when it can be, and `refresh_chunk()` is what makes a change that
+## only exists in the store visible without waiting for the chunk to unload.
+func set_object_state_of(node: Node, state: Dictionary) -> void:
+	if node == null or not is_instance_valid(node):
+		return
+	_store.set_object_state(String(node.get_meta("chunk_id", "")),
+		String(node.get_meta("item_id", "")), state)
+	if node.has_method("world_object_restore"):
+		node.world_object_restore(state)
+
+
+## Chunk-level state, for the mechanics that will want to remember a whole region
+## at once rather than one object: what a scan found here, whether the wreck has
+## already been boarded.
+func chunk_data(id: String) -> Dictionary:
+	return _store.chunk_data(id)
+
+
+func set_chunk_data(id: String, data: Dictionary) -> void:
+	_store.set_chunk_data(id, data)
+
+
+## Rebuild one chunk from its seed with the remembered state applied. A mechanic
+## that changes a chunk while the pilot is still in it calls this, because the
+## chunk is already built and nothing would otherwise notice it until it unloads.
+func refresh_chunk(id: String) -> void:
+	var pop := _pop_of(CHUNK.plane_of(id))
+	if pop == null:
+		return
+	var key := CHUNK.key_of(id)
+	pop.barren.erase(key)
+	if pop.chunks.has(key):
+		_release(pop, key)
+
+
+## Everything the world remembers, ready for a save file. The generated content is
+## not in here and never will be: the seed rebuilds it, and storing it would only
+## give the save and the generator two chances to disagree.
+func save_state() -> Dictionary:
+	return {"version": 1, "seed": _seed, "chunks": _store.to_dict()}
+
+
+## Read back `save_state()`. Refuses a save from a different world, and rebuilds
+## the active chunks so the restored deltas are applied now rather than on the next
+## visit.
+func load_state(data: Dictionary) -> bool:
+	if int(data.get("seed", 0)) != _seed:
+		return false
+	# release first: a release asks each live object for its state, and doing that
+	# after loading would write the old world back over the save
+	clear()
+	return _store.from_dict(data.get("chunks", {}))
+
+
+# ------------------------------------------------------------------ diagnostics
+
+## The chunk panel, as text. Kept out of the drawing code so a headless run can
+## read exactly what the overlay would show, and so the numbers cannot drift
+## between the thing that is measured and the thing that is printed.
+func debug_lines(ship_at: Vector2 = Vector2.INF) -> Array[String]:
+	var at := _view
+	if ship_at.is_finite():
+		at = ship_at
+	var size := _chunk_size_px()
+	var key := ship_chunk(at)
+	var bounds := CHUNK.bounds_of(key, Vector2(size, size))
+	var counts := chunk_state_counts()
+	var worst := 0
+	for pop in _pops:
+		worst = maxi(worst, pop.worst_chunk_us)
+	var load := settings.look_ahead_chunks if settings != null else 0.0
+	var pre := settings.preload_chunks if settings != null else 0.0
+	var drop := settings.drop_behind_chunks if settings != null else 0.0
+	var lines: Array[String] = []
+	lines.append("SEED      %d" % _seed)
+	lines.append("SHIP      %d, %d" % [roundi(at.x), roundi(at.y)])
+	lines.append("CHUNK     %d, %d  (%s)" % [key.x, key.y, gameplay_plane()])
+	lines.append("REGION    %d..%d  %d..%d" % [
+		roundi(bounds.position.x), roundi(bounds.end.x),
+		roundi(bounds.position.y), roundi(bounds.end.y)])
+	lines.append("ACTIVE    %d   GEN %d   UNLD %d" % [
+		counts["active"], counts["generating"], counts["unloading"]])
+	lines.append("RADII     load %.1f  preload %.1f  drop %.1f chunks" % [
+		load, pre, drop])
+	lines.append("          %d / %d / %d px" % [
+		roundi(load * size), roundi(pre * size), roundi(drop * size)])
+	lines.append("OBJECTS   %d live, %d created" % [live_count(), _created_total])
+	var categories: Dictionary = stats().get("categories", {})
+	lines.append("CATEGORY  asteroids %d / debris %d / decor %d" % [
+		int(categories.get("asteroid", 0)), int(categories.get("debris", 0)),
+		int(categories.get("decorative", 0))])
+	lines.append("CHUNKS    %d nodes, %d empty" % [chunk_count(), barren_count()])
+	lines.append("STATE     %d chunks, %d objects kept" % [
+		_store.chunk_count(), _store.object_total()])
+	lines.append("COST      pass %d us (worst %d), chunk %d us" % [
+		_frame_us, _worst_pass_us, worst])
+	lines.append("OPS       %d built, %d unloaded / frame" % [
+		_generations_last, _unloads_last])
+	return lines
 
 
 ## Debug fingerprint: which cells hold what. By default only the chunks the camera
@@ -391,20 +955,101 @@ func _notification(what: int) -> void:
 
 # ------------------------------------------------------------------- one population
 
-## The frame's work for one population: drop what fell behind, build what is
-## wanted nearest the ship first, and move every chunk along the parallax shift.
+## The frame's build work for one population: fill what is missing nearest the ship
+## first, and move every chunk along the parallax shift. The unload half of the
+## frame has already run, for every plane at once, in `_release_pass()`.
 func _advance(pop: Population) -> void:
 	var shift := (1.0 - pop.res.parallax) * _view
+	_reapply_budgets(pop)
 	var keep := _window(pop, shift, settings.drop_behind_chunks)
-	for key in pop.chunks.keys():
-		if not keep.has_point(key):
-			_release(pop, key)
+	# empty chunks hold no nodes, so they are cheap enough to clear without a
+	# budget: this is bookkeeping, not a scene subtree
 	for key in pop.barren.keys():
 		if not keep.has_point(key):
 			pop.barren.erase(key)
+	pop.queued.clear()
 
-	var build := _window(pop, shift, settings.look_ahead_chunks)
+	# Two rings, one budget. The load ring is the space the pilot is about to see
+	# and is built first; the preload ring beyond it is filled with whatever the
+	# frame has left. On a steady flight that is most of it; on a teleport it is
+	# nothing, which is the right order either way - the new position comes first.
+	var load := maxf(settings.look_ahead_chunks, 0.0)
+	_build(pop, shift, load)
+	if _budget > 0 and _generations < _generation_cap():
+		_build(pop, shift, load + maxf(settings.preload_chunks, 0.0))
+
+	# every chunk rides the shift, not only the ones that just appeared. Writing a
+	# transform that has not changed is not free: a chunk holds frozen bodies, and
+	# every write sends each of them back through the physics server's broadphase.
+	# A solid plane does not move at all, so most frames this writes nothing.
+	for key in pop.chunks.keys():
+		var chunk: Node2D = pop.chunks[key]
+		var want := Vector2(key) * pop.chunk_px + shift
+		if chunk.position != want:
+			chunk.position = want
+	_animate(pop)
+
+
+## Mark what fell out of the keep window so the release pass can see it. Nothing is
+## dropped here: a chunk that has just left the window still holds its objects, and
+## taking them away is the expensive half.
+func _mark_closing(pop: Population, keep: Rect2i) -> void:
+	for key in pop.chunks.keys():
+		if not keep.has_point(key):
+			pop.closing[key] = true
+	for key in pop.closing.keys():
+		# a chunk that came back into the window, or one that is already gone, is
+		# no longer waiting for anything
+		if keep.has_point(key) or not pop.chunks.has(key):
+			pop.closing.erase(key)
+
+
+## Hand back what fell out of the window, biggest backlog first and no more than
+## `max_chunk_unloads_per_frame` of it.
+##
+## Two orderings matter here. The plane with the most waiting chunks goes first, so
+## one busy plane cannot eat the shared budget on every frame of a long boost run -
+## which is exactly how a distant plane's chunk count would grow with nothing
+## looking wrong up close. Within that plane the farthest chunk goes first: a
+## teleport leaves a trail, only the near end of it can ever be seen again, and the
+## far end is the part that can wait.
+func _release_pass() -> void:
+	var cap := maxi(int(settings.max_chunk_unloads_per_frame), 1)
+	while _unloads < cap:
+		var pick: Population = null
+		for pop in _pops:
+			if pop.closing.is_empty():
+				continue
+			if pick == null or pop.closing.size() > pick.closing.size():
+				pick = pop
+		if pick == null:
+			return
+		var origin := _view * pick.res.parallax / pick.chunk_px
+		var far := -1.0
+		var key := Vector2i.ZERO
+		for candidate in pick.closing.keys():
+			var d: float = Vector2(candidate).distance_squared_to(origin)
+			if d > far:
+				far = d
+				key = candidate
+		pick.closing.erase(key)
+		_release(pick, key)
+		_unloads += 1
+
+
+## One build pass over one ring: collect what is missing, nearest the ship first,
+## and commit as much of it as the frame can afford.
+##
+## A ring rather than a radius in pixels because a plane's chunks are not square
+## and not even all the same size - each population sizes its chunk from its own
+## lattice - so "two chunks out" is the only margin that means the same thing for
+## every plane.
+func _build(pop: Population, shift: Vector2, margin: float) -> void:
+	if _budget <= 0 or _generations >= _generation_cap():
+		return
 	var core := _window(pop, shift, 0.0)
+	var build := _window(pop, shift, margin)
+	var origin := (_view - shift) / pop.chunk_px
 	var want: Array[Vector2i] = []
 	var on_screen := {}
 	for cy in range(core.position.y, core.end.y):
@@ -422,24 +1067,29 @@ func _advance(pop: Population) -> void:
 			want.append(key)
 	# nearest first: a build cap may only ever thin the far edge of the window,
 	# never the space off the bow
-	var origin := -shift / pop.chunk_px
 	want.sort_custom(func(a, b):
 		return a.distance_squared_to(origin) < b.distance_squared_to(origin))
-	for key in want:
-		if _budget <= 0:
+	var next := 0
+	for i in want.size():
+		var key: Vector2i = want[i]
+		if _budget <= 0 or _generations >= _generation_cap():
+			next = i
 			break
 		# A chunk is atomic, so this can only promise "no new chunk this frame", not
 		# a hard ceiling - the worst frame costs one chunk plus whatever started
 		# before the clock ran out.
 		if Time.get_ticks_usec() - _frame_start > int(settings.build_microseconds):
+			next = i
 			break
 		# the screen itself is built even when the population sits at its ceiling:
 		# a hole the pilot can see is worse than one he cannot
 		if pop.live >= pop.live_cap and not on_screen.has(key):
+			next = i + 1
 			continue
 		var plans := _plan_chunk(pop, key)
 		if plans.is_empty():
 			pop.barren[key] = true
+			next = i + 1
 			continue
 		var need := _needs(plans)
 		if _budget < need and need <= settings.build_per_frame:
@@ -448,15 +1098,21 @@ func _advance(pop: Population) -> void:
 			# chunk marked empty because the frame ran out of budget would make the
 			# window depend on how the ship arrived here - which is the one thing this
 			# whole file exists to avoid.
+			next = i
 			break
-		_commit(pop, key, shift, plans)
-		_budget -= need
-
-	# every chunk rides the shift, not only the ones that just appeared
-	for key in pop.chunks.keys():
-		var chunk: Node2D = pop.chunks[key]
-		chunk.position = Vector2(key) * pop.chunk_px + shift
-	_animate(pop)
+		var made := _commit(pop, key, shift, plans)
+		_budget -= made
+		_generations += 1
+		_created_total += made
+		next = i + 1
+		if made == 0:
+			# every object this chunk held has been remembered as gone
+			pop.barren[key] = true
+	# What the frame could not reach is GENERATING until it is built or the window
+	# moves on. Rebuilt from the window next frame rather than carried as a queue,
+	# so an entry can never outlive the reason it was made.
+	for i in range(next, want.size()):
+		pop.queued[want[i]] = true
 
 
 ## The pure half of a chunk: what its cells hold, with nothing created. Split from
@@ -498,7 +1154,11 @@ func _needs(plans: Array) -> int:
 	return n
 
 
-func _commit(pop: Population, key: Vector2i, shift: Vector2, plans: Array) -> void:
+## Turn a plan into nodes. Returns how many objects actually appeared: an object
+## the state store has remembered as gone is skipped, so a chunk whose stones have
+## all been broken commits nothing and is marked empty rather than kept as an
+## invisible node.
+func _commit(pop: Population, key: Vector2i, shift: Vector2, plans: Array) -> int:
 	var before := Time.get_ticks_usec()
 	var origin := Vector2(key) * pop.chunk_px
 	var chunk: Node2D = pop.pool_chunks.pop_back() \
@@ -509,16 +1169,43 @@ func _commit(pop: Population, key: Vector2i, shift: Vector2, plans: Array) -> vo
 	chunk.visible = true
 	chunk.position = origin + shift
 	chunk.set_meta("key", key)
-	pop.chunks[key] = chunk
+	var chunk_id := CHUNK.id_of(key, pop.res.label)
+	chunk.set_meta("chunk_id", chunk_id)
+	var made := 0
 	for plan in plans:
 		for item in plan["items"]:
-			var local: Vector2 = item["u"] - origin
-			if pop.res.physics:
-				_place_body(pop, chunk, item, local)
-			else:
-				_place_sprite(pop, chunk, item, local)
+			var item_id := String(item["key"])
+			var state := _store.object_state(chunk_id, item_id)
+			if bool(state.get(CHUNK_STATE.KEY_REMOVED, false)):
+				continue
+			var at: Vector2 = item["u"]
+			var rot: float = item["rot"]
+			var moved: Variant = state.get(CHUNK_STATE.KEY_TRANSFORM, null)
+			if moved is Dictionary:
+				at = moved.get("u", at)
+				rot = float(moved.get("rot", rot))
+			var node: Node2D = _place_body(pop, chunk, item, at - origin, rot, at) \
+				if pop.res.physics else _place_sprite(pop, chunk, item, at - origin, rot, at)
+			if node == null:
+				continue
+			node.set_meta("item_id", item_id)
+			node.set_meta("chunk_id", chunk_id)
+			if not state.is_empty() and node.has_method("world_object_restore"):
+				node.world_object_restore(state)
+			made += 1
 			pop.live += 1
+	if made == 0:
+		# nothing to show: the chunk node itself must not be kept, or an empty
+		# region would hold a node for every one of its broken stones
+		if chunk.get_parent() != null:
+			remove_child(chunk)
+		pop.pool_chunks.append(chunk)
+	else:
+		pop.chunks[key] = chunk
+	# the sprites that just arrived have not been turned for this view yet
+	pop.turn_scroll = Vector2.INF
 	pop.build_us += Time.get_ticks_usec() - before
+	return made
 
 
 ## Chunks overlapping the screen, expressed in this population's own pattern
@@ -532,47 +1219,88 @@ func _window(pop: Population, shift: Vector2, margin_chunks: float) -> Rect2i:
 
 
 func _release(pop: Population, key: Vector2i) -> void:
+	if not pop.chunks.has(key):
+		return
 	var chunk: Node2D = pop.chunks[key]
 	pop.chunks.erase(key)
+	pop.queued.erase(key)
+	pop.closing.erase(key)
+	var chunk_id := CHUNK.id_of(key, pop.res.label)
 	for child in chunk.get_children():
-		chunk.remove_child(child)
-		pop.live = maxi(pop.live - 1, 0)
-		var body := child as RigidBody2D
-		if body != null:
-			pop.pool_bodies.append(body)
-		else:
-			pop.pool_sprites.append(child as Sprite2D)
+		_remember(chunk_id, child)
+		_recycle(pop, chunk, child)
 	remove_child(chunk)
 	pop.pool_chunks.append(chunk)
 
 
-func _place_body(pop: Population, chunk: Node2D, item: Dictionary, local: Vector2) -> void:
+## Take one object's own account of itself before it leaves the world. This is the
+## only place a node is asked, and it is asked the same way `WorldObjects` asks what
+## a thing is: a method the object may have, not a class the field has heard of. An
+## object with nothing to say costs one `has_method` call and leaves no record, so
+## an untouched chunk never appears in the store at all.
+func _remember(chunk_id: String, child: Node) -> void:
+	if not settings.keep_chunk_state:
+		return
+	if not child.has_method("world_object_state"):
+		return
+	var item_id := String(child.get_meta("item_id", ""))
+	if item_id.is_empty():
+		return
+	var state: Variant = child.world_object_state()
+	if state is Dictionary and not (state as Dictionary).is_empty():
+		_store.set_object_state(chunk_id, item_id, state)
+
+
+## Detach one object and hand it back to its population's pool. Shared by the
+## chunk release and by `remove_object`, so an object that is destroyed and one
+## that is merely out of view cost the same and cannot leak.
+func _recycle(pop: Population, chunk: Node2D, child: Node) -> void:
+	chunk.remove_child(child)
+	pop.live = maxi(pop.live - 1, 0)
+	var body := child as RigidBody2D
+	if body != null:
+		pop.pool_bodies.append(body)
+		return
+	var sprite := child as Sprite2D
+	if sprite != null:
+		pop.pool_sprites.append(sprite)
+		return
+	# not a thing this field can reuse: nothing to pool, but it must not survive
+	# the chunk it was in
+	child.queue_free()
+
+
+func _place_body(pop: Population, chunk: Node2D, item: Dictionary, local: Vector2,
+		rot: float, at: Vector2) -> Node2D:
 	var body: RigidBody2D = pop.pool_bodies.pop_back() \
 		if not pop.pool_bodies.is_empty() else pop.res.body_scene.instantiate() as RigidBody2D
 	if body == null:
 		push_warning("field: %s has no body to instantiate" % pop.res.label)
-		return
+		return null
 	body.visible = true
-	body.set_meta("u", item["u"])
+	body.set_meta("u", at)
 	body.set_meta("scale", item["scale"])
 	body.set_meta("art", item["file"])
+	body.set_meta("object_kind", pop.res.object_kind)
 	# placed before it enters the tree, so the physics server never sees the body at
 	# the scene's default origin for a step on its way in
 	body.position = local
-	body.rotation = item["rot"]
+	body.rotation = rot
 	chunk.add_child(body)
 	if body.has_method("set_form"):
 		body.set_form(item["id"], item["scale"], item["tint"])
+	return body
 
 
-func _place_sprite(pop: Population, chunk: Node2D, item: Dictionary, local: Vector2) -> void:
+func _place_sprite(pop: Population, chunk: Node2D, item: Dictionary, local: Vector2,
+		rot: float, at: Vector2) -> Node2D:
 	var sp: Sprite2D = pop.pool_sprites.pop_back() \
 		if not pop.pool_sprites.is_empty() else Sprite2D.new()
 	sp.visible = true
 	sp.centered = true
 	sp.texture = item["tex"]
 	sp.position = local
-	sp.rotation = item["rot"]
+	sp.rotation = rot
 	var s: float = item["scale"]
 	var flip: float = -1.0 if item["flip"] else 1.0
 	sp.scale = Vector2(s, s * flip)
@@ -581,11 +1309,15 @@ func _place_sprite(pop: Population, chunk: Node2D, item: Dictionary, local: Vect
 	# the belt art was cut from a photographic plate, so it is resampled, not
 	# stepped, even though the project draws everything else Nearest
 	sp.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	sp.set_meta("u", item["u"])
-	sp.set_meta("base_rot", item["rot"])
+	sp.set_meta("u", at)
+	sp.set_meta("base_rot", rot)
 	sp.set_meta("spin", item["spin"])
 	sp.set_meta("base_alpha", item["tint"].a)
+	sp.set_meta("object_kind", pop.res.object_kind)
+	if not pop.res.object_kind.is_empty():
+		sp.add_to_group(pop.res.object_kind)
 	chunk.add_child(sp)
+	return sp
 
 
 ## Rotation and twinkle are functions of the view point rather than of elapsed
@@ -595,6 +1327,10 @@ func _animate(pop: Population) -> void:
 	if pop.res.physics or pop.res.spin_max <= 0.0:
 		return
 	var scroll := _view * pop.res.parallax
+	if scroll == pop.turn_scroll:
+		# nothing on this plane can have turned since the last pass
+		return
+	pop.turn_scroll = scroll
 	for key in pop.chunks.keys():
 		var chunk: Node2D = pop.chunks[key]
 		for child in chunk.get_children():
@@ -664,7 +1400,7 @@ func _dress(pop: Population, cell: Vector2i, c: Vector4) -> Dictionary:
 	var alpha := lerpf(res.alpha_min, res.alpha_max, HASH.hashf(cell.x, cell.y, res.salt + 7, _seed))
 	var rot := lerpf(res.rotation_from, res.rotation_to,
 					 HASH.hashf(cell.x, cell.y, res.salt + 8, _seed))
-	var items: Array = [_item(pop, rec, scale, tint, alpha, rot, point, cell, res.salt)]
+	var items: Array = [_item(pop, rec, scale, tint, alpha, rot, point, cell, res.salt, 0)]
 	var center_reach := _reach_of(pop, tier, cell)
 	if center_reach > 26.0 and _is_cluster(pop, cell):
 		var sat := _sat_art_of(pop, cell)
@@ -680,7 +1416,7 @@ func _dress(pop: Population, cell: Vector2i, c: Vector4) -> Dictionary:
 			var sat_rot := lerpf(res.rotation_from, res.rotation_to,
 								 HASH.hashf(cell.x, cell.y, res.salt + 40 + i, _seed))
 			items.append(_item(pop, sat, sat_scale, tint, alpha, sat_rot, at, cell,
-				res.salt + 60 + i))
+				res.salt + 60 + i, i + 1))
 	return {"point": point, "radius": c.z, "priority": c.w, "items": items}
 
 
@@ -746,9 +1482,15 @@ func _accepts(pop: Population, cell: Vector2i, me: Dictionary, memo: Dictionary)
 ## `salt` is per-object so a cluster's satellites do not all inherit the centre
 ## stone's mirror and spin.
 func _item(pop: Population, rec: Dictionary, scale: float, tint: Color, alpha: float,
-		   rot: float, at: Vector2, cell: Vector2i, salt: int) -> Dictionary:
+		   rot: float, at: Vector2, cell: Vector2i, salt: int, slot: int) -> Dictionary:
 	var res := pop.res
 	return {
+		# the stable name of this object, independent of the node that ends up
+		# wearing it: its lattice cell and its place in that cell's knot. Every
+		# mechanic that has to remember something about one stone - broken, scanned,
+		# moved - writes it down under this name, and a rebuild months later finds
+		# the same stone again. A pooled node's instance id could never do that.
+		"key": "%d,%d:%d" % [cell.x, cell.y, slot],
 		"u": at,
 		"tex": rec["tex"],
 		"file": rec["file"],
@@ -871,6 +1613,23 @@ func _implicit_class(res: SpaceObjectKind) -> SpaceSizeClass:
 	return c
 
 
+## The population's two ceilings, recomputed from the settings instead of frozen at
+## `rebuild()`.
+##
+## `rock_density_scale` already multiplies every gate on every frame, so a field
+## that only moved the ceilings on a rebuild would answer a difficulty pass with
+## half a change. Reading them here keeps the knob honest and costs two integer
+## multiplies per population per frame.
+##
+## Either ceiling is soft on purpose: a chunk the pilot can see is built even at the
+## limit, so the count may sit a little above it and never leaves a hole.
+func _reapply_budgets(pop: Population) -> void:
+	var master := settings.rock_density_scale if pop.res.physics else settings.decor_density_scale
+	master = clampf(master, 0.0, 4.0)
+	pop.cap = maxi(1, int(round(pop.res.max_per_chunk * master)))
+	pop.live_cap = maxi(1, int(round(pop.res.max_live * master)))
+
+
 ## Cell size and chunk size from the distance pair: the step guarantees the
 ## spread, `min_distance` only pulls a candidate off its cell centre.
 func _lattice(pop: Population) -> void:
@@ -880,9 +1639,7 @@ func _lattice(pop: Population) -> void:
 	pop.jitter = clampf((span - res.min_distance) / span, 0.0, 1.0)
 	pop.per = maxi(1, int(round(settings.chunk_size / span)))
 	pop.chunk_px = pop.step * float(pop.per)
-	var master := settings.rock_density_scale if res.physics else settings.decor_density_scale
-	pop.cap = maxi(1, int(round(res.max_per_chunk * clampf(master, 0.0, 4.0))))
-	pop.live_cap = maxi(1, int(round(res.max_live * clampf(master, 0.0, 4.0))))
+	_reapply_budgets(pop)
 
 
 ## The biggest silhouette the kind can put on screen, which bounds both the
@@ -932,9 +1689,11 @@ func _scan_art(res: SpaceObjectKind) -> Array:
 			for piece in pieces:
 				for v in piece:
 					best = maxf(best, v.length())
-			if best <= 0.0:
-				continue
-			reach = best
+			# Asteroid art has a generated convex-piece table. A manufactured body
+			# may carry its own simple hull, so its picture edge is the conservative
+			# fallback instead of making the whole population invisible.
+			if best > 0.0:
+				reach = best
 		out.append({
 			"tex": tex,
 			"id": stem.trim_prefix(res.art_prefix),

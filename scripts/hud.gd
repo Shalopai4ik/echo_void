@@ -96,6 +96,19 @@ var _track_box := StyleBoxFlat.new()
 var _fill_box := StyleBoxFlat.new()
 var _glow_box := StyleBoxFlat.new()
 
+## Cached telemetry to avoid rebuilding strings every frame
+var _telemetry_cache: Array[String] = []
+var _telemetry_dirty := true
+var _cached_speed := -1
+var _cached_mode := ""
+var _cached_state := ""
+var _cached_boost := -1
+var _cached_live := -1
+var _cached_chunks := -1
+var _cached_asteroids := -1
+var _cached_debris := -1
+var _cached_decor := -1
+
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for row_name in ROW_NAMES:
@@ -173,6 +186,60 @@ func _read_ship(delta: float) -> void:
 			_hurt = 1.0
 		_last_hull = _hull
 		_drain_shield(delta)
+	
+	## Mark telemetry dirty when ship/world values change
+	if _ship != null and _ship.has_method("speed"):
+		var spd := roundi(_ship.speed())
+		if spd != _cached_speed:
+			_cached_speed = spd
+			_telemetry_dirty = true
+	if _ship != null and _ship.has_method("mode_name"):
+		var mode := str(_ship.mode_name())
+		if mode != _cached_mode:
+			_cached_mode = mode
+			_telemetry_dirty = true
+	if _ship != null and _ship.has_method("state_name"):
+		var state := str(_ship.state_name())
+		if state != _cached_state:
+			_cached_state = state
+			_telemetry_dirty = true
+	var boost_obj: Variant = _ship.get("boost") if _ship != null else null
+	if boost_obj != null and boost_obj.has_method("percent"):
+		var bpct := roundi(boost_obj.percent())
+		if bpct != _cached_boost:
+			_cached_boost = bpct
+			_telemetry_dirty = true
+	
+	## Check world stats
+	if _world != null and is_instance_valid(_world) and _world.has_method("stats"):
+		var stats: Dictionary = _world.stats()
+		var live := int(stats.get("live", 0))
+		var chunks := int(stats.get("chunks", 0))
+		if live != _cached_live or chunks != _cached_chunks:
+			_cached_live = live
+			_cached_chunks = chunks
+			_telemetry_dirty = true
+		var categories: Dictionary = stats.get("categories", {})
+		var kinds: Dictionary = stats.get("kinds", {})
+		# The stones are counted by their plane rather than by their category: a
+		# plane is what the pilot actually sees, and it goes on meaning "stones"
+		# whether that population is solid or drawn on a far decorative plane.
+		var ast := int(categories.get("asteroid", 0))
+		var plane: Dictionary = kinds.get("asteroids", {})
+		if plane.has("live"):
+			ast = int(plane["live"])
+		var deb := int(categories.get("debris", 0))
+		var dec := int(categories.get("decorative", 0))
+		if plane.has("solid") and not bool(plane["solid"]):
+			# a decorative stone is already part of the decor figure; counting it
+			# twice would make the panel look like it had found more world than it has
+			dec = maxi(dec - ast, 0)
+		if ast != _cached_asteroids or deb != _cached_debris or dec != _cached_decor:
+			_cached_asteroids = ast
+			_cached_debris = deb
+			_cached_decor = dec
+			_telemetry_dirty = true
+	
 	_refresh_rows()
 
 
@@ -373,23 +440,25 @@ func _draw_telemetry() -> void:
 ## The readouts themselves, as lines - the drawing above and any test read the
 ## same list, so what the glass says and what the glass shows cannot drift apart.
 func telemetry_lines() -> Array[String]:
-	var lines: Array[String] = []
-	if _ship == null or not is_instance_valid(_ship):
-		return lines
-	if _ship.has_method("speed"):
-		lines.append("СКОРОСТЬ   %d px/s" % roundi(_ship.speed()))
-	if _ship.has_method("mode_name"):
-		lines.append("РЕЖИМ      %s" % _ship.mode_name())
-	if _ship.has_method("state_name"):
-		lines.append("СОСТОЯНИЕ  %s" % _ship.state_name())
-	var boost: Variant = _ship.get("boost")
-	if boost != null and boost.has_method("percent"):
-		lines.append("ЗАРЯД      %d%%" % roundi(boost.percent()))
-	if _world != null and is_instance_valid(_world) and _world.has_method("stats"):
-		var stats: Dictionary = _world.stats()
-		lines.append("МИР        %d тел / %d чанков" % [
-			int(stats.get("live", 0)), int(stats.get("chunks", 0))])
-	return lines
+	if _telemetry_dirty:
+		_telemetry_cache.clear()
+		if _ship == null or not is_instance_valid(_ship):
+			_telemetry_dirty = false
+			return _telemetry_cache
+		if _ship.has_method("speed"):
+			_telemetry_cache.append("СКОРОСТЬ   %d px/s" % _cached_speed)
+		if _ship.has_method("mode_name"):
+			_telemetry_cache.append("РЕЖИМ      %s" % _cached_mode)
+		if _ship.has_method("state_name"):
+			_telemetry_cache.append("СОСТОЯНИЕ  %s" % _cached_state)
+		var boost_obj: Variant = _ship.get("boost")
+		if boost_obj != null and boost_obj.has_method("percent"):
+			_telemetry_cache.append("ЗАРЯД      %d%%" % _cached_boost)
+		if _world != null and is_instance_valid(_world) and _world.has_method("stats"):
+			_telemetry_cache.append("МИР        %d тел / %d чанков" % [_cached_live, _cached_chunks])
+			_telemetry_cache.append("ОБЪЕКТЫ    камни %d / обломки %d / декор %d" % [_cached_asteroids, _cached_debris, _cached_decor])
+		_telemetry_dirty = false
+	return _telemetry_cache
 
 
 ## What the glass believes it is attached to. A test reads this instead of

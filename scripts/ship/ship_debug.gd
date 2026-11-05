@@ -65,11 +65,15 @@ var _ship: ShipController
 ## press itself, the same way the ship's stabilization key does, so a held F3 is one
 ## toggle and a scripted `Input.action_press()` is one too.
 var _toggle_was := false
+## The endless field, if this scene has one. Read for its chunk report and never
+## written to: the flight panel is the instrument, the field is the thing measured.
+var _world: Node = null
 
 
 func _ready() -> void:
 	top_level = true
 	_ship = get_parent() as ShipController
+	_world = get_tree().get_first_node_in_group("world_field")
 
 
 func _process(_delta: float) -> void:
@@ -200,6 +204,7 @@ func readout() -> Array[String]:
 	lines.append_array(_engine_lines())
 	lines.append_array(_assist_lines())
 	lines.append_array(_world_lines())
+	lines.append_array(_chunk_lines())
 	lines.append_array(_audio_lines())
 	lines.append_array(_perf_lines())
 	return lines
@@ -232,6 +237,25 @@ func _world_lines() -> Array[String]:
 		out.append("  hit point %s, %s (%.2f s ago, est)" % [
 			_num((hit.contact_point as Vector2).x),
 			_num((hit.contact_point as Vector2).y), hit.age])
+	return out
+
+
+## The four lines of the streaming report that belong on a flight panel. The full
+## chunk picture is the overlay's job (`ChunkDebug`); a pilot deciding whether to
+## boost only needs to know that the space ahead is built and how much of it there
+## is. `debug_lines()` is the field's own report, so the panel cannot print a
+## number the field would disagree with.
+func _chunk_lines() -> Array[String]:
+	var out: Array[String] = []
+	if _world == null or not is_instance_valid(_world):
+		_world = get_tree().get_first_node_in_group("world_field")
+	if _world == null or not _world.has_method("debug_lines"):
+		return out
+	var at: Vector2 = _ship.global_position if _ship != null else Vector2.INF
+	for line in _world.debug_lines(at):
+		if line.begins_with("CHUNK") or line.begins_with("ACTIVE") \
+				or line.begins_with("OBJECTS") or line.begins_with("OPS"):
+			out.append("  " + line.strip_edges().replace("  ", " "))
 	return out
 
 

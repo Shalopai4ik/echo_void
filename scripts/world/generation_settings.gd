@@ -29,19 +29,44 @@ class_name SpaceGenerationSettings
 ## How much of a chunk beyond the screen edge is kept loaded. 1 is one chunk of
 ## runway, which is what keeps an object from ever being born in front of the bow.
 @export_range(0.0, 6.0, 0.1) var look_ahead_chunks: float = 1.5
+## A second ring, this far in chunk widths beyond `look_ahead_chunks`, that is
+## only built once the visible window and the load ring have been satisfied and
+## the frame still has budget left. This is what turns "the rock appears when the
+## screen reaches it" into "the rock was already there": a boost run crosses the
+## load ring in a fraction of a second, but the preload ring is a whole extra
+## chunk of runway underneath it.
+@export_range(0.0, 6.0, 0.1) var preload_chunks: float = 1.0
 ## Extra room, in chunk widths, where a chunk is dropped again. The gap between
 ## the two margins is the hysteresis that stops a chunk on the boundary from being
 ## rebuilt every frame by a ship that is hovering.
-@export_range(0.0, 6.0, 0.1) var drop_behind_chunks: float = 2.25
+@export_range(0.0, 6.0, 0.1) var drop_behind_chunks: float = 3.25
 ## Objects a single frame may create. Generation is a queue drained in order of
 ## distance from the ship, so this only ever delays the far edge of the window -
 ## it cannot make a rock appear off the bow.
 @export_range(1, 200) var build_per_frame: int = 24
+## Chunks a single frame may start, independently of the object count. One chunk
+## of a sparse population is one object, so the object budget alone would let a
+## frame start twenty chunks of planning; this is the ceiling that keeps the
+## planning itself off the frame.
+@export_range(1, 64) var max_chunk_generations_per_frame: int = 6
+## Chunks a single frame may hand back to the pool. A teleport can leave twenty
+## chunks behind at once, and freeing twenty scene subtrees in one frame is a
+## hitch; the rest keep their contents for another frame. The plane with the
+## biggest backlog goes first and, within it, the chunk farthest from the ship -
+## the near end of a trail is the part that can still come back on screen.
+@export_range(1, 256) var max_chunk_unloads_per_frame: int = 8
 ## Microseconds of generating a single frame is allowed to spend, counted inside
 ## the field rather than in the whole frame. The object cap above cannot bound the
 ## cost of one chunk, because a chunk is planned in one go; this one can, by
 ## starting fewer of them per frame.
 @export_range(100.0, 12000.0, 50.0, "suffix:us") var build_microseconds: float = 2200.0
+
+@export_group("State")
+## Keep what an unloaded chunk's objects report about themselves, so a broken
+## stone stays broken and a scanned wreck stays scanned when the pilot comes
+## back. Only chunks somebody has actually changed cost anything: the generated
+## content itself is never stored, because the seed regenerates it.
+@export var keep_chunk_state: bool = true
 
 @export_group("Density")
 ## Multiplies every physical population's `chance` and ceilings.

@@ -150,7 +150,9 @@ func signature() -> String:
 func advance(view_center: Vector2, visible: Rect2, delta: float) -> void:
 	if textures.is_empty():
 		return
-	_scroll = view_center * scroll_factor
+	var new_scroll := view_center * scroll_factor
+	var scroll_changed := new_scroll != _scroll
+	_scroll = new_scroll
 	var core := _window_for(visible, Vector2.ZERO)
 	var full := _window_for(visible, margin)
 	# reconcile on the padded window: gating on the core window alone would let
@@ -161,8 +163,10 @@ func advance(view_center: Vector2, visible: Rect2, delta: float) -> void:
 		_has_ring = true
 		_reconcile(full, core)
 	# every chunk has to follow the scroll, not only the ones that just appeared
-	for cell in _chunks:
-		_chunks[cell].position = Vector2(cell) * cell_size - _scroll
+	# only write position when it actually changed (saves physics broadphase updates for frozen bodies)
+	if scroll_changed:
+		for cell in _chunks:
+			_chunks[cell].position = Vector2(cell) * cell_size - _scroll
 	_animate(delta)
 
 
@@ -305,6 +309,20 @@ func _release(chunk: Node2D) -> void:
 		_live_nodes = maxi(_live_nodes - 1, 0)
 	remove_child(chunk)
 	_chunk_pool.append(chunk)
+
+
+## Pooled chunks and sprites are detached from the tree on purpose, which also means the
+## tree cannot free them: without this they outlive the layer and Godot reports them as
+## leaked at exit. The pool exists to save allocation during a flight, not to survive it.
+func _exit_tree() -> void:
+	for chunk in _chunk_pool:
+		if is_instance_valid(chunk):
+			chunk.free()
+	for sprite in _sprite_pool:
+		if is_instance_valid(sprite):
+			sprite.free()
+	_chunk_pool.clear()
+	_sprite_pool.clear()
 
 
 func _clear_cells() -> void:

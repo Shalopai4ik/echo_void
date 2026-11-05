@@ -22,8 +22,21 @@ func _check(what: String, ok: bool, detail: String = "") -> void:
 
 
 func _steps(count: int) -> void:
+	"""Advance `count` physics frames.
+
+	Anything that reads a value the HUD paints in `_process` must not use this:
+	the HUD runs on process frames, and under load the process tick falls behind
+	the physics tick, so a bar measured after two physics steps can legitimately
+	not have been drawn yet. Use `_frames` for those.
+	"""
 	for i in count:
 		await physics_frame
+
+
+func _frames(count: int) -> void:
+	"""Advance `count` process frames, which is what a drawn value follows."""
+	for i in count:
+		await process_frame
 
 
 func _run() -> void:
@@ -128,7 +141,8 @@ func _test_drain(ship: Node2D, hud: Control) -> void:
 	ship.shield = ship.shield_max
 	ship.hull = ship.hull_max
 	ship.destroyed = false
-	await _steps(2)
+	# the bar is drawn in _process, so it is read after process frames
+	await _frames(2)
 	_check("the bar sits settled on the truth while nothing happens",
 		absf(hud.shield_display() - ship.shield_ratio()) < 0.02,
 		"%.2f vs %.2f" % [hud.shield_display(), ship.shield_ratio()])
@@ -141,7 +155,10 @@ func _test_drain(ship: Node2D, hud: Control) -> void:
 	_check("the tail covers the loss", hud.shield_ghost() >= shown - 0.001,
 		"ghost %.2f, fill %.2f" % [hud.shield_ghost(), shown])
 
-	await _steps(2)
+	# process frames, not physics steps: the bar is painted by the HUD's
+	# _process, and waiting on the physics tick measures the bar before it has
+	# been drawn on a loaded machine
+	await _frames(2)
 	var mid: float = hud.shield_display()
 	_check("it drains instead of snapping", mid < shown and mid > truth,
 		"%.2f -> %.2f -> %.2f" % [shown, mid, truth])
@@ -181,7 +198,8 @@ func _test_ram(ship: Node2D, field: EchoAsteroidField) -> void:
 	ship.shield = 0.0
 	ship.hull = 0.0
 	ship.take_damage(1.0)
-	await _steps(2)
+	# the tint is drawn in _process, so it is read after process frames
+	await _frames(2)
 	_check("a wreck is tinted harder than a scratch, and still legible",
 		ship.sprite.modulate.g < tinted.g and ship.sprite.modulate.g > 0.6,
 		"%.2f vs %.2f" % [float(ship.sprite.modulate.g), tinted.g])

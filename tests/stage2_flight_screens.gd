@@ -18,7 +18,7 @@ extends SceneTree
 ##   - a long flight does not fall over
 
 const MAP := "res://scenes/world/SpaceMap.tscn"
-const OUT := "res://screenshots/stage2/"
+const OUT := "res://test-output/stage2/"
 ## The clear colour from project.godot. A pixel that is exactly this was not drawn
 ## over by anything, which is what an uncovered stretch of sky looks like.
 const VOID := Color(0.02, 0.043, 0.078, 1.0)

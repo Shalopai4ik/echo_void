@@ -3,9 +3,58 @@
 /android/
 /build/
 export_presets.cfg
+# ...except the one Windows preset that IS committed: it holds no local paths,
+# and a repo without it cannot build a standalone copy at all.
+!export_presets.cfg
 *.translation
 
 # OS / editor droppings
 .DS_Store
 Thumbs.db
 *.tmp
+
+# ---------------------------------------------------------------- Python tools
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+# Local overrides of a developer's own machine-specific paths
+tools/local.env
+
+# ------------------------------------------------------------------ pipeline
+# Scratch space: one-off exploratory scripts, debug renders and logs from past
+# art sessions. Not needed to regenerate the shipped assets.
+tools/scratch/
+# Intermediate numerical state the regenerator rebuilds on its own
+*.npy
+*.npz
+# ... except the one that is now the only surviving record of the layer split:
+# the 1672x941 plate it was derived from is gone, so masks.npz cannot be rebuilt
+!tools/asset_pipeline/background/layer_split/masks.npz
+# Diagnostic renders, never game assets
+tools/asset_pipeline/background/layer_split/_debug/
+tools/asset_pipeline/background/layer_split/EchoOfVoid_Background_Layers.zip
+# The 1672x941 source plate is not in the repository (see tools/README.md);
+# drop it here to rerun layer_split, and this is where a fresh extract lands
+tools/asset_pipeline/background/layers-source/
+# Diagnostic previews the ship tools write
+tools/asset_pipeline/ship/canvases/assembled.png
+
+# ------------------------------------------------------------------- testing
+# Screenshots written by the visual suites, and the logs a run leaves behind.
+# Everything the suites write now goes under test-output/ and nothing there is
+# tracked. screenshots/ holds the output of past runs, kept on disk for
+# reference but no longer tracked: no suite reads from it, so it is a build
+# artefact rather than a baseline.
+test-output/
+screenshots/
+tools/testing/logs/
+tools/*.log
+tools/*.err
+tools/*.out
+*.log
+.DS_Store
+

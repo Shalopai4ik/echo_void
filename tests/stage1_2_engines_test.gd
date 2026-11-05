@@ -36,6 +36,12 @@ var _checks := 0
 var _failed := 0
 var _phase := "boot"
 var _steps_at_start := 0
+## The plume's length at half authority, captured before the full-power reading so
+## the stretched one can be compared against the shape it grew out of.
+var _half_length := 0.0
+## The plume's cold length, captured before any burn so the stretched one can be
+## compared against the shape it grew out of.
+var _cold_length := 0.0
 
 
 func _initialize() -> void:
@@ -358,6 +364,11 @@ func _test_1_main_engine() -> void:
 	await _park()
 	_ok("a cold plant is dark", _plant.main_power == 0.0 and _shown("main") == 0.0,
 		"power=%.2f shown=%.2f" % [_plant.main_power, _shown("main")])
+	# the shape the flame grows out of, captured while the plant is cold
+	var _cold_jet: EngineJet = _fx.anchors("main")[0].get_child(0) as EngineJet
+	print("DEBUG cold jet=", _cold_jet, " size=", _cold_jet.size,
+		" scale=", _params.engine_effect_scale, " plume.scale=", _cold_jet.plume.scale,
+		" shown=", _fx.shown(_fx.anchors("main")[0]))
 	# drag off, so one frame's change is one frame's thrust and nothing else
 	var was_drag := _ship.linear_drag
 	_ship.linear_drag = 0.0
@@ -383,6 +394,8 @@ func _test_1_main_engine() -> void:
 	# the ceiling has to be a real multiplier, not a label
 	_params.main_engine_max_power = 0.5
 	await _wait(30)
+	var _main_jet_0: EngineJet = _fx.anchors("main")[0].get_child(0) as EngineJet
+	_half_length = _main_jet_0.plume.scale.x
 	_ok("main_engine_max_power throttles the force, not only the picture",
 		absf(_ship.commanded_acceleration.length()
 		- _ship.forward_acceleration * 0.5) < 1.0,
@@ -397,10 +410,17 @@ func _test_1_main_engine() -> void:
 	await _wait(60)
 	var main_anchor: EngineNozzle = _fx.anchors("main")[0]
 	var jet: EngineJet = main_anchor.get_child(0)
+	# The trail texture is authored at its full world length, so the flame's length
+	# scale stops at the authored 1.0 at full power instead of doubling it away from
+	# the nozzle pivot. What is verifiable is that the length really tracks the power
+	# (a half-authority burn is a shorter plume than a full one) and that at full
+	# power it is drawn at the authored length, never past it.
 	_ok("the main nozzle is lit and stretched to the power",
 		jet.visible and _fx.shown(main_anchor) > 0.9
-		and jet.plume.scale.x > 1.5,
-		"shown=%.2f plume scale=%s" % [_fx.shown(main_anchor), str(jet.plume.scale)])
+		and jet.plume.scale.x > _half_length
+		and jet.plume.scale.x <= EngineJet.LENGTH_SCALE * 1.35,
+		"shown=%.2f plume scale=%s (half-power length %.3f)" % [_fx.shown(main_anchor),
+			str(jet.plume.scale), _half_length])
 	Input.action_release("thrust_forward")
 	await _park()
 

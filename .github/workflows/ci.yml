@@ -1,0 +1,68 @@
+name: ci
+
+on:
+  push:
+    branches: [master, tech-health]
+  pull_request:
+
+jobs:
+  python:
+    name: python tools
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: install
+        run: python -m pip install -r tools/requirements.txt
+      - name: syntax check every script
+        shell: pwsh
+        run: |
+          $bad = 0
+          Get-ChildItem -Recurse -File tools -Filter *.py | ForEach-Object {
+            $r = & python -m py_compile $_.FullName 2>&1
+            if ($LASTEXITCODE -ne 0) { Write-Host "::error file=$($_.FullName)::$r"; $bad++ }
+          }
+          if ($bad -gt 0) { exit 1 }
+      - name: no machine-bound absolute paths
+        shell: pwsh
+        run: |
+          $hits = Get-ChildItem -Recurse -File tools -Filter *.py |
+            Select-String -Pattern 'C:\\Users\\|D:\\programming|HP-1282'
+          if ($hits) {
+            $hits | ForEach-Object { Write-Host "::error file=$($_.Path)::absolute path at line $($_.LineNumber): $($_.Line)" }
+            exit 1
+          }
+          Write-Host "no absolute paths in the pipeline"
+      - name: asset categories
+        run: python tools/validation/asset_check.py --json
+      - name: reproducible generation, dry run
+        run: |
+          python tools/asset_pipeline/world/make_stage2_decor.py --dry-run
+          python tools/asset_pipeline/background/prep_assets.py --dry-run
+          python tools/asset_pipeline/ship/assemble_ship.py --dry-run
+
+  godot:
+    name: godot tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: import the project
+        shell: pwsh
+        run: |
+          $env:GODOT_VERSION = ""
+          choco install godot --version 4.7.2 --no-progress -y
+          $exe = (Get-Command godot -ErrorAction SilentlyContinue).Source
+          if (-not $exe) { throw "godot not on PATH after install" }
+          $exe --headless --path . --import
+          "imported with $(& $exe --version)"
+      - name: run the logic suites
+        shell: pwsh
+        run: tools\testing\run_tests.ps1 -Timeout 900
+      - name: upload the logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: echo_void/test-output/logs/

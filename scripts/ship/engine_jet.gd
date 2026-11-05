@@ -15,6 +15,27 @@ class_name EngineJet
 ## connected to a physical calculation - the sparks are a consequence of the burn,
 ## never a cause of anything.
 
+## The flame is not one picture but a cycle of four, cut from the sheet's trail row.
+## They differ in length and heat, so the exhaust licks and gutters instead of being a
+## single sprite that slides in and out. `set_power` still owns how long and how bright
+## the flame is; this only decides which of the four is on screen.
+const FRAMES := [
+	preload("res://assets/cruiser_flame_0.png"),
+	preload("res://assets/cruiser_flame_1.png"),
+	preload("res://assets/cruiser_flame_2.png"),
+	preload("res://assets/cruiser_flame_3.png"),
+]
+## Frames per second at a barely-lit vernier and at a full burn. A vernier should
+## breathe; a main engine at power should flicker fast enough to read as noise, which is
+## what an exhaust of this size actually does.
+const FLICKER_SLOW := 5.0
+const FLICKER_FAST := 22.0
+## The trail is already drawn at its full world length in the texture, so only its
+## thickness is doubled. Scaling length by the old 2x stretched the nozzle pivot away
+## from the fire and made a 234 px taper read as a 468 px slab.
+const LENGTH_SCALE := 1.0
+const WIDTH_SCALE := 2.0
+
 @onready var halo: Sprite2D = $Halo
 @onready var plume: Sprite2D = $Plume
 @onready var core: Sprite2D = $Core
@@ -27,6 +48,12 @@ class_name EngineJet
 ## resource, so one file holds every number and the scene does not carry eleven
 ## copies of the same settings.
 var parameters: ShipEngineParameters
+
+## The power this jet was last drawn at, and the clock the four frames advance on. Kept
+## here rather than read from the plant because the fade in `EngineVisuals` is what the
+## picture follows, and the flicker has to follow the picture.
+var _power := 0.0
+var _clock := 0.0
 
 
 ## Point the flame along the direction this nozzle pushes. The exhaust leaves the
@@ -48,6 +75,7 @@ func face(push_angle: float) -> void:
 ## rectangle.
 func set_power(power: float) -> void:
 	var p := parameters if parameters != null else ShipEngineParameters.new()
+	_power = power
 	var burning := power > 0.02
 	visible = burning
 	if not burning:
@@ -57,17 +85,17 @@ func set_power(power: float) -> void:
 	var intensity := minf(power, 1.0)
 	var length := p.engine_effect_scale * size * (0.3 + 0.7 * power)
 	# Width scales with `size` as well as with power: a vernier is a short jet, not
-	# a stubby one, and the authored 18 px strip has to shrink along the hull it
+	# a stubby one, and the authored 26 px strip has to shrink along the hull it
 	# belongs to or the small nozzles end up wider than they are long.
 	var width := p.engine_effect_scale * size
-	plume.scale = Vector2(2.0 * length, 2.0 * width * (0.6 + 0.4 * intensity))
+	plume.scale = Vector2(LENGTH_SCALE * length, WIDTH_SCALE * width * (0.6 + 0.4 * intensity))
 	plume.modulate.a = (0.35 + 0.65 * intensity) * glow
-	core.scale = Vector2(2.0 * length * 0.75, 2.0 * width * (0.5 + 0.5 * intensity))
+	core.scale = Vector2(LENGTH_SCALE * length * 0.75, WIDTH_SCALE * width * (0.5 + 0.5 * intensity))
 	core.modulate.a = (0.4 + 0.6 * intensity) * glow
 	# The halo is the one layer that keeps growing past full power, which is how a
 	# boosted engine reads as more light around the same nozzle rather than a
 	# different-shaped flame: 1.3 at cruise, 2.3 at boost x1.8.
-	halo.scale = Vector2(2.0 * length, 2.0 * width * (1.0 + 0.35 * maxf(power - 1.0, 0.0)))
+	halo.scale = Vector2(LENGTH_SCALE * length, WIDTH_SCALE * width * (1.0 + 0.35 * maxf(power - 1.0, 0.0)))
 	halo.modulate.a = minf(0.3 * power * glow, 0.55)
 	# The buffer size is set once - `amount` resizes the particle pool, so a jet
 	# that re-wrote it every frame would stutter. Intensity rides on alpha and on
@@ -77,3 +105,14 @@ func set_power(power: float) -> void:
 	sparks.initial_velocity_min = 30.0 + 60.0 * intensity
 	sparks.initial_velocity_max = 60.0 + 90.0 * intensity
 	sparks.emitting = intensity > 0.05
+
+
+## Advance the flame cycle. The rate is read from the power the jet is being drawn at,
+## not from the plant's demand, so the flicker cannot outrun the fade and start strobing
+## on a nozzle that is still coming on. A dark jet does not advance at all: nothing is
+## drawn, so nothing has to be animated.
+func _process(delta: float) -> void:
+	if not visible:
+		return
+	_clock += delta * lerpf(FLICKER_SLOW, FLICKER_FAST, clampf(_power, 0.0, 1.0))
+	plume.texture = FRAMES[int(_clock) % FRAMES.size()]

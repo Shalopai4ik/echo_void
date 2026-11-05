@@ -175,7 +175,9 @@ func _place(at: Vector2) -> void:
 ## How far the hull centre sits outside whatever it is nearest to, in px.
 func _clearance() -> float:
 	var closest := INF
-	for rock in _field.bodies():
+	# This suite measures the asteroid belt's navigable corridor. Other solid
+	# populations (stage 3.4 debris) are valid obstacles but are not belt stones.
+	for rock in _rocks():
 		var to_ship: Vector2 = rock.global_position.direction_to(_ship.global_position)
 		closest = minf(closest, rock.global_position.distance_to(_ship.global_position)
 			- rock.reach_toward(to_ship))
@@ -538,8 +540,10 @@ func _test_categories() -> void:
 					sprites += 1
 	_ok("the decorative populations are sprites, not bodies", sprites > 0,
 		"%d sprites across %d decorative populations" % [sprites, decor])
-	_ok("no decorative object is in the body list", bodies.size() == _rocks().size(),
-		"%d bodies, %d of them asteroids" % [bodies.size(), _rocks().size()])
+	_ok("no decorative object is in the body list",
+		bodies.size() == _rocks().size() + _field.bodies_of("debris").size(),
+		"%d bodies, %d asteroids, %d debris" % [bodies.size(), _rocks().size(),
+			_field.bodies_of("debris").size()])
 
 
 # ------------------------------------------------------------------ 9. distribution --

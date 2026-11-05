@@ -6,7 +6,7 @@ extends SceneTree
 ## that banks but stays flat-lit is exactly the failure they would miss.
 ## Run: godot --path . --script tests/ship_anim_screens.gd --rendering-driver opengl3
 
-const OUT := "res://screenshots/anim/"
+const OUT := "res://test-output/anim/"
 ## The design viewport. The hull is drawn at scale 2 and the camera zooms 0.5, so
 ## one texture pixel lands on one design pixel: a 148x100 sprite covers 148x100.
 ## The window is stretched from that, so every measurement is taken in design

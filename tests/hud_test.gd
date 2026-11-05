@@ -52,12 +52,12 @@ func _current_slice() -> void:
 	print("-- the current slice: SpaceMap and the current hull")
 	var scene: Node = load("res://scenes/world/SpaceMap.tscn").instantiate()
 	root.add_child(scene)
-	await process_frame
-	await _steps(20)
-
 	var hud: Control = scene.get_node("HUD/Root")
 	var ship: Node2D = scene.get_node("Ship")
 	var world: Node = scene.get_node("Field")
+	await process_frame
+	await _steps(20)
+
 	var state: Dictionary = hud.hud_state()
 
 	_check("the current slice has a glass of its own", hud != null, "")

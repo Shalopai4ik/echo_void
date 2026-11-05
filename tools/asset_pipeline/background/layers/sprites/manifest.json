@@ -1,0 +1,2168 @@
+{
+ "canvas": [
+  1672,
+  941
+ ],
+ "sprites": [
+  {
+   "file": "asteroid_001.png",
+   "kind": "asteroid",
+   "area_px": 23049,
+   "size": [
+    208,
+    182
+   ],
+   "source_xy": [
+    78,
+    874
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_002.png",
+   "kind": "asteroid",
+   "area_px": 19330,
+   "size": [
+    147,
+    188
+   ],
+   "source_xy": [
+    59,
+    91
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_003.png",
+   "kind": "asteroid",
+   "area_px": 12699,
+   "size": [
+    220,
+    108
+   ],
+   "source_xy": [
+    164,
+    714
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_004.png",
+   "kind": "asteroid",
+   "area_px": 9097,
+   "size": [
+    201,
+    94
+   ],
+   "source_xy": [
+    209,
+    777
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_005.png",
+   "kind": "asteroid",
+   "area_px": 9016,
+   "size": [
+    135,
+    111
+   ],
+   "source_xy": [
+    1506,
+    857
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_006.png",
+   "kind": "asteroid",
+   "area_px": 2582,
+   "size": [
+    78,
+    69
+   ],
+   "source_xy": [
+    430,
+    844
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_007.png",
+   "kind": "asteroid",
+   "area_px": 2429,
+   "size": [
+    63,
+    74
+   ],
+   "source_xy": [
+    119,
+    413
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_008.png",
+   "kind": "asteroid",
+   "area_px": 2396,
+   "size": [
+    67,
+    62
+   ],
+   "source_xy": [
+    589,
+    273
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_009.png",
+   "kind": "asteroid",
+   "area_px": 2006,
+   "size": [
+    65,
+    56
+   ],
+   "source_xy": [
+    83,
+    236
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_010.png",
+   "kind": "asteroid",
+   "area_px": 1915,
+   "size": [
+    73,
+    57
+   ],
+   "source_xy": [
+    1302,
+    524
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_011.png",
+   "kind": "asteroid",
+   "area_px": 1846,
+   "size": [
+    64,
+    57
+   ],
+   "source_xy": [
+    1375,
+    776
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_012.png",
+   "kind": "asteroid",
+   "area_px": 1290,
+   "size": [
+    49,
+    50
+   ],
+   "source_xy": [
+    1573,
+    733
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_013.png",
+   "kind": "asteroid",
+   "area_px": 1287,
+   "size": [
+    51,
+    48
+   ],
+   "source_xy": [
+    477,
+    110
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_014.png",
+   "kind": "asteroid",
+   "area_px": 1254,
+   "size": [
+    55,
+    52
+   ],
+   "source_xy": [
+    291,
+    556
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_015.png",
+   "kind": "asteroid",
+   "area_px": 993,
+   "size": [
+    43,
+    49
+   ],
+   "source_xy": [
+    20,
+    592
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_016.png",
+   "kind": "asteroid",
+   "area_px": 930,
+   "size": [
+    47,
+    64
+   ],
+   "source_xy": [
+    87,
+    420
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_017.png",
+   "kind": "asteroid",
+   "area_px": 895,
+   "size": [
+    61,
+    26
+   ],
+   "source_xy": [
+    516,
+    931
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_018.png",
+   "kind": "asteroid",
+   "area_px": 875,
+   "size": [
+    43,
+    40
+   ],
+   "source_xy": [
+    1637,
+    846
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_019.png",
+   "kind": "asteroid",
+   "area_px": 853,
+   "size": [
+    51,
+    50
+   ],
+   "source_xy": [
+    1437,
+    84
+   ],
+   "layer": "asteroids_near",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_020.png",
+   "kind": "asteroid",
+   "area_px": 666,
+   "size": [
+    37,
+    36
+   ],
+   "source_xy": [
+    515,
+    624
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_021.png",
+   "kind": "asteroid",
+   "area_px": 634,
+   "size": [
+    35,
+    38
+   ],
+   "source_xy": [
+    161,
+    218
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_022.png",
+   "kind": "asteroid",
+   "area_px": 606,
+   "size": [
+    43,
+    44
+   ],
+   "source_xy": [
+    1416,
+    812
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_023.png",
+   "kind": "asteroid",
+   "area_px": 583,
+   "size": [
+    45,
+    37
+   ],
+   "source_xy": [
+    1577,
+    817
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_024.png",
+   "kind": "asteroid",
+   "area_px": 579,
+   "size": [
+    39,
+    36
+   ],
+   "source_xy": [
+    415,
+    594
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_025.png",
+   "kind": "asteroid",
+   "area_px": 570,
+   "size": [
+    34,
+    50
+   ],
+   "source_xy": [
+    1581,
+    890
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_026.png",
+   "kind": "asteroid",
+   "area_px": 462,
+   "size": [
+    40,
+    35
+   ],
+   "source_xy": [
+    1294,
+    769
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_027.png",
+   "kind": "asteroid",
+   "area_px": 452,
+   "size": [
+    33,
+    40
+   ],
+   "source_xy": [
+    337,
+    850
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_028.png",
+   "kind": "asteroid",
+   "area_px": 409,
+   "size": [
+    32,
+    28
+   ],
+   "source_xy": [
+    221,
+    56
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_029.png",
+   "kind": "asteroid",
+   "area_px": 399,
+   "size": [
+    21,
+    40
+   ],
+   "source_xy": [
+    6,
+    336
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_030.png",
+   "kind": "asteroid",
+   "area_px": 395,
+   "size": [
+    38,
+    36
+   ],
+   "source_xy": [
+    370,
+    318
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_031.png",
+   "kind": "asteroid",
+   "area_px": 291,
+   "size": [
+    28,
+    26
+   ],
+   "source_xy": [
+    34,
+    431
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_032.png",
+   "kind": "asteroid",
+   "area_px": 261,
+   "size": [
+    24,
+    24
+   ],
+   "source_xy": [
+    396,
+    115
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_033.png",
+   "kind": "asteroid",
+   "area_px": 256,
+   "size": [
+    39,
+    34
+   ],
+   "source_xy": [
+    43,
+    682
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_034.png",
+   "kind": "asteroid",
+   "area_px": 213,
+   "size": [
+    18,
+    27
+   ],
+   "source_xy": [
+    5,
+    248
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_035.png",
+   "kind": "asteroid",
+   "area_px": 194,
+   "size": [
+    32,
+    37
+   ],
+   "source_xy": [
+    942,
+    836
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_036.png",
+   "kind": "asteroid",
+   "area_px": 189,
+   "size": [
+    24,
+    24
+   ],
+   "source_xy": [
+    167,
+    57
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_037.png",
+   "kind": "asteroid",
+   "area_px": 188,
+   "size": [
+    26,
+    26
+   ],
+   "source_xy": [
+    25,
+    211
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_038.png",
+   "kind": "asteroid",
+   "area_px": 176,
+   "size": [
+    23,
+    22
+   ],
+   "source_xy": [
+    333,
+    598
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_039.png",
+   "kind": "asteroid",
+   "area_px": 171,
+   "size": [
+    23,
+    20
+   ],
+   "source_xy": [
+    1434,
+    923
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_040.png",
+   "kind": "asteroid",
+   "area_px": 140,
+   "size": [
+    22,
+    19
+   ],
+   "source_xy": [
+    909,
+    847
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_041.png",
+   "kind": "asteroid",
+   "area_px": 125,
+   "size": [
+    21,
+    19
+   ],
+   "source_xy": [
+    1533,
+    920
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_042.png",
+   "kind": "asteroid",
+   "area_px": 112,
+   "size": [
+    20,
+    21
+   ],
+   "source_xy": [
+    89,
+    512
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_043.png",
+   "kind": "asteroid",
+   "area_px": 109,
+   "size": [
+    19,
+    22
+   ],
+   "source_xy": [
+    95,
+    829
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_044.png",
+   "kind": "asteroid",
+   "area_px": 105,
+   "size": [
+    23,
+    19
+   ],
+   "source_xy": [
+    246,
+    102
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_045.png",
+   "kind": "asteroid",
+   "area_px": 92,
+   "size": [
+    30,
+    16
+   ],
+   "source_xy": [
+    38,
+    647
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_046.png",
+   "kind": "asteroid",
+   "area_px": 87,
+   "size": [
+    21,
+    17
+   ],
+   "source_xy": [
+    22,
+    668
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_047.png",
+   "kind": "asteroid",
+   "area_px": 76,
+   "size": [
+    16,
+    21
+   ],
+   "source_xy": [
+    163,
+    17
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_048.png",
+   "kind": "asteroid",
+   "area_px": 61,
+   "size": [
+    17,
+    15
+   ],
+   "source_xy": [
+    1441,
+    802
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_049.png",
+   "kind": "asteroid",
+   "area_px": 59,
+   "size": [
+    17,
+    16
+   ],
+   "source_xy": [
+    14,
+    617
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_050.png",
+   "kind": "asteroid",
+   "area_px": 58,
+   "size": [
+    16,
+    14
+   ],
+   "source_xy": [
+    499,
+    569
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_051.png",
+   "kind": "asteroid",
+   "area_px": 56,
+   "size": [
+    17,
+    18
+   ],
+   "source_xy": [
+    86,
+    778
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_052.png",
+   "kind": "asteroid",
+   "area_px": 56,
+   "size": [
+    16,
+    14
+   ],
+   "source_xy": [
+    1556,
+    922
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_053.png",
+   "kind": "asteroid",
+   "area_px": 54,
+   "size": [
+    13,
+    18
+   ],
+   "source_xy": [
+    5,
+    652
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_054.png",
+   "kind": "asteroid",
+   "area_px": 54,
+   "size": [
+    15,
+    17
+   ],
+   "source_xy": [
+    135,
+    800
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_055.png",
+   "kind": "asteroid",
+   "area_px": 49,
+   "size": [
+    14,
+    15
+   ],
+   "source_xy": [
+    1586,
+    857
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_056.png",
+   "kind": "asteroid",
+   "area_px": 46,
+   "size": [
+    16,
+    14
+   ],
+   "source_xy": [
+    72,
+    342
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_057.png",
+   "kind": "asteroid",
+   "area_px": 44,
+   "size": [
+    13,
+    15
+   ],
+   "source_xy": [
+    1420,
+    862
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_058.png",
+   "kind": "asteroid",
+   "area_px": 43,
+   "size": [
+    20,
+    14
+   ],
+   "source_xy": [
+    11,
+    716
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_059.png",
+   "kind": "asteroid",
+   "area_px": 42,
+   "size": [
+    13,
+    15
+   ],
+   "source_xy": [
+    113,
+    476
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_060.png",
+   "kind": "asteroid",
+   "area_px": 42,
+   "size": [
+    15,
+    15
+   ],
+   "source_xy": [
+    1305,
+    810
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_061.png",
+   "kind": "asteroid",
+   "area_px": 41,
+   "size": [
+    12,
+    19
+   ],
+   "source_xy": [
+    58,
+    448
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_062.png",
+   "kind": "asteroid",
+   "area_px": 40,
+   "size": [
+    14,
+    13
+   ],
+   "source_xy": [
+    130,
+    234
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_063.png",
+   "kind": "asteroid",
+   "area_px": 38,
+   "size": [
+    13,
+    13
+   ],
+   "source_xy": [
+    1450,
+    830
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_064.png",
+   "kind": "asteroid",
+   "area_px": 37,
+   "size": [
+    13,
+    20
+   ],
+   "source_xy": [
+    517,
+    275
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_065.png",
+   "kind": "asteroid",
+   "area_px": 37,
+   "size": [
+    17,
+    12
+   ],
+   "source_xy": [
+    90,
+    674
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_066.png",
+   "kind": "asteroid",
+   "area_px": 37,
+   "size": [
+    13,
+    13
+   ],
+   "source_xy": [
+    1322,
+    785
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_067.png",
+   "kind": "asteroid",
+   "area_px": 36,
+   "size": [
+    16,
+    12
+   ],
+   "source_xy": [
+    126,
+    277
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_068.png",
+   "kind": "asteroid",
+   "area_px": 35,
+   "size": [
+    11,
+    13
+   ],
+   "source_xy": [
+    152,
+    815
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_069.png",
+   "kind": "asteroid",
+   "area_px": 34,
+   "size": [
+    12,
+    12
+   ],
+   "source_xy": [
+    23,
+    240
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_070.png",
+   "kind": "asteroid",
+   "area_px": 34,
+   "size": [
+    12,
+    14
+   ],
+   "source_xy": [
+    1599,
+    923
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_071.png",
+   "kind": "asteroid",
+   "area_px": 32,
+   "size": [
+    13,
+    15
+   ],
+   "source_xy": [
+    44,
+    659
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_072.png",
+   "kind": "asteroid",
+   "area_px": 32,
+   "size": [
+    11,
+    13
+   ],
+   "source_xy": [
+    1609,
+    863
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_073.png",
+   "kind": "asteroid",
+   "area_px": 29,
+   "size": [
+    13,
+    13
+   ],
+   "source_xy": [
+    1396,
+    834
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_074.png",
+   "kind": "asteroid",
+   "area_px": 28,
+   "size": [
+    13,
+    12
+   ],
+   "source_xy": [
+    42,
+    717
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_075.png",
+   "kind": "asteroid",
+   "area_px": 28,
+   "size": [
+    14,
+    7
+   ],
+   "source_xy": [
+    459,
+    938
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_076.png",
+   "kind": "asteroid",
+   "area_px": 25,
+   "size": [
+    15,
+    12
+   ],
+   "source_xy": [
+    20,
+    376
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_077.png",
+   "kind": "asteroid",
+   "area_px": 24,
+   "size": [
+    13,
+    12
+   ],
+   "source_xy": [
+    261,
+    96
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_078.png",
+   "kind": "asteroid",
+   "area_px": 24,
+   "size": [
+    11,
+    11
+   ],
+   "source_xy": [
+    30,
+    245
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_079.png",
+   "kind": "asteroid",
+   "area_px": 23,
+   "size": [
+    13,
+    11
+   ],
+   "source_xy": [
+    648,
+    836
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_080.png",
+   "kind": "asteroid",
+   "area_px": 21,
+   "size": [
+    11,
+    12
+   ],
+   "source_xy": [
+    117,
+    797
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_081.png",
+   "kind": "asteroid",
+   "area_px": 21,
+   "size": [
+    11,
+    12
+   ],
+   "source_xy": [
+    238,
+    886
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_082.png",
+   "kind": "asteroid",
+   "area_px": 19,
+   "size": [
+    11,
+    10
+   ],
+   "source_xy": [
+    14,
+    284
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_083.png",
+   "kind": "asteroid",
+   "area_px": 18,
+   "size": [
+    11,
+    11
+   ],
+   "source_xy": [
+    455,
+    877
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_084.png",
+   "kind": "asteroid",
+   "area_px": 18,
+   "size": [
+    12,
+    10
+   ],
+   "source_xy": [
+    1465,
+    922
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_085.png",
+   "kind": "asteroid",
+   "area_px": 17,
+   "size": [
+    11,
+    12
+   ],
+   "source_xy": [
+    1471,
+    803
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_086.png",
+   "kind": "asteroid",
+   "area_px": 17,
+   "size": [
+    11,
+    10
+   ],
+   "source_xy": [
+    268,
+    903
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_087.png",
+   "kind": "asteroid",
+   "area_px": 16,
+   "size": [
+    10,
+    11
+   ],
+   "source_xy": [
+    203,
+    85
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_088.png",
+   "kind": "asteroid",
+   "area_px": 16,
+   "size": [
+    12,
+    10
+   ],
+   "source_xy": [
+    112,
+    190
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_089.png",
+   "kind": "asteroid",
+   "area_px": 15,
+   "size": [
+    10,
+    11
+   ],
+   "source_xy": [
+    576,
+    834
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_090.png",
+   "kind": "asteroid",
+   "area_px": 15,
+   "size": [
+    11,
+    10
+   ],
+   "source_xy": [
+    1404,
+    857
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_091.png",
+   "kind": "asteroid",
+   "area_px": 15,
+   "size": [
+    11,
+    9
+   ],
+   "source_xy": [
+    1617,
+    917
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_092.png",
+   "kind": "asteroid",
+   "area_px": 15,
+   "size": [
+    12,
+    10
+   ],
+   "source_xy": [
+    480,
+    924
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_093.png",
+   "kind": "asteroid",
+   "area_px": 15,
+   "size": [
+    11,
+    7
+   ],
+   "source_xy": [
+    482,
+    938
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_094.png",
+   "kind": "asteroid",
+   "area_px": 14,
+   "size": [
+    11,
+    10
+   ],
+   "source_xy": [
+    78,
+    200
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_095.png",
+   "kind": "asteroid",
+   "area_px": 13,
+   "size": [
+    10,
+    11
+   ],
+   "source_xy": [
+    425,
+    105
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_096.png",
+   "kind": "asteroid",
+   "area_px": 13,
+   "size": [
+    10,
+    10
+   ],
+   "source_xy": [
+    14,
+    268
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_097.png",
+   "kind": "asteroid",
+   "area_px": 12,
+   "size": [
+    10,
+    9
+   ],
+   "source_xy": [
+    79,
+    185
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_098.png",
+   "kind": "asteroid",
+   "area_px": 12,
+   "size": [
+    10,
+    9
+   ],
+   "source_xy": [
+    1568,
+    777
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_099.png",
+   "kind": "asteroid",
+   "area_px": 12,
+   "size": [
+    10,
+    9
+   ],
+   "source_xy": [
+    87,
+    844
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_100.png",
+   "kind": "asteroid",
+   "area_px": 12,
+   "size": [
+    10,
+    10
+   ],
+   "source_xy": [
+    389,
+    879
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_101.png",
+   "kind": "asteroid",
+   "area_px": 12,
+   "size": [
+    9,
+    10
+   ],
+   "source_xy": [
+    1640,
+    888
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_102.png",
+   "kind": "asteroid",
+   "area_px": 12,
+   "size": [
+    9,
+    10
+   ],
+   "source_xy": [
+    742,
+    899
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_103.png",
+   "kind": "asteroid",
+   "area_px": 12,
+   "size": [
+    9,
+    10
+   ],
+   "source_xy": [
+    1610,
+    903
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_104.png",
+   "kind": "asteroid",
+   "area_px": 12,
+   "size": [
+    9,
+    7
+   ],
+   "source_xy": [
+    444,
+    938
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_105.png",
+   "kind": "asteroid",
+   "area_px": 10,
+   "size": [
+    11,
+    5
+   ],
+   "source_xy": [
+    123,
+    0
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_106.png",
+   "kind": "asteroid",
+   "area_px": 10,
+   "size": [
+    9,
+    10
+   ],
+   "source_xy": [
+    54,
+    310
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_107.png",
+   "kind": "asteroid",
+   "area_px": 10,
+   "size": [
+    9,
+    10
+   ],
+   "source_xy": [
+    72,
+    664
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_108.png",
+   "kind": "asteroid",
+   "area_px": 10,
+   "size": [
+    9,
+    10
+   ],
+   "source_xy": [
+    96,
+    758
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_109.png",
+   "kind": "asteroid",
+   "area_px": 10,
+   "size": [
+    9,
+    10
+   ],
+   "source_xy": [
+    1355,
+    842
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_110.png",
+   "kind": "asteroid",
+   "area_px": 10,
+   "size": [
+    9,
+    10
+   ],
+   "source_xy": [
+    482,
+    884
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_111.png",
+   "kind": "asteroid",
+   "area_px": 10,
+   "size": [
+    10,
+    9
+   ],
+   "source_xy": [
+    280,
+    915
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_112.png",
+   "kind": "asteroid",
+   "area_px": 9,
+   "size": [
+    9,
+    9
+   ],
+   "source_xy": [
+    284,
+    83
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_113.png",
+   "kind": "asteroid",
+   "area_px": 9,
+   "size": [
+    9,
+    9
+   ],
+   "source_xy": [
+    20,
+    278
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_114.png",
+   "kind": "asteroid",
+   "area_px": 9,
+   "size": [
+    9,
+    9
+   ],
+   "source_xy": [
+    54,
+    355
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_115.png",
+   "kind": "asteroid",
+   "area_px": 9,
+   "size": [
+    9,
+    9
+   ],
+   "source_xy": [
+    36,
+    407
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_116.png",
+   "kind": "asteroid",
+   "area_px": 9,
+   "size": [
+    9,
+    9
+   ],
+   "source_xy": [
+    33,
+    624
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_117.png",
+   "kind": "asteroid",
+   "area_px": 9,
+   "size": [
+    9,
+    9
+   ],
+   "source_xy": [
+    16,
+    676
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_118.png",
+   "kind": "asteroid",
+   "area_px": 9,
+   "size": [
+    9,
+    9
+   ],
+   "source_xy": [
+    1627,
+    682
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_119.png",
+   "kind": "asteroid",
+   "area_px": 9,
+   "size": [
+    9,
+    9
+   ],
+   "source_xy": [
+    42,
+    700
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_120.png",
+   "kind": "asteroid",
+   "area_px": 9,
+   "size": [
+    9,
+    9
+   ],
+   "source_xy": [
+    1503,
+    704
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_121.png",
+   "kind": "asteroid",
+   "area_px": 9,
+   "size": [
+    9,
+    9
+   ],
+   "source_xy": [
+    1632,
+    714
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_122.png",
+   "kind": "asteroid",
+   "area_px": 9,
+   "size": [
+    9,
+    9
+   ],
+   "source_xy": [
+    1485,
+    760
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_123.png",
+   "kind": "asteroid",
+   "area_px": 9,
+   "size": [
+    9,
+    9
+   ],
+   "source_xy": [
+    1536,
+    785
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_124.png",
+   "kind": "asteroid",
+   "area_px": 9,
+   "size": [
+    9,
+    9
+   ],
+   "source_xy": [
+    1383,
+    868
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_125.png",
+   "kind": "asteroid",
+   "area_px": 9,
+   "size": [
+    9,
+    9
+   ],
+   "source_xy": [
+    244,
+    894
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "asteroid_126.png",
+   "kind": "asteroid",
+   "area_px": 6,
+   "size": [
+    5,
+    9
+   ],
+   "source_xy": [
+    0,
+    192
+   ],
+   "layer": "asteroids_far",
+   "blend": "mix"
+  },
+  {
+   "file": "planet.png",
+   "kind": "planet",
+   "area_px": 165479,
+   "size": [
+    290,
+    721
+   ],
+   "source_xy": [
+    1546,
+    619
+   ],
+   "layer": "planet",
+   "blend": "mix",
+   "note": "limb is cropped by the canvas edge; circle centre (1854,656) r=472"
+  },
+  {
+   "file": "planet_atmosphere.png",
+   "kind": "atmosphere_glow",
+   "area_px": 63934,
+   "size": [
+    363,
+    799
+   ],
+   "source_xy": [
+    1431,
+    523
+   ],
+   "layer": "planet_glow",
+   "blend": "add"
+  },
+  {
+   "file": "star_01.png",
+   "kind": "star",
+   "area_px": 38,
+   "size": [
+    25,
+    20
+   ],
+   "source_xy": [
+    385,
+    431
+   ],
+   "peak_lum": 0.9847,
+   "layer": "stars_near",
+   "blend": "add"
+  },
+  {
+   "file": "star_02.png",
+   "kind": "star",
+   "area_px": 11,
+   "size": [
+    16,
+    15
+   ],
+   "source_xy": [
+    119,
+    824
+   ],
+   "peak_lum": 0.7937,
+   "layer": "stars_near",
+   "blend": "add"
+  },
+  {
+   "file": "star_03.png",
+   "kind": "star",
+   "area_px": 16,
+   "size": [
+    17,
+    20
+   ],
+   "source_xy": [
+    1329,
+    295
+   ],
+   "peak_lum": 0.7524,
+   "layer": "stars_near",
+   "blend": "add"
+  },
+  {
+   "file": "star_04.png",
+   "kind": "star",
+   "area_px": 36,
+   "size": [
+    22,
+    26
+   ],
+   "source_xy": [
+    280,
+    388
+   ],
+   "peak_lum": 0.7121,
+   "layer": "stars_near",
+   "blend": "add"
+  },
+  {
+   "file": "star_05.png",
+   "kind": "star",
+   "area_px": 9,
+   "size": [
+    16,
+    15
+   ],
+   "source_xy": [
+    967,
+    512
+   ],
+   "peak_lum": 0.6192,
+   "layer": "stars_near",
+   "blend": "add"
+  },
+  {
+   "file": "star_06.png",
+   "kind": "star",
+   "area_px": 132,
+   "size": [
+    111,
+    15
+   ],
+   "source_xy": [
+    1174,
+    207
+   ],
+   "peak_lum": 0.6058,
+   "layer": "stars_near",
+   "blend": "add"
+  },
+  {
+   "file": "star_07.png",
+   "kind": "star",
+   "area_px": 8,
+   "size": [
+    15,
+    15
+   ],
+   "source_xy": [
+    1366,
+    234
+   ],
+   "peak_lum": 0.5902,
+   "layer": "stars_near",
+   "blend": "add"
+  },
+  {
+   "file": "star_08.png",
+   "kind": "star",
+   "area_px": 18,
+   "size": [
+    18,
+    18
+   ],
+   "source_xy": [
+    1497,
+    125
+   ],
+   "peak_lum": 0.5706,
+   "layer": "stars_near",
+   "blend": "add"
+  },
+  {
+   "file": "star_09.png",
+   "kind": "star",
+   "area_px": 7,
+   "size": [
+    15,
+    15
+   ],
+   "source_xy": [
+    1355,
+    265
+   ],
+   "peak_lum": 0.5526,
+   "layer": "stars_near",
+   "blend": "add"
+  },
+  {
+   "file": "star_10.png",
+   "kind": "star",
+   "area_px": 20,
+   "size": [
+    17,
+    21
+   ],
+   "source_xy": [
+    1351,
+    271
+   ],
+   "peak_lum": 0.5338,
+   "layer": "stars_near",
+   "blend": "add"
+  },
+  {
+   "file": "star_11.png",
+   "kind": "star",
+   "area_px": 7,
+   "size": [
+    15,
+    15
+   ],
+   "source_xy": [
+    100,
+    806
+   ],
+   "peak_lum": 0.4969,
+   "layer": "stars_near",
+   "blend": "add"
+  },
+  {
+   "file": "star_12.png",
+   "kind": "star",
+   "area_px": 9,
+   "size": [
+    15,
+    15
+   ],
+   "source_xy": [
+    1360,
+    250
+   ],
+   "peak_lum": 0.4893,
+   "layer": "stars_near",
+   "blend": "add"
+  },
+  {
+   "file": "star_13.png",
+   "kind": "star",
+   "area_px": 24,
+   "size": [
+    18,
+    22
+   ],
+   "source_xy": [
+    140,
+    91
+   ],
+   "peak_lum": 0.4856,
+   "layer": "stars_near",
+   "blend": "add"
+  },
+  {
+   "file": "star_14.png",
+   "kind": "star",
+   "area_px": 7,
+   "size": [
+    16,
+    14
+   ],
+   "source_xy": [
+    28,
+    735
+   ],
+   "peak_lum": 0.467,
+   "layer": "stars_near",
+   "blend": "add"
+  },
+  {
+   "file": "flare_streak.png",
+   "kind": "lens_flare",
+   "area_px": 217,
+   "size": [
+    183,
+    11
+   ],
+   "source_xy": [
+    1143,
+    207
+   ],
+   "layer": "stars_near",
+   "blend": "add"
+  }
+ ]
+}

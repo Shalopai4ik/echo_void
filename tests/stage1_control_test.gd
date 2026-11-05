@@ -299,8 +299,11 @@ func _test_setup(scene: Node) -> void:
 		"cc=%s monitor=%s reports=%d" % [_ship.continuous_cd, _ship.contact_monitor,
 		_ship.max_contacts_reported])
 	var airframe: Sprite2D = scene.get_node("Ship/Visuals/Sprite2D")
+	# The cruiser is cut at game scale, so it is drawn 1:1 - a scale of 2 here would
+	# silently double a 282 px hull and leave the collision slabs half its size.
 	_ok("the hull is drawn from the real airframe", airframe.texture != null
-		and airframe.texture.get_size() == Vector2(148, 100),
+		and airframe.texture.get_size() == Vector2(284, 97)
+		and airframe.scale.is_equal_approx(Vector2.ONE),
 		"%s at scale %s" % [str(airframe.texture.get_size()), str(airframe.scale)])
 	_ok("the sky streams from the ship's camera", _sky != null and _sky.has_method("stats"),
 		str(_sky))

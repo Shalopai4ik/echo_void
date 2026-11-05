@@ -2,3 +2,8 @@
 * text=auto eol=lf
 *.png binary
 *.import binary
+*.uid binary
+*.npz binary
+*.wav binary
+*.ogg binary
+

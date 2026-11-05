@@ -1,0 +1,15 @@
+# Python dependencies of the Echo of Void art pipeline.
+#
+# Only what the pipeline actually imports is listed. The layer_split ladder
+# needs OpenCV (morphology, connected components, Sobel) and SciPy
+# (sparse diffusion solve, gaussian filter); the ship, asteroid, world and
+# background preparation steps need NumPy and Pillow.
+#
+# Install:  python -m pip install -r tools/requirements.txt
+# Pinned against the versions this pipeline was verified with
+# (python 3.11.2 on Windows).
+
+numpy==1.26.4
+Pillow==10.2.0
+opencv-python==4.9.0
+scipy==1.13.0

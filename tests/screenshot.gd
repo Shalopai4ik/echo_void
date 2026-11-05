@@ -3,7 +3,7 @@ extends SceneTree
 ## Renders idle / cruise / boost frames for visual review.
 ## Run: godot --path . --script tests/screenshot.gd
 
-const OUT := "res://screenshots/game/"
+const OUT := "res://test-output/game/"
 
 func _initialize() -> void:
 	DirAccess.make_dir_recursive_absolute(OUT)

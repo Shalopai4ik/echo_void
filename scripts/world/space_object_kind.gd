@@ -21,6 +21,9 @@ class_name SpaceObjectKind
 @export_range(0, 9999) var salt := 1
 ## Solid bodies, or atmosphere only.
 @export var physics := false
+## Semantic category used by the world's object interface and diagnostics. Solid
+## bodies may override it in their own script; decorative sprites use this value.
+@export_enum("asteroid", "debris", "decorative", "environmental_hazard", "interactable") var object_kind := "decorative"
 
 @export_group("Art")
 ## Folder scanned at runtime; `art_prefix` picks the family out of it. Scanning

@@ -1,0 +1,46 @@
+# One style for every file, whichever editor opened it.
+# Godot is indifferent to line endings; a diff is not, so the rule here is the
+# same as .gitattributes: LF everywhere, tabs in GDScript, 4 spaces in Python.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+indent_size = 4
+
+# Godot's tab indent is a written-in-stone convention in the GDScript community
+# and every file in scripts/ follows it.
+[*.gd]
+indent_style = tab
+indent_size = 4
+
+[*.tscn]
+indent_style = tab
+
+[*.tres]
+indent_style = tab
+
+# Python tooling: the pipeline is PEP 8, four spaces.
+[*.py]
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# Godot config: never reformat, the file is edited by the engine
+[project.godot]
+indent_style = space
+
+# Binary or generated: no whitespace rules, no diff noise
+[*.png]
+trim_trailing_whitespace = false
+[*.import]
+insert_final_newline = false
+[*.uid]
+insert_final_newline = false
+
+[*.md]
+trim_trailing_whitespace = false

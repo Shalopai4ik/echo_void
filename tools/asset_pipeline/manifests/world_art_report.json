@@ -1,0 +1,207 @@
+{
+ "seed": 20261102,
+ "light": [
+  -0.582,
+  -0.813
+ ],
+ "files": [
+  {
+   "file": "wreck_01.png",
+   "size": [
+    76,
+    76
+   ],
+   "path": "D:\\programming\\ideas\\echo_void\\assets\\world\\wreck_01.png",
+   "kind": "wreck",
+   "border_alpha": 0.0,
+   "lit_mean_rgb": [
+    16.5,
+    23.3,
+    32.1
+   ],
+   "body_mean_rgb": [
+    16.1,
+    22.8,
+    31.5
+   ],
+   "lit_peak": 113.0,
+   "coverage": 0.1962
+  },
+  {
+   "file": "wreck_02.png",
+   "size": [
+    76,
+    76
+   ],
+   "path": "D:\\programming\\ideas\\echo_void\\assets\\world\\wreck_02.png",
+   "kind": "wreck",
+   "border_alpha": 0.0,
+   "lit_mean_rgb": [
+    19.6,
+    26.8,
+    35.8
+   ],
+   "body_mean_rgb": [
+    19.2,
+    26.2,
+    35.2
+   ],
+   "lit_peak": 137.0,
+   "coverage": 0.1885
+  },
+  {
+   "file": "wreck_03.png",
+   "size": [
+    76,
+    76
+   ],
+   "path": "D:\\programming\\ideas\\echo_void\\assets\\world\\wreck_03.png",
+   "kind": "wreck",
+   "border_alpha": 0.0,
+   "lit_mean_rgb": [
+    20.6,
+    27.8,
+    37.1
+   ],
+   "body_mean_rgb": [
+    18.5,
+    25.4,
+    34.2
+   ],
+   "lit_peak": 107.0,
+   "coverage": 0.1054
+  },
+  {
+   "file": "wreck_04.png",
+   "size": [
+    76,
+    76
+   ],
+   "path": "D:\\programming\\ideas\\echo_void\\assets\\world\\wreck_04.png",
+   "kind": "wreck",
+   "border_alpha": 0.0,
+   "lit_mean_rgb": [
+    17.8,
+    24.6,
+    33.3
+   ],
+   "body_mean_rgb": [
+    17.4,
+    24.1,
+    32.8
+   ],
+   "lit_peak": 123.0,
+   "coverage": 0.1788
+  },
+  {
+   "file": "structure_01.png",
+   "size": [
+    256,
+    256
+   ],
+   "path": "D:\\programming\\ideas\\echo_void\\assets\\world\\structure_01.png",
+   "kind": "structure",
+   "border_alpha": 0.0,
+   "lit_mean_rgb": [
+    32.5,
+    42.0,
+    53.3
+   ],
+   "body_mean_rgb": [
+    29.0,
+    37.6,
+    48.0
+   ],
+   "lit_peak": 255.0,
+   "coverage": 0.0384
+  },
+  {
+   "file": "structure_02.png",
+   "size": [
+    320,
+    128
+   ],
+   "path": "D:\\programming\\ideas\\echo_void\\assets\\world\\structure_02.png",
+   "kind": "structure",
+   "border_alpha": 0.0,
+   "lit_mean_rgb": [
+    19.3,
+    26.3,
+    35.2
+   ],
+   "body_mean_rgb": [
+    18.5,
+    25.3,
+    34.1
+   ],
+   "lit_peak": 255.0,
+   "coverage": 0.2731
+  },
+  {
+   "file": "structure_03.png",
+   "size": [
+    200,
+    200
+   ],
+   "path": "D:\\programming\\ideas\\echo_void\\assets\\world\\structure_03.png",
+   "kind": "structure",
+   "border_alpha": 0.0,
+   "lit_mean_rgb": [
+    18.9,
+    25.8,
+    34.6
+   ],
+   "body_mean_rgb": [
+    16.8,
+    23.2,
+    31.6
+   ],
+   "lit_peak": 255.0,
+   "coverage": 0.121
+  },
+  {
+   "file": "beacon_01.png",
+   "size": [
+    128,
+    128
+   ],
+   "path": "D:\\programming\\ideas\\echo_void\\assets\\world\\beacon_01.png",
+   "kind": "beacon",
+   "border_alpha": 0.0,
+   "lit_mean_rgb": [
+    255.0,
+    255.0,
+    255.0
+   ],
+   "body_mean_rgb": [
+    255.0,
+    255.0,
+    255.0
+   ],
+   "lit_peak": 255.0,
+   "coverage": 0.0051
+  },
+  {
+   "file": "beacon_02.png",
+   "size": [
+    128,
+    128
+   ],
+   "path": "D:\\programming\\ideas\\echo_void\\assets\\world\\beacon_02.png",
+   "kind": "beacon",
+   "border_alpha": 0.0,
+   "lit_mean_rgb": [
+    255.0,
+    255.0,
+    255.0
+   ],
+   "body_mean_rgb": [
+    255.0,
+    255.0,
+    255.0
+   ],
+   "lit_peak": 255.0,
+   "coverage": 0.0015
+  }
+ ]
+}

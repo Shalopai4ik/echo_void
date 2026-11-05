@@ -5,7 +5,7 @@ extends SceneTree
 ## export-flag plumbing.
 ## Run: godot --path . --script tests/bg_debug.gd --rendering-driver opengl3
 
-const OUT := "res://screenshots/bg/"
+const OUT := "res://test-output/bg/"
 
 
 func _initialize() -> void:

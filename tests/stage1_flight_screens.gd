@@ -13,9 +13,9 @@ extends SceneTree
 ## fixed screen box counted wildly different numbers for the same ship.
 
 const MAP := "res://scenes/test/TestControlMap.tscn"
-const OUT := "res://screenshots/stage1/"
-## Around the hull: the airframe is 296 x 200 world px, so this box is a little
-## more than it and mostly sky.
+const OUT := "res://test-output/stage1/"
+## Around the hull: the airframe is 284 x 97 world px, so this box is a little
+## more than twice it and mostly sky.
 const HULL_BOX := Vector2(200, 180)
 ## Behind the nozzles, where only a lit engine has any business being bright.
 const AFT_BOX := Vector2(55, 30)
@@ -25,8 +25,10 @@ const AFT_BOX := Vector2(55, 30)
 ## what the art direction asks for - lives in between, around 0.15 to 0.5.
 const JET_LUMINANCE := 0.15
 
-## How far aft that box sits: the tail is at -148, the flame reaches -261.
-const AFT_REACH := 200.0
+## How far aft that box sits: the tail is at -141, and the cut plume reaches -309 at
+## full burn, so 190 lands the box inside the flame rather than behind it - behind it
+## there is only sky, and a check there would pass whichever way the engine was drawn.
+const AFT_REACH := 190.0
 
 ## The overlay's own palette, taken from the class that draws it: the test looks
 ## for these in the captured frame, so it cannot drift away from the picture.

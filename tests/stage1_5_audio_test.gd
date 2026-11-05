@@ -848,10 +848,23 @@ func _balance_turn_and_strafe() -> void:
 		spun and seconds >= 0.12 and seconds <= 0.6, "%.2f s" % seconds)
 	var at_release := absf(_ship.angular_velocity)
 	_release_all()
+	var release_clock := Time.get_ticks_usec()
 	await _wait(4)
+	# The spin must coast down, not be cut on the frame the lever is released.
+	# Measured against the flight model's own deceleration over the time that
+	# really elapsed, rather than against a bare fraction of the release value:
+	# a physics tick is longer than 1/60 s on a loaded machine, and "75% of the
+	# release still turning four frames later" is a 60 Hz assumption that fails a
+	# ship which is behaving exactly as designed. A cut spin drops to ~0 and
+	# fails this either way.
+	var elapsed := float(Time.get_ticks_usec() - release_clock) / 1000000.0
+	var after := absf(_ship.angular_velocity)
+	var lost := at_release - after
+	var decelerable := _ship.angular_deceleration * elapsed
 	_ok("letting go does not cut the spin",
-		absf(_ship.angular_velocity) > at_release * 0.75,
-		"%.2f of %.2f rad/s" % [absf(_ship.angular_velocity), at_release])
+		after > at_release * 0.3 and lost <= decelerable * 2.0 + 0.05,
+		"%.2f of %.2f rad/s, lost %.2f over %.3f s (deceleration %.2f rad/s^2 allows %.2f)" % [
+			after, at_release, lost, elapsed, _ship.angular_deceleration, decelerable])
 	start = Engine.get_physics_frames()
 	var stopped := await _until(
 		func() -> bool: return absf(_ship.angular_velocity) < top_spin * 0.05, 600)

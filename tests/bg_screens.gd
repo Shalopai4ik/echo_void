@@ -3,7 +3,7 @@ extends SceneTree
 ## Renders the background test scene from several viewpoints for review.
 ## Run: godot --path . --script tests/bg_screens.gd --rendering-driver opengl3
 
-const OUT := "res://screenshots/bg/"
+const OUT := "res://test-output/bg/"
 
 
 func _initialize() -> void:

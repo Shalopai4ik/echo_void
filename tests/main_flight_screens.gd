@@ -4,7 +4,7 @@ extends SceneTree
 ## ship framed and the parallax world keeps streaming past it.
 ## Run: godot --path . --script tests/main_flight_screens.gd --rendering-driver opengl3
 
-const OUT := "res://screenshots/game/"
+const OUT := "res://test-output/game/"
 
 
 func _initialize() -> void:
