@@ -1,9 +1,11 @@
 extends RigidBody2D
 class_name SpaceDebris
 
-## One static fragment of unknown manufactured origin. The stream's own salt and
+## One loose fragment of unknown manufactured origin. The stream's own salt and
 ## chunk seed place it in the world; this scene only supplies the picture, a
-## conservative circular hull and the shared world-object interface.
+## conservative circular hull and the shared world-object interface. It is a live
+## body like a rock is: parked until something hits it, then carried by whatever
+## the meeting gave it.
 
 const ART_DIR := "res://assets/world/debris/"
 ## Cached textures per shape name to avoid repeated load() on pooled reuse.
@@ -44,6 +46,10 @@ func reach_toward(dir: Vector2) -> float:
 func set_form(which: String, scale_px: float, color: Color) -> void:
 	shape = which
 	px_scale = scale_px
+	# a pooled body starts its new life at rest, or it would arrive in the next
+	# chunk still carrying the shove it got in the last one
+	linear_velocity = Vector2.ZERO
+	angular_velocity = 0.0
 	var name := "debris_" + shape
 	var texture: Texture2D = _texture_cache.get(name)
 	if texture == null:

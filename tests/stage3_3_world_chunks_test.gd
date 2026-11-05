@@ -159,10 +159,27 @@ func _place(at: Vector2, limit := 300) -> void:
 			if int(again["generating"]) > 0 or int(again["unloading"]) > 0:
 				quiet = false
 				break
-		if quiet:
+		if quiet and not _screen_unbuilt(at):
 			_ship.linear_velocity = Vector2.ZERO
 			return
 	_ship.linear_velocity = Vector2.ZERO
+
+
+## A quiet field is not the same as a built one: the ring beyond the screen is
+## filled from whatever budget the frame has left, so a chunk that is on screen can
+## still be waiting for its objects. The determinism phase fingerprints the screen,
+## so it waits for the screen itself rather than for the counters to go quiet.
+func _screen_unbuilt(at: Vector2) -> bool:
+	var plane := _field.gameplay_plane()
+	var size: Vector2 = _field.chunk_info(Vector2i.ZERO, plane)["size"]
+	var rect := _screen_rect_at(at)
+	var a := Vector2i((rect.position / size).ceil())
+	var b := Vector2i((rect.end / size).floor())
+	for cy in range(a.y, b.y + 1):
+		for cx in range(a.x, b.x + 1):
+			if _field.chunk_state(Vector2i(cx, cy), plane) == CHUNK.State.UNLOADED:
+				return true
+	return false
 
 
 ## The screen rectangle around a point, computed from the camera rather than from
@@ -224,43 +241,75 @@ func _kind(label: String) -> SpaceObjectKind:
 	return null
 
 
-## The first chunk the two fingerprints disagree about, with enough of both sides
-## to see which object moved. A signature that differs only in length says nothing
-## about where to look.
-## The screen's worth of world around a point, as text: every solid body in the
-## chunks the screen overlaps, by its stable item id, its rounded position and its
-## size, plus the generation seed of the chunks around it on every plane.
+## The screen's worth of world around a point, as a map: one entry per chunk the
+## screen wholly holds, one per solid body, and one per chunk seed around it.
 ##
-## Deliberately confined to the screen's chunks. The load ring beyond them is
-## legitimately thinned by each population's live ceiling, so a fingerprint that
-## reached further would depend on how the ship arrived - which is the one thing a
-## determinism check must not do. The screen's own chunks are built even at the
-## ceiling, so their content is a pure function of the seed.
-func _fingerprint(at: Vector2) -> String:
+## A chunk the field has not built yet is left out rather than recorded as empty:
+## whether the band beyond the load ring is filled this frame is a matter of the
+## frame's budget, not of the seed. `_same_region()` compares what is actually
+## there and lets the later visit hold more.
+##
+## Bodies are keyed by their stable item id and placed at `u`, the spot the field
+## put them down at: rocks are live now, so `global_position` is state, and a
+## fingerprint taken from it would be a record of where the ship has shoved things.
+func _region(at: Vector2) -> Dictionary:
 	var plane := _field.gameplay_plane()
 	var size: Vector2 = _field.chunk_info(Vector2i.ZERO, plane)["size"]
 	var rect := _screen_rect_at(at)
-	var a := CHUNK.key_at(rect.position, size)
-	var b := CHUNK.key_at(rect.end, size)
-	var parts: Array[String] = []
+	# only the chunks wholly inside the screen: a chunk the edge merely clips is
+	# filled from whatever budget is left, so its lifetime is not the seed's business
+	var a := Vector2i((rect.position / size).ceil())
+	var b := Vector2i((rect.end / size).floor())
+	var out := {}
 	for cy in range(a.y, b.y + 1):
 		for cx in range(a.x, b.x + 1):
-			var key := Vector2i(cx, cy)
-			parts.append("%d,%d:[%s]" % [cx, cy, ",".join(_field.chunk_objects(key, plane))])
+			var ids := _field.chunk_objects(Vector2i(cx, cy), plane)
+			if ids.is_empty():
+				continue
+			out["%d,%d" % [cx, cy]] = ",".join(ids)
 	for body in _field.bodies_of(plane):
-		var key := CHUNK.key_at(body.global_position, size)
+		var planned: Vector2 = body.get_meta("u")
+		var key := CHUNK.key_at(planned, size)
 		if key.x < a.x or key.x > b.x or key.y < a.y or key.y > b.y:
 			continue
-		parts.append("at:%s:%d,%d" % [String(body.get_meta("item_id")),
-			roundi(body.global_position.x), roundi(body.global_position.y)])
-	parts.sort()
+		out["at:" + String(body.get_meta("item_id"))] = "%d,%d" % [roundi(planned.x),
+			roundi(planned.y)]
 	var center := CHUNK.key_at(at, size)
 	for label in _field.plane_labels():
 		for dy in range(-1, 2):
 			for dx in range(-1, 2):
-				parts.append("seed:%s:%d,%d=%d" % [label, center.x + dx, center.y + dy,
-					_field.chunk_seed(Vector2i(center.x + dx, center.y + dy), label)])
-	return "|".join(parts)
+				out["seed:%s:%d,%d" % [label, center.x + dx, center.y + dy]] = \
+					str(_field.chunk_seed(Vector2i(center.x + dx, center.y + dy), label))
+	return out
+
+
+## Whether two regions disagree anywhere they overlap.
+func _differs(want: Dictionary, got: Dictionary) -> bool:
+	for key in want:
+		if got.has(key) and got[key] != want[key]:
+			return true
+	return false
+
+
+## `got` has to hold everything `want` held, and to agree on every entry they
+## share. It may hold more: a chunk the first visit was still waiting for is not a
+## difference in the seed, and demanding an exact count would make the verdict a
+## report on the frame budget instead of on generation.
+func _same_region(what: String, want: Dictionary, got: Dictionary) -> void:
+	var missing: Array[String] = []
+	var changed: Array[String] = []
+	for key in want:
+		if not got.has(key):
+			missing.append(key)
+		elif got[key] != want[key]:
+			changed.append("%s: %s -> %s" % [key, want[key], got[key]])
+	var detail := "%d entries, %d missing, %d changed" % [want.size(), missing.size(),
+		changed.size()]
+	if not missing.is_empty():
+		detail += "\n        missing: " + ", ".join(missing.slice(0, 6))
+	if not changed.is_empty():
+		detail += "\n        " + "\n        ".join(changed.slice(0, 6))
+	_ok(what, missing.is_empty() and changed.is_empty(), detail)
 
 
 # -------------------------------------------------------------------- A. boot ----
@@ -462,39 +511,48 @@ func _test_unload() -> void:
 
 # -------------------------------------------------------------- E. determinism --
 
+## Empty the world, then build the region around `at` again. Used by the
+## determinism phase so a fingerprint is only ever read from a region that was
+## built from nothing.
+func _rebuild(at: Vector2) -> void:
+	_field.clear()
+	await _place(at)
+
+
 func _test_determinism() -> void:
 	var plane := _field.gameplay_plane()
 	var home_at := Vector2(7000, -5000)
-	await _place(home_at)
-	var home := _fingerprint(home_at)
-	_ok("the region has something to compare", home.length() > 40,
-		"%d chars, %d stones" % [home.length(), _field.bodies_of(plane).size()])
+	# Every fingerprint in this phase is read from a region built from nothing: a
+	# chunk the field is still holding on to from the journey in is history - the
+	# hysteresis margin keeps it alive for a while - and what this phase grades is
+	# the seed, not how long a stone has been on the books.
+	await _rebuild(home_at)
+	var home := _region(home_at)
+	_ok("the region has something to compare", home.size() > 8,
+		"%d entries, %d stones" % [home.size(), _field.bodies_of(plane).size()])
 	await _place(Vector2(24000, -16000))
-	await _place(home_at)
-	var back := _fingerprint(home_at)
-	_ok("a region comes back identical after a round trip", back == home,
-		"%d against %d chars" % [back.length(), home.length()])
+	await _rebuild(home_at)
+	var back := _region(home_at)
+	_same_region("a region comes back identical after a round trip", home, back)
 	if back != home:
 		_dump_region(home_at)
 	await _place(Vector2(0, 19000))
-	await _place(home_at)
-	var north := _fingerprint(home_at)
-	_ok("arriving from the north gives what arriving from home gives",
-		north == home, "%d against %d chars" % [north.length(), home.length()])
+	await _rebuild(home_at)
+	var north := _region(home_at)
+	_same_region("a region rebuilt after a journey is the region it was", home, north)
 	var seed := _field.get_seed()
 	_field.set_seed(seed + 7717)
-	await _place(home_at)
-	var other := _fingerprint(home_at)
-	_ok("a different seed is a different world", other != home,
-		"%d chars against %d" % [other.length(), home.length()])
+	await _rebuild(home_at)
+	var other := _region(home_at)
+	_ok("a different seed is a different world", _differs(home, other),
+		"%d entries against %d" % [other.size(), home.size()])
 	_ok("and the chunk seed moved with it",
 		_field.chunk_seed(Vector2i.ZERO, plane)
 		!= CHUNK.seed_of(Vector2i.ZERO, _kind(plane).salt, seed))
 	_field.set_seed(seed)
-	await _place(home_at)
-	var again := _fingerprint(home_at)
-	_ok("and the original seed rebuilds the original world", again == home,
-		"%d against %d chars" % [again.length(), home.length()])
+	await _rebuild(home_at)
+	var again := _region(home_at)
+	_same_region("and the original seed rebuilds the original world", home, again)
 	_ok("a chunk that was never visited is unloaded, not seeded into existence",
 		_field.chunk_state(Vector2i(4000, 4000), plane) == CHUNK.State.UNLOADED,
 		CHUNK.state_name(_field.chunk_state(Vector2i(4000, 4000), plane)))

@@ -36,7 +36,9 @@ class_name SpaceObjectKind
 @export var body_scene: PackedScene
 ## Glowing decor wants add blending; stone wants to cover the sky behind it.
 @export var add_blend := false
-## Sprites are drawn at this scale times the class scale.
+## Colour range for the fade between one object and the next. A solid kind uses it
+## as a per-object alpha; a decorative kind is background and stays opaque, so its
+## depth has to be expressed here in RGB (values below 1 darken).
 @export_range(0.0, 4.0, 0.05) var alpha_min := 1.0
 @export_range(0.0, 4.0, 0.05) var alpha_max := 1.0
 @export_range(-6.2832, 6.2832, 0.01) var rotation_from := -PI

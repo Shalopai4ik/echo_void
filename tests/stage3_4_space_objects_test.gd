@@ -222,6 +222,20 @@ func _test_categories() -> void:
 			shadows.parallax if shadows != null else -1.0, dim])
 	var labels := _field.plane_labels()
 	_ok("every configured population streams", labels.size() == _settings.kinds.size(), str(labels))
+	# Background objects are the non-physics planes. They have to stay opaque and
+	# darker than the solid belt: alpha is not a depth cue here, RGB is.
+	var background_opaque := true
+	var background_dark := true
+	for kind in _settings.kinds:
+		if kind == null or kind.physics:
+			continue
+		if not is_equal_approx(kind.alpha_min, 1.0) or not is_equal_approx(kind.alpha_max, 1.0):
+			background_opaque = false
+		if kind.tint_to.get_luminance() >= asteroids.tint_to.get_luminance() * 0.6:
+			background_dark = false
+	_ok("every background population is opaque", background_opaque)
+	_ok("every background silhouette is darker than the solid belt", background_dark,
+		"belt luma %.2f" % asteroids.tint_to.get_luminance())
 	var categories: Dictionary = _field.stats()["categories"]
 	_ok("diagnostics expose asteroid, debris and decorative counts",
 		categories.has("asteroid") and categories.has("debris") and categories.has("decorative"),
@@ -255,6 +269,21 @@ func _test_asteroids() -> void:
 	_ok("the dim stones stream as bounded sprites",
 		_sprites_of("shadows").size() <= dim_cap,
 		"%d sprites of a ceiling of %d" % [_sprites_of("shadows").size(), dim_cap])
+	# What the pilot actually sees: the nodes themselves, not the resource. A pooled
+	# sprite that kept a stale alpha or a stale tint would fail here.
+	var dim_sprites := _sprites_of("shadows")
+	var dim_opaque := not dim_sprites.is_empty()
+	var dim_dark := dim_opaque
+	var belt_luma: float = _kind("asteroids").tint_to.get_luminance()
+	for sp in dim_sprites:
+		if not is_equal_approx(sp.modulate.a, 1.0):
+			dim_opaque = false
+		if sp.modulate.get_luminance() >= belt_luma * 0.6:
+			dim_dark = false
+	_ok("background stones render fully opaque", dim_opaque,
+		"%d sprites" % dim_sprites.size())
+	_ok("background stones render darker than the belt", dim_dark,
+		"belt luma %.2f" % belt_luma)
 
 
 func _test_debris() -> void:

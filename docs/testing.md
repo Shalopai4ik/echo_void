@@ -6,8 +6,8 @@ Every suite is a GDScript file that extends `SceneTree` and is run headless:
 godot --headless --path . --script tests/<suite>.gd
 ```
 
-There are 33 files under `tests\`: 20 logic suites (headless, safe anywhere), 9 visual
-suites (they take screenshots, so they need a real GPU), and 4 `_exp_*` scratch scripts
+There are 34 files under `tests\`: 20 logic suites (headless, safe anywhere), 9 visual
+suites (they take screenshots, so they need a real GPU), and 5 `_exp_*` scratch scripts
 that are not suites and are not part of a verdict. `ship_systems_test.gd` is the stage
 4.1 architecture suite, `ship_energy_test.gd` the stage 4.2 reserve suite,
 `ship_damage_test.gd` the stage 4.3 hull pool suite and `ship_equipment_test.gd` the

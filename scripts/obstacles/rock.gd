@@ -9,13 +9,21 @@ class_name StageRock
 ## sprite is cut by is what keeps a ship stopped by a rock at the place where the
 ## rock is actually painted, and both halves follow `px_scale` together.
 ##
-## The scene keeps `freeze = true`, which makes the stone a wall the ship cannot
-## shove. That is the whole of stage 1. Turning the freeze off is all it takes to
-## have rocks drift and get pushed around once world interaction arrives, and
-## `mass` is already scaled by size so a boulder will resist the way it should.
+## The stone is a live body: it has no drive of its own and sits where the belt
+## put it until something hits it, then it keeps whatever the meeting gave it.
+## `mass` is a volume, so the same shove sends a pebble flying and barely leans a
+## hill - see `set_form()`.
 
 const SHAPES := preload("res://scripts/asteroid_shapes.gd")
 const ART_DIR := "res://assets/asteroids/"
+## Mass is volume, because that is what a hull actually meets: `extent` is the
+## stone's radius in world pixels, so its cube is what puts a pebble and a hill
+## three orders of magnitude apart instead of a factor of four. At MASS_REACH a
+## stone weighs MASS_UNIT; the clamps keep a speck and a planetoid both sane.
+const MASS_REACH := 34.0
+const MASS_UNIT := 1.6
+const MASS_MIN := 0.15
+const MASS_MAX := 900.0
 ## A streamed field dresses dozens of bodies in the same second, and every one of
 ## them asks for the same twenty pictures, so the lookup is done once per shape.
 static var _art := {}
@@ -73,6 +81,11 @@ func set_form(which: String, scale_px: float, color: Color) -> void:
 	shape = which
 	px_scale = scale_px
 	tint = color
+	# A pooled body is handed a new life, not a continued one: the drift a rock
+	# earned before it left the window belongs to the stone that left, not to the
+	# one the field is putting down here.
+	linear_velocity = Vector2.ZERO
+	angular_velocity = 0.0
 	piece.clear()
 	extent = 0.0
 	var name := "asteroid_" + shape
@@ -95,9 +108,8 @@ func set_form(which: String, scale_px: float, color: Color) -> void:
 		piece.append(point)
 		extent = maxf(extent, point.length())
 	shape_node.polygon = piece
-	# A frozen body does not trade momentum, but it still carries the mass it will
-	# need the day it stops being a wall.
-	mass = clampf(pow(extent / 90.0, 2.0) * 6.0, 0.5, 80.0)
+	# volume, not area: the same shove that sends a pebble flying only leans a hill
+	mass = clampf(pow(extent / MASS_REACH, 3.0) * MASS_UNIT, MASS_MIN, MASS_MAX)
 
 
 ## How far the stone reaches along a world direction - what a caller outside it

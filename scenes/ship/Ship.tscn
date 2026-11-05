@@ -17,15 +17,17 @@
 [ext_resource type="Resource" path="res://assets/ship/systems_parameters.tres" id="15_systemparams"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_hull"]
-friction = 0.4
-bounce = 0.5
+friction = 0.1
+bounce = 0.0
 
 [node name="Ship" type="RigidBody2D"]
 collision_layer = 2
 collision_mask = 1
+mass = 30.0
+inertia = 220000.0
 gravity_scale = 0.0
 can_sleep = false
-continuous_cd = true
+continuous_cd = 2
 contact_monitor = true
 max_contacts_reported = 4
 linear_damp_mode = 1

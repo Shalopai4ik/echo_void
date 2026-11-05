@@ -1,26 +1,27 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene format=3 uid="uid://cg7npbojw3qge"]
 
 [ext_resource type="PackedScene" path="res://scenes/ship/Ship.tscn" id="1_ship"]
 [ext_resource type="PackedScene" path="res://scenes/InfiniteSpaceBackground.tscn" id="2_bg"]
 [ext_resource type="PackedScene" path="res://scenes/world/GasGiant.tscn" id="3_giant"]
-[ext_resource type="Script" path="res://scripts/world/world_field.gd" id="4_field"]
+[ext_resource type="Script" uid="uid://cw74nvjlfi6m6" path="res://scripts/world/world_field.gd" id="4_field"]
 [ext_resource type="Resource" path="res://assets/world/space_generation.tres" id="5_set"]
 [ext_resource type="PackedScene" path="res://scenes/hud/HUD.tscn" id="6_hud"]
-[ext_resource type="Script" path="res://scripts/world/world_chunk_debug.gd" id="7_chunks"]
+[ext_resource type="Script" uid="uid://c7adeuio3xh3k" path="res://scripts/world/world_chunk_debug.gd" id="7_chunks"]
 
-[node name="SpaceMap" type="Node2D"]
+[node name="SpaceMap" type="Node2D" unique_id=455158461]
 
-[node name="Background" parent="." instance=ExtResource("2_bg")]
+[node name="Background" parent="." unique_id=1676626524 instance=ExtResource("2_bg")]
 
-[node name="GasGiant" parent="." instance=ExtResource("3_giant")]
+[node name="GasGiant" parent="." unique_id=901333083 instance=ExtResource("3_giant")]
 
-[node name="Field" type="Node2D" parent="."]
+[node name="Field" type="Node2D" parent="." unique_id=253293616]
 script = ExtResource("4_field")
 settings = ExtResource("5_set")
 
-[node name="ChunkDebug" type="Node2D" parent="Field"]
+[node name="ChunkDebug" type="Node2D" parent="Field" unique_id=534431792]
 script = ExtResource("7_chunks")
 
-[node name="Ship" parent="." instance=ExtResource("1_ship")]
+[node name="Ship" parent="." unique_id=1241449712 instance=ExtResource("1_ship")]
+continuous_cd = 2
 
-[node name="HUD" parent="." instance=ExtResource("6_hud")]
+[node name="HUD" parent="." unique_id=840427716 instance=ExtResource("6_hud")]

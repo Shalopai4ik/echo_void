@@ -186,6 +186,10 @@ func _clear_the_arena() -> void:
 		# of it. Without this the test logs a script error every time it parks again.
 		if not is_instance_valid(rock):
 			continue
+		# A live body keeps its own transform in the physics server, so it is
+		# parked the way the server understands: held still, moved, and left
+		# static for the phase that follows.
+		rock.freeze = true
 		rock.global_position = Vector2(0, 38000.0)
 
 
@@ -199,6 +203,7 @@ func _restore_the_arena() -> void:
 		var home: Array = _homes[rock]
 		rock.global_position = home[0]
 		rock.global_rotation = home[1]
+		rock.freeze = false
 
 
 func _frames_for(seconds: float) -> int:
@@ -209,6 +214,10 @@ func _frames_for(seconds: float) -> int:
 ## lived, so the belt is restored at the end of the run.
 func _stone_ahead(at: Vector2 = STONE_AT) -> void:
 	_stone = _rocks[0]
+	# The state layer is what this suite grades, so the stone is a wall on
+	# purpose: one repeatable meeting, and the belt's impulse model is not part
+	# of the verdict - collision_response_test owns that.
+	_stone.freeze = true
 	_stone.global_position = at
 	_stone.linear_velocity = Vector2.ZERO
 	_stone.angular_velocity = 0.0
@@ -578,6 +587,10 @@ func _test_collisions() -> void:
 	_reset_counters()
 	await _park()
 	_stone_ahead()
+	# A pebble is shoved aside and the hull carries on, which is what the belt is
+	# for; this phase is about not flying through a rock, so the stone is dressed
+	# as a hill and the meeting has to cost the hull.
+	_stone.set_form("01", 3.2, _stone.tint)
 	await _launch_at(Vector2.RIGHT, 500.0, _ship.max_forward_speed)
 	var closest := INF
 	for i in 60:

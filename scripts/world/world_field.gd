@@ -57,6 +57,11 @@ const DEBRIS_SCENE := "res://scenes/world/Debris.tscn"
 const CHUNK := preload("res://scripts/world/world_chunk.gd")
 const CHUNK_STATE := preload("res://scripts/world/chunk_state_store.gd")
 
+## Decor planes are the background by definition (`physics` false and parallax below
+## one). They are pushed back with RGB only: a background object has to stay fully
+## opaque, or its silhouette breaks up against the nebula and reads as glass.
+const BACKGROUND_ALPHA := 1.0
+
 @export_group("Source")
 ## The whole tuning surface. Left empty, the field builds the shipped default belt
 ## in code, so a project can start flying before anyone has authored a file.
@@ -254,6 +259,10 @@ func _default_rocks() -> SpaceObjectKind:
 ## only 55% of the ship's motion. They carry no body, so the hull passes through them;
 ## that is the whole point - a silhouette that cannot say which side the light is on
 ## should not be a wall.
+##
+## The dimming is a colour grade, not transparency: the stone stays fully opaque so
+## its outline and surface detail survive against the nebula. Alpha below one would
+## make it read as glass rather than as something far away.
 func _default_shadows() -> SpaceObjectKind:
 	var k := SpaceObjectKind.new()
 	k.label = "shadows"
@@ -276,11 +285,12 @@ func _default_shadows() -> SpaceObjectKind:
 	k.max_per_chunk = 7
 	k.max_live = 56
 	# Below 1 darkens: the same plate the solid belt is cut from, without the light
-	# that tells a pilot there is something to steer around.
-	k.tint_from = Color(0.50, 0.53, 0.62, 1.0)
-	k.tint_to = Color(0.72, 0.75, 0.85, 1.0)
-	k.alpha_min = 0.45
-	k.alpha_max = 0.80
+	# that tells a pilot there is something to steer around. RGB carries the whole
+	# depth cue; the alpha channel stays at one.
+	k.tint_from = Color(0.30, 0.34, 0.44, 1.0)
+	k.tint_to = Color(0.46, 0.50, 0.62, 1.0)
+	k.alpha_min = BACKGROUND_ALPHA
+	k.alpha_max = BACKGROUND_ALPHA
 	k.spin_max = 0.05
 	return k
 
@@ -343,12 +353,25 @@ func _default_decor(name: String, dir: String, prefix: String, chance: float,
 	k.patch_floor = 0.1
 	k.size_min = size.x
 	k.size_max = size.y
-	k.alpha_min = 0.5
-	k.alpha_max = 1.0
+	k.alpha_min = BACKGROUND_ALPHA
+	k.alpha_max = BACKGROUND_ALPHA
 	k.parallax = parallax
 	k.spin_max = 0.05
 	k.max_per_chunk = 4
 	k.max_live = 40
+	# The whole decor plane is background, so its colour is the depth cue. The
+	# authored tint is graded by the plane's own parallax: a far silhouette stays
+	# darker than a near one, which is what makes the layers read as distance
+	# instead of as a single flat backdrop. Beacons are additive glows, so their
+	# tint dims the light without making the sprite transparent.
+	if name == "beacons":
+		k.tint_from = Color(0.55, 0.60, 0.70, 1.0)
+		k.tint_to = Color(0.72, 0.76, 0.86, 1.0)
+	else:
+		var depth := clampf(parallax, 0.0, 1.0)
+		var low := lerpf(0.22, 0.54, depth)
+		k.tint_from = Color(low * 0.92, low * 0.98, low * 1.12, 1.0)
+		k.tint_to = Color(low * 1.30, low * 1.36, low * 1.50, 1.0)
 	# light adds to what is behind it instead of covering it, which is the only way
 	# a glow reads as a glow over a nebula
 	k.add_blend = name == "beacons"
@@ -1304,6 +1327,10 @@ func _place_sprite(pop: Population, chunk: Node2D, item: Dictionary, local: Vect
 	var s: float = item["scale"]
 	var flip: float = -1.0 if item["flip"] else 1.0
 	sp.scale = Vector2(s, s * flip)
+	# A pooled sprite is handed a new life, not a continued one: both colour channels
+	# are written from the plan, so a dim background tint can never leak into the next
+	# object and a foreground sprite can never inherit one.
+	sp.self_modulate = Color.WHITE
 	sp.modulate = item["tint"]
 	sp.material = EchoSpaceLayer.material_for(pop.res.add_blend)
 	# the belt art was cut from a photographic plate, so it is resampled, not
@@ -1397,7 +1424,9 @@ func _dress(pop: Population, cell: Vector2i, c: Vector4) -> Dictionary:
 	var rec := _art_of(pop, tier, cell)
 	var scale := _scale_of(pop, tier, cell)
 	var tint := _tint_of(pop, tier, cell)
-	var alpha := lerpf(res.alpha_min, res.alpha_max, HASH.hashf(cell.x, cell.y, res.salt + 7, _seed))
+	# A decorative sprite is background: its depth is told by RGB, never by alpha.
+	var alpha := BACKGROUND_ALPHA if not res.physics \
+		else lerpf(res.alpha_min, res.alpha_max, HASH.hashf(cell.x, cell.y, res.salt + 7, _seed))
 	var rot := lerpf(res.rotation_from, res.rotation_to,
 					 HASH.hashf(cell.x, cell.y, res.salt + 8, _seed))
 	var items: Array = [_item(pop, rec, scale, tint, alpha, rot, point, cell, res.salt, 0)]
@@ -1484,6 +1513,9 @@ func _accepts(pop: Population, cell: Vector2i, me: Dictionary, memo: Dictionary)
 func _item(pop: Population, rec: Dictionary, scale: float, tint: Color, alpha: float,
 		   rot: float, at: Vector2, cell: Vector2i, salt: int, slot: int) -> Dictionary:
 	var res := pop.res
+	# Background sprites stay opaque whatever the resource says: the alpha channel is
+	# not a depth knob here, and a pooled sprite must never inherit one.
+	var out_alpha := BACKGROUND_ALPHA if not res.physics else tint.a * alpha
 	return {
 		# the stable name of this object, independent of the node that ends up
 		# wearing it: its lattice cell and its place in that cell's knot. Every
@@ -1496,7 +1528,7 @@ func _item(pop: Population, rec: Dictionary, scale: float, tint: Color, alpha: f
 		"file": rec["file"],
 		"id": rec["id"],
 		"scale": scale,
-		"tint": Color(tint.r, tint.g, tint.b, tint.a * alpha),
+		"tint": Color(tint.r, tint.g, tint.b, out_alpha),
 		"rot": rot,
 		# a mirrored silhouette is free variety for a sprite, but not for a body:
 		# its collision outline comes from the same table as its picture, so solid

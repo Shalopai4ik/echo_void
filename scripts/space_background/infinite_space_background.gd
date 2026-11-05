@@ -261,8 +261,14 @@ func _tint_for(name: String) -> Color:
 			return Color(exposure * far, exposure * far, exposure * far, 1.0)
 		"stars_far_t", "stars_near_t", "stars":
 			return Color(exposure * 0.92, exposure * 0.96, exposure, 1.0)
+		# Background objects, not light: they stay opaque and are pushed back by
+		# their colour alone, so a stone never turns into a transparent pane.
+		"midground":
+			return Color(exposure * 0.30, exposure * 0.34, exposure * 0.43, 1.0)
+		"near":
+			return Color(exposure * 0.44, exposure * 0.48, exposure * 0.58, 1.0)
 		"anomaly":
-			return Color(exposure * 0.9, exposure * 0.95, exposure, 1.0)
+			return Color(exposure * 0.58, exposure * 0.62, exposure * 0.72, 1.0)
 	return Color(exposure, exposure, exposure, 1.0)
 
 
@@ -465,13 +471,13 @@ func _build_bands(a: Dictionary) -> void:
 
 	_band("midground", "MidgroundLayer", _merge([_small(a["asteroid"], 96), a["debris"]], "rock"), {
 		"scroll_factor": 0.42, "salt": 51, "max_per_cell": 2,
-		"rotation_range": Vector2(0, TAU), "alpha_range": Vector2(0.6, 1.0),
+		"rotation_range": Vector2(0, TAU), "alpha_range": Vector2(1.0, 1.0),
 		"patch_block": 5, "patch_min": 0.08,
 	}, "midground")
 
 	_band("near", "NearObjectsLayer", _big(a["asteroid"], 96), {
 		"scroll_factor": 0.88, "salt": 67, "max_per_cell": 1,
-		"rotation_range": Vector2(0, TAU), "alpha_range": Vector2(0.85, 1.0),
+		"rotation_range": Vector2(0, TAU), "alpha_range": Vector2(1.0, 1.0),
 		"patch_block": 4, "patch_min": 0.05,
 	}, "near")
 
@@ -479,7 +485,7 @@ func _build_bands(a: Dictionary) -> void:
 	if not anom.is_empty():
 		_band("anomaly", "AnomalyLayer", anom, {
 			"scroll_factor": 0.30, "salt": 83, "max_per_cell": 1,
-			"rotation_range": Vector2(-0.35, 0.35), "alpha_range": Vector2(0.4, 0.85),
+			"rotation_range": Vector2(-0.35, 0.35), "alpha_range": Vector2(1.0, 1.0),
 			"drift_amp": 6.0, "size_range": Vector2(0.75, 1.5),
 		}, "anomaly")
 

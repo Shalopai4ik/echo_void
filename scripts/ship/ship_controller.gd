@@ -990,5 +990,3 @@ func active_systems() -> String:
 ## text: `if ship.ship_state_value() == ShipState.State.BOOSTING`.
 func ship_state_value() -> int:
 	return ship_state.primary if ship_state != null else ShipState.State.NORMAL
-
-

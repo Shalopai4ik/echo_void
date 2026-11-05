@@ -131,6 +131,10 @@ is derived from its switch, its integrity and its power grant by one function in
   matter, frame rate does not matter, and nothing has to be remembered.
 * One flag on a population decides its kind: `physics` populations become real
   bodies, everything else becomes flat parallax sprites with no simulation cost.
+* A decorative population is background, so its depth is carried by RGB, never by
+  alpha: the sprite stays opaque, its tint is graded down by its own `parallax`
+  (a farther plane is darker), and a pooled sprite has both colour channels
+  rewritten when it is handed a new object.
 * What the player changed lives in `ChunkStateStore`, keyed by chunk id and the
   object's stable `cell:slot` id; the generated content is never stored.
 * The work per frame is budgeted: unload largest-backlog-first, build

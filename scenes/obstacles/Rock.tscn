@@ -3,13 +3,12 @@
 [ext_resource type="Script" path="res://scripts/obstacles/rock.gd" id="1_rock"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_rock"]
-friction = 0.2
-bounce = 0.5
+friction = 0.1
+bounce = 0.0
 
 [node name="Rock" type="RigidBody2D"]
 collision_layer = 1
-collision_mask = 0
-freeze = true
+collision_mask = 2
 gravity_scale = 0.0
 can_sleep = false
 physics_material_override = SubResource("PhysicsMaterial_rock")

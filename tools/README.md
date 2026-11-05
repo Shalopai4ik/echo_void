@@ -13,7 +13,7 @@ tools/
     shared/pipeline_common.py   the one place paths, logging and CLI live
     ship/                     the fighter's canvases and the assembler
       canvases/               the hand-drawn art the ship textures are cut from
-    asteroids/                the belt sprite cutter
+    asteroids/                the belt sprite cutter: whole sheets and one block
     background/
       layers/                 the cut plates: ships as the game's space_bg input
       layer_split/            the ladder that cut them (needs the source plate)
@@ -48,6 +48,11 @@ python tools/asset_pipeline/world/make_stage2_decor.py --output <scratch>/world
 # the ship: byte-identical, 4 of 4 files
 python tools/asset_pipeline/ship/assemble_ship.py --output <scratch>
 
+# the belt's 20 asteroids + their collision shapes, from a rock sheet
+python tools/asset_pipeline/asteroids/cut_asteroid_sheet.py -i <sheet.png> \
+  --output <scratch>/asteroids --shapes <scratch>/asteroid_shapes.gd \
+  --manifest <scratch>/asteroids.json
+
 # the space background: 153 of 153 PNG byte-identical, 4 tiles differ - see the
 # note below before replacing anything
 python tools/asset_pipeline/background/prep_assets.py --output <scratch>/space_bg
@@ -64,6 +69,11 @@ plate that lived on one machine
 repository**. Re-running it needs `--source <that plate>`. The extracted plates
 it produced are in `background/layers/`, so `prep_assets.py` still works without
 the original.
+
+The asteroid sheet is the same story: `cut_asteroid_sheet.py` takes the rock
+sheet as `-i`, and that sheet is art input, not something the repository holds.
+The 20 shipped `assets/asteroids/*.png`, `scripts/asteroid_shapes.gd` and
+`manifests/asteroids_report.json` are its output.
 
 Running `prep_assets.py` today reproduces 153 of 157 shipped `space_bg` PNGs
 byte for byte. Four do not match, and the difference is an **improvement in the

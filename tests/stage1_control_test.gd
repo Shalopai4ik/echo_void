@@ -986,10 +986,13 @@ func _test_i_collisions() -> void:
 	var pebble: Node2D = _pick_smallest()
 	var boulder: Node2D = _pick_largest()
 
-	# a full-speed ram at the smallest stone has to stop at its surface
+	# a full-speed ram at the smallest stone. The hull must not pass through it
+	# without a contact, and it must not be thrown back by it either: a pebble is
+	# shoved aside now, and the heavy hull carries most of its speed through.
 	await _park_aimed(pebble.global_position + Vector2(0, 1550), pebble.global_position)
 	_ship.linear_velocity = Vector2(0, -_ship.max_forward_speed)
 	var impact := _speed()
+	var stone_was := pebble.global_position
 	var hits_before := _hits
 	Input.action_press("thrust_forward")
 	var frames := 0
@@ -998,21 +1001,19 @@ func _test_i_collisions() -> void:
 		frames += 1
 	Input.action_release("thrust_forward")
 	var touched := _hits > hits_before
-	await _wait(20)
+	var worst_along := 9999.0
+	for i in 20:
+		await _step()
+		worst_along = minf(worst_along, _ship.linear_velocity.dot(Vector2.UP))
 	_ok("the ship cannot pass through a rock", touched,
 		"contact after %.2f s at %.0f px/s" % [frames / 60.0, impact])
-	_ok("the meeting changed the ship's motion", _speed() < impact * 0.85,
+	_ok("a pebble barely slows the heavy hull", _speed() > impact * 0.6,
 		"%.0f -> %.0f px/s" % [impact, _speed()])
-	# which way it went matters more than how fast: a hull that stops dead on a
-	# pebble is stuck to it, a hull that comes back is a ship in space
-	var away := _ship.linear_velocity.dot(
-		_ship.global_position.direction_to(pebble.global_position))
-	_ok("the ship comes off the stone instead of dead-stopping", away < -20.0,
-		"%.0f px/s away from the rock" % away)
-	_ok("the hull stayed on the side it came from",
-		_ship.global_position.y > pebble.global_position.y - pebble.extent,
-		"dy=%.0f px, reach=%.0f" % [pebble.global_position.y - _ship.global_position.y,
-		pebble.extent])
+	_ok("a pebble never throws the hull back", worst_along > -1.0,
+		"%.0f px/s along the approach at the worst frame" % worst_along)
+	_ok("the pebble is shoved aside instead",
+		stone_was.distance_to(pebble.global_position) > 20.0,
+		"stone moved %.0f px" % stone_was.distance_to(pebble.global_position))
 	_ok("the speed a contact left behind is what the model starts from",
 		_speed() > 20.0, "%.0f px/s still moving after the meeting" % _speed())
 

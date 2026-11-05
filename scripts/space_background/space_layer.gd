@@ -216,6 +216,9 @@ func _build(cell: Vector2i) -> Node2D:
 		sp.position = d["pos"]
 		sp.rotation = d["rot"]
 		sp.scale = d["scale"]
+		# The sprite may have come out of the pool: write both colour channels from
+		# the plan so no previous band's tint or alpha can survive the reuse.
+		sp.self_modulate = Color.WHITE
 		sp.modulate = d["color"]
 		sp.material = material_for(add_blend)
 		sp.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
