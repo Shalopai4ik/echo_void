@@ -441,6 +441,84 @@ that is cut. `stage1_5_audio_test` passes 105/105 after the fix.
 
 ---
 
+## Stage 17 - repository organisation pass
+
+Second audit pass, run on branch `tech-health` at `d5eba6d` with a clean working
+tree (984 tracked files). Goal: the tree should hold only what runs, tests,
+regenerates and documents the game; nothing was renamed inside the game itself.
+
+### Outside the repository
+
+`D:\programming\ideas` held the first generation of the art pipeline beside the
+project. All of it moved to `D:\programming\ideas\_archive\` unchanged - nothing
+deleted, nothing read by the game:
+
+| moved | size | why it is only an archive |
+| --- | --- | --- |
+| `tools/` (411 files) | 78.1 MB | superseded by `echo_void/tools/`; its `layer_split/masks.npz` is MD5-identical to the copy kept in the repository (`B88567DB…`) |
+| `files/aee34b98-…png` | 1.1 MB | the ship reference sheet; the same sheet is `tools/scratch/_ship_sheet_source.png` |
+| `_seammark_ref_h.png`, `_seammark_ref_v.png` | 0.04 MB | seam references for `find_seam.py`, which now lives in the repository |
+| `EchoOfVoid_Background_Layers.zip` | 4.4 MB | intermediate output of the layer-split ladder, not project input |
+
+`ideas/README.md` lists what the archive contains and states it can be deleted.
+
+### Inside the repository
+
+| change | detail |
+| --- | --- |
+| `tests/_exp_*.gd` (4 benches + `.uid`) → `tests/experiments/` | `git mv`. They print measurements and never assert, so the runner called them suites and counted them as CRASH/PASS on silence. The runner enumerates `tests/*.gd` without recursing, so suites found drops from 35 to 31 (22 logic, 9 visual) with no test lost. `tests/experiments/README.md` documents them and how to run each by hand |
+| `README-space-background.md` → `docs/space_background.md` | 31 KB system doc that had no reference from anywhere; its three `screenshots/…` paths now say `test-output/…` |
+| `screenshots/` → archive | 248 PNG, 15.9 MB, output of runs from before the visual suites were retargeted. No suite reads it |
+| `test-output/` → archive | 203 files, 11.9 MB of old logs, plus the `summary.csv.import` and `*.translation` files Godot had generated beside them |
+| `test-output/.gdignore` (force-added) | the folder is inside `res://`, so Godot imported every screenshot a run wrote. After the flag: 60 files written by `bg_screens`, 0 `.import` side-cars. A fresh clone has the flag because it is force-added past the ignore rule |
+| `tools/asset_pipeline/.gdignore` | same reason: 162 pipeline PNGs are Python input, never game resources |
+| 163 tracked `*.png.import` under `tools/` removed | editor metadata for those pipeline PNGs. `--import` after the change regenerated none of them, which is the check that `.gdignore` is in force. `tools/author_world_settings.gd` is outside the ignored folder and still runs |
+| `tools/scratch/*.import` removed, `__pycache__/` removed | generated, gitignored |
+| `docs/README.md` | index of the eleven docs |
+| `README.md` | layout and counts corrected (they said 21/13/8 suites; the tree had 35/26/9) |
+| `tools/README.md`, `.gitignore` | record the two `.gdignore` flags and why the side-cars are gone |
+
+### Verification
+
+| check | result |
+| --- | --- |
+| `project.godot` | unchanged (`git status` reports no edit); `run/main_scene` still `res://scenes/world/SpaceMap.tscn` |
+| `godot --headless --path . --import` | exit 0, no error on stdout or stderr |
+| `SpaceMap.tscn`, 300 frames headless | exit 0, no output |
+| `main.tscn` (legacy slice), 200 frames headless | exit 0, no output |
+| `res://` references in scenes, scripts, tools, tests | 82 distinct, 7 unresolved - all 7 are `test-output/…` output folders the visual suites create themselves |
+| `tools/validation/asset_check.py` | 17 ok, 0 failed, 1 warning (audio still empty) |
+| `assemble_ship.py --dry-run`, `make_stage2_decor.py --dry-run`, `prep_assets.py --dry-run` | all three plan their output, write nothing |
+| logic suites (`run_tests.ps1`) | 22 suites, 21 PASS, 0 TIMEOUT, 0 PARSE ERROR, 1512 asserts |
+| `stage2_world_test` re-run alone | `RESULT: ALL PASS`, worst generating frame 2130 µs of a 6000 µs budget |
+| visual suites (`run_tests.ps1 -Visual`) | 9 suites, 3 PASS, 133 asserts |
+
+### What the two runs exposed (none of it caused by this pass)
+
+* `stage2_world_test` failed its frame-budget assert once, at 7257 µs against a
+  6000 µs budget, while the whole suite set ran. Alone, on an idle machine, the
+  same assert measures 2130 µs. The budget is measured, not mocked, so the suite
+  is load-sensitive; it is not a regression and the assert was not touched.
+* `stage1_flight_screens` fails 12-13 asserts about hull readability and brake
+  station lighting. A pristine `git worktree` at `d5eba6d`, with none of this
+  pass applied, fails the same assertions, so the suite was already red.
+* The runner calls the five image-only visual suites (`bg_debug`, `bg_screens`,
+  `screenshot`, `stage3_3_chunk_screens`, `stage3_4_space_screens`) CRASH: they
+  print `saved …` and no `RESULT:` line, and "no result line and no asserts" is
+  a crash by the runner's own rule. `bg_screens` writes the same seven frames
+  with the same means as the archived pre-pass run.
+* `collision_response_test` asserts nothing and ends with a literal
+  `RESULT: ALL PASS`, so the runner reports 0 asserts / PASS. It is a bench that
+  was named as a test - worth either turning into one or moving next to
+  `tests/experiments/`, which is the owner's call.
+
+### Git
+
+Nothing committed. The pass is staged so `git diff --cached` shows it whole: 9
+renames, 4 additions, 3 modified files, 163 deletions (all `.import`).
+
+---
+
 ## Unresolved
 
 1. No standalone export build - no 4.7.2 export template installed locally.

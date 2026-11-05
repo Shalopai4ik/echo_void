@@ -9,6 +9,7 @@ generator the project could run again.
 tools/
   requirements.txt          python dependencies of the pipeline
   asset_pipeline/
+    .gdignore                 keeps Godot out: this art is Python input, not game resources
     shared/pipeline_common.py   the one place paths, logging and CLI live
     ship/                     the fighter's canvases and the assembler
       canvases/               the hand-drawn art the ship textures are cut from

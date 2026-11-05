@@ -45,12 +45,22 @@ tools/asset_pipeline/ship/canvases/assembled.png
 
 # ------------------------------------------------------------------- testing
 # Screenshots written by the visual suites, and the logs a run leaves behind.
-# Everything the suites write now goes under test-output/ and nothing there is
-# tracked. screenshots/ holds the output of past runs, kept on disk for
-# reference but no longer tracked: no suite reads from it, so it is a build
-# artefact rather than a baseline.
+# Everything the suites write goes under test-output/ and nothing there is
+# tracked - except `test-output/.gdignore`, which is force-added: it tells Godot
+# the folder is not project resources, so a run's screenshots and CSVs are never
+# imported (before it, Godot generated summary.csv.import and *.translation
+# files next to every log). The old tracked screenshots/ folder is gone; the
+# reference renders from past runs live outside the repository.
 test-output/
+!test-output/.gdignore
 screenshots/
+
+# --------------------------------------------------------------- pipeline art
+# tools/asset_pipeline/ holds the source canvases the shipped textures are cut
+# from - input to Python, never loaded by the game. Its .gdignore keeps the
+# editor from importing the pipeline PNGs and writing .import side-cars beside
+# them, so those side-cars are no longer tracked either.
+# tools/author_world_settings.gd sits outside that folder and still runs.
 tools/testing/logs/
 tools/*.log
 tools/*.err

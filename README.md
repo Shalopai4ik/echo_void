@@ -45,11 +45,10 @@ echo_void/
     space_background/        infinite parallax background
     audio/audio_mixer.gd
     ship.gd, asteroid_field.gd, asteroid*.gd, hud.gd   the legacy slice
-  tests/                     21 suites, all runnable headless
+  tests/                     31 suites (22 logic, 9 visual) + experiments/ benches
   tools/                     the art pipeline, the validator and the test runner
-  docs/                      architecture, testing, audio, the cleanup log
-  screenshots/               NOT IN GIT - visual suite output from past runs
-  test-output/               NOT IN GIT - what a run writes now
+  docs/                      architecture, testing, audio, space background, cleanup log
+  test-output/               NOT IN GIT - what a run writes, .gdignore'd so Godot never imports it
 ```
 
 ## Open the project
@@ -71,10 +70,10 @@ what F5 runs, check the scene tab first.
 ## Run the tests
 
 ```powershell
-tools\testing\run_tests.ps1                 # the 13 headless suites
+tools\testing\run_tests.ps1                 # the 22 headless suites
 tools\testing\run_tests.ps1 -List           # every suite and its kind
 tools\testing\run_tests.ps1 -Suite hud_test # one
-tools\testing\run_tests.ps1 -Visual         # the 8 that screenshot (needs a GPU)
+tools\testing\run_tests.ps1 -Visual         # the 9 that screenshot (needs a GPU)
 tools\testing\run_tests.ps1 -Full
 ```
 
