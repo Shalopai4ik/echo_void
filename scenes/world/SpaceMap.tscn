@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://cg7npbojw3qge"]
+[gd_scene load_steps=13 format=3 uid="uid://cg7npbojw3qge"]
 
 [ext_resource type="PackedScene" path="res://scenes/ship/Ship.tscn" id="1_ship"]
 [ext_resource type="PackedScene" path="res://scenes/InfiniteSpaceBackground.tscn" id="2_bg"]
@@ -9,6 +9,9 @@
 [ext_resource type="Script" uid="uid://c7adeuio3xh3k" path="res://scripts/world/world_chunk_debug.gd" id="7_chunks"]
 [ext_resource type="Script" path="res://scripts/ship/systems/scanner_system.gd" id="8_scanner"]
 [ext_resource type="Resource" path="res://assets/ship/scanner_profile.tres" id="9_profile"]
+[ext_resource type="Script" path="res://scripts/research/research_system.gd" id="10_research_system"]
+[ext_resource type="Resource" path="res://assets/research/research_profile.tres" id="11_research_profile"]
+[ext_resource type="Script" path="res://scripts/ship/systems/ship_decoy_launcher.gd" id="12_decoy_launcher"]
 
 [node name="SpaceMap" type="Node2D" unique_id=455158461]
 
@@ -33,6 +36,30 @@ component_id = "scanner"
 title = "Survey Scanner"
 power_priority = 20
 nominal_power_draw = 6.0
+starts_enabled = false
+
+[node name="Research" type="Node" parent="Ship/Systems"]
+script = ExtResource("10_research_system")
+profile = ExtResource("11_research_profile")
+component_id = "research"
+title = "Research Desk"
+power_priority = 15
+nominal_power_draw = 4.0
+starts_enabled = false
+
+[node name="DecoyLauncher" type="Node" parent="Ship/Systems"]
+script = ExtResource("12_decoy_launcher")
+component_id = "decoy_launcher"
+title = "Decoy Launcher"
+power_priority = 10
+nominal_power_draw = 0.0
+activation_cost = 30.0
+cooldown_sec = 15.0
+decoy_speed = 150.0
+decoy_lifetime = 20.0
+signal_intensity = 1.2
+signal_radius = 900.0
+max_concurrent_decoys = 3
 starts_enabled = false
 
 [node name="HUD" parent="." unique_id=840427716 instance=ExtResource("6_hud")]
