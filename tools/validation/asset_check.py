@@ -53,7 +53,6 @@ AUDIO_DIR = ASSETS_DIR / "audio" / "ship"
 # A single file the game names outright.
 NAMED = (
     ("main scene", SCENES_DIR / "world" / "SpaceMap.tscn"),
-    ("legacy scene", SCENES_DIR / "main.tscn"),
     ("bus layout", PROJECT_ROOT / "default_bus_layout.tres"),
     ("world settings resource", ASSETS_DIR / "world" / "space_generation.tres"),
     ("engine parameters", ASSETS_DIR / "ship" / "engine_parameters.tres"),
@@ -62,8 +61,8 @@ NAMED = (
     ("project file", PROJECT_ROOT / "project.godot"),
 )
 
-# The sprites the project icon and the ship scene point at.
-ICONS = ("fighter.png", "cruiser.png")
+# The sprite the project icon and the ship scene point at.
+ICONS = ("cruiser.png",)
 
 # JSON catalogues that must parse and agree with the directory they describe.
 CATALOGUES = (

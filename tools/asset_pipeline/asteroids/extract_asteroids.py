@@ -53,7 +53,7 @@ BRIDGE = 7             # closing that hops the bright rim speckles
 MIN_LOBE = 0.10        # a piece smaller than this share of the rock is noise
 GAMMA = 0.62           # lift: pale-wash art onto a black sky
 SIMPLIFY = 0.018       # approxPolyDP epsilon as a fraction of perimeter
-MAX_PIECES = 8         # matches the CollisionPolygon2D children of Asteroid.tscn
+MAX_PIECES = 8         # most pieces a rock silhouette may break into
 PAD = 2                # transparent border kept around every sprite
 
 

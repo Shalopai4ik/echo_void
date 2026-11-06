@@ -44,6 +44,10 @@ func _initialize() -> void:
 
 
 func _run() -> void:
+	# The headless display server hands out a 64x64 dummy window. With stretch
+	# aspect `expand` that describes a 960x960 canvas instead of the 960x540 frame
+	# this suite measures, so the frame is pinned here rather than inherited.
+	root.size = Vector2i(960, 540)
 	var packed: PackedScene = load(MAP)
 	if packed == null:
 		print("RESULT: FAILED  could not load ", MAP)

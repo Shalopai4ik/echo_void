@@ -38,10 +38,9 @@ class_name ShipController
 ## a node, because a node would have its own `_physics_process`, and two of those
 ## against one hull is precisely the bug the spec warns about.
 ##
-## The nose is +X, because that is how `assets/fighter.png` is drawn and how the
-## hull slabs in `Ship.tscn` are measured: `tools/assemble_ship.py` prints those
-## numbers, and staying in the art's own frame is what lets a redrawn hull drop in
-## without touching a coordinate here.
+## The nose is +X, because that is how `assets/cruiser.png` is drawn and how the
+## hull slabs in `Ship.tscn` are measured: staying in the art's own frame is what
+## lets a redrawn hull drop in without touching a coordinate here.
 ##
 ## `Ship.tscn` pins the body's own damping to zero on purpose. Godot's project
 ## defaults (linear 0.1, angular 1.0) would stack an invisible second resistance

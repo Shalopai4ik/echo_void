@@ -9,8 +9,8 @@ hands over - finds every rock on it, and cuts the N largest into the shipped
 
 Two decisions are worth knowing about:
 
-**Scale.** The belt multiplies a texture by `px_scale` (1.1-2.6 in
-`asteroid_field.gd`) and derives mass from the collision area, so a sprite's
+**Scale.** The belt multiplies a texture by `px_scale` and derives mass from the
+collision area (`scripts/obstacles/rock.gd`), so a sprite's
 pixel size *is* a gameplay number, not a display choice. The sheet's rocks are
 100-370 px across; shipping them as they are would put boulders the size of the
 screen in the belt. So the rocks are ranked by area and dropped onto a geometric
@@ -29,7 +29,7 @@ calibrated to the brightness the existing sprites already have.
 
 Collision comes from the finished sprite's own silhouette, through the same
 ear-clip / greedy-merge decomposition `extract_asteroids.py` uses, capped at the
-six `CollisionPolygon2D` nodes `Asteroid.tscn` carries. Nothing is written until
+six pieces the belt's collision table carries. Nothing is written until
 every rock has been cut, and `--dry-run` writes nothing at all.
 
     python tools/asset_pipeline/asteroids/cut_asteroid_sheet.py \\
@@ -76,7 +76,7 @@ EDGE_CLOSE = 3      # hops the speckles inside a lit crater rim
 KEEP_RIM = 7        # dilation that keeps each rock's own anti-aliased edge
 PAD = 2             # transparent border kept around every sprite, as shipped
 GAMMA = 0.8         # lift: sheet lit for a backdrop, sprite drawn against a void
-SHAPE_NODES = 6     # CollisionPolygon2D children of scenes/Asteroid.tscn
+SHAPE_NODES = 6     # pieces per rock in scripts/asteroid_shapes.gd
 # Simplification scales to try, in order, before a rock is judged too ragged.
 EPS_STEPS = (1.0, 0.7, 1.4, 0.5, 2.0)
 COUNT = 20          # sprites in assets/asteroids/

@@ -470,6 +470,55 @@ func bodies_of(kind_label: String) -> Array[RigidBody2D]:
 	return out
 
 
+## Live world objects whose drawn position is within `radius` of `center`, nearest
+## first, at most `limit` of them (0 means every one).
+##
+## This is the one question a scanner asks, and it is answered from the chunk grid
+## rather than from a walk over the window's silhouettes: the chunk keys that cover
+## the disc are looked up directly and only their children are measured. A sweep in
+## an empty region therefore costs a handful of dictionary probes, whatever the world
+## holds, and it never builds, unloads or remembers anything.
+##
+## `center` is the hull's world position. A decorative plane is drawn shifted by its
+## own parallax, so the disc is projected into each plane's pattern space before the
+## chunk keys are taken - what comes back is what the pilot actually sees around the
+## ship, on every plane at once.
+func objects_near(center: Vector2, radius: float, limit := 0) -> Array[Node2D]:
+	var out: Array[Node2D] = []
+	var r := maxf(radius, 0.0)
+	if r <= 0.0:
+		return out
+	var found: Array = []
+	for pop in _pops:
+		var shift := (1.0 - pop.res.parallax) * _view
+		var middle := center - shift
+		var span := Vector2(maxf(pop.chunk_px.x, 1.0), maxf(pop.chunk_px.y, 1.0))
+		var lo := Vector2i(int(floor((middle.x - r) / span.x)),
+			int(floor((middle.y - r) / span.y)))
+		var hi := Vector2i(int(floor((middle.x + r) / span.x)),
+			int(floor((middle.y + r) / span.y)))
+		for ky in range(lo.y, hi.y + 1):
+			for kx in range(lo.x, hi.x + 1):
+				var chunk: Node2D = pop.chunks.get(Vector2i(kx, ky))
+				if chunk == null or not is_instance_valid(chunk):
+					continue
+				for child in chunk.get_children():
+					var node := child as Node2D
+					if node == null:
+						continue
+					var distance := node.global_position.distance_to(center)
+					if distance > r:
+						continue
+					found.append({"node": node, "d": distance})
+	if found.is_empty():
+		return out
+	found.sort_custom(func(a, b): return float(a["d"]) < float(b["d"]))
+	var take := found.size() if limit <= 0 else mini(limit, found.size())
+	for i in take:
+		out.append(found[i]["node"])
+	return out
+
+
 func _collect(pop: Population, out: Array[RigidBody2D]) -> void:
 	for key in pop.chunks.keys():
 		var chunk: Node2D = pop.chunks[key]
@@ -1305,6 +1354,7 @@ func _place_body(pop: Population, chunk: Node2D, item: Dictionary, local: Vector
 	body.set_meta("scale", item["scale"])
 	body.set_meta("art", item["file"])
 	body.set_meta("object_kind", pop.res.object_kind)
+	body.set_meta("population", pop.res.label)
 	# placed before it enters the tree, so the physics server never sees the body at
 	# the scene's default origin for a step on its way in
 	body.position = local
@@ -1341,6 +1391,7 @@ func _place_sprite(pop: Population, chunk: Node2D, item: Dictionary, local: Vect
 	sp.set_meta("spin", item["spin"])
 	sp.set_meta("base_alpha", item["tint"].a)
 	sp.set_meta("object_kind", pop.res.object_kind)
+	sp.set_meta("population", pop.res.label)
 	if not pop.res.object_kind.is_empty():
 		sp.add_to_group(pop.res.object_kind)
 	chunk.add_child(sp)

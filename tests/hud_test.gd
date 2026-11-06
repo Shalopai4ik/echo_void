@@ -1,6 +1,6 @@
 extends SceneTree
 
-## Headless test for the HUD: one glass, two hulls.
+## Headless test for the HUD: the glass of the one hull the game ships.
 ## Run: godot --headless --path . --script tests/hud_test.gd
 
 var _failed := 0
@@ -42,7 +42,6 @@ func _mentions(lines: Array, needle: String) -> bool:
 
 func _run() -> void:
 	await _current_slice()
-	await _legacy_slice()
 	print("RESULT: ", "FAILED" if _failed > 0 else "ALL PASS", "  hud")
 	quit(1 if _failed > 0 else 0)
 
@@ -61,10 +60,9 @@ func _current_slice() -> void:
 	var state: Dictionary = hud.hud_state()
 
 	_check("the current slice has a glass of its own", hud != null, "")
-	_check("it found the current hull",
-		bool(state.get("ship_bound")) and str(state.get("slice")) == "current",
-		"slice=" + str(state.get("slice")))
-	_check("it does not pretend the hull has armour", not bool(state.get("armour")), "")
+	_check("it found the current hull", bool(state.get("ship_bound")), "")
+	_check("it does not claim armour the hull does not have",
+		not state.has("armour") and not state.has("slice"), str(state.keys()))
 	_check("the mission rows stay hidden without a mission system",
 		not bool(state.get("rows")), "")
 
@@ -115,34 +113,6 @@ func _current_slice() -> void:
 	_check("and so does the title",
 		(hud.get_node("MissionTitle") as Label).text == "ЗАДАЧА ЭТАПА 3:",
 		(hud.get_node("MissionTitle") as Label).text)
-
-	scene.queue_free()
-	await process_frame
-	await _steps(2)
-
-
-## The legacy slice: main.tscn, the old hull with its armour, the old belt.
-func _legacy_slice() -> void:
-	print("-- the legacy slice: main.tscn and the old hull")
-	var scene: Node = load("res://scenes/main.tscn").instantiate()
-	root.add_child(scene)
-	await process_frame
-	await _steps(20)
-
-	var hud: Control = scene.get_node("HUD/Root")
-	var player: Node2D = scene.get_node("Player")
-	var state: Dictionary = hud.hud_state()
-
-	_check("it found the old hull", str(state.get("slice")) == "legacy",
-		"slice=" + str(state.get("slice")))
-	_check("the old hull still gets its bars", bool(state.get("armour")), "")
-	_check("the mission rows stay as they were written", bool(state.get("rows")), "")
-	_check("the bars follow the hull's shield",
-		absf(hud.shield_display() - player.shield_ratio()) < 0.02,
-		"%.2f vs %.2f" % [hud.shield_display(), player.shield_ratio()])
-	_check("and the old hull has no telemetry block",
-		(state.get("telemetry") as Array).is_empty(),
-		str(state.get("telemetry")))
 
 	scene.queue_free()
 	await process_frame

@@ -41,9 +41,6 @@ TESTS_DIR: Path = PROJECT_ROOT / "tests"
 
 SCRATCH_DIR: Path = TOOLS_ROOT / "scratch"
 
-# The hand-drawn canvases the ship tools read. Kept in Git: they are the only
-# copy of the art the shipped `fighter.png` family was cut from.
-CANVAS_DIR: Path = TOOLS_ROOT / "asset_pipeline" / "ship" / "canvases"
 # The plates the background ladder was cut from. Kept in Git: regenerating
 # `assets/space_bg/*` is impossible without them.
 PLATE_DIR: Path = TOOLS_ROOT / "asset_pipeline" / "background" / "layers"

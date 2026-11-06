@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://scenes/InfiniteSpaceBackground.tscn" id="1_bgscene"]
 [ext_resource type="Script" path="res://scripts/space_background/test_ship.gd" id="2_ship"]
-[ext_resource type="Texture2D" path="res://assets/fighter.png" id="3_fighter"]
+[ext_resource type="Texture2D" path="res://assets/cruiser.png" id="3_hull"]
 
 [node name="SpaceBgTest" type="Node2D"]
 
@@ -13,8 +13,7 @@ position = Vector2(480, 270)
 script = ExtResource("2_ship")
 
 [node name="Sprite2D" type="Sprite2D" parent="Ship"]
-scale = Vector2(2, 2)
-texture = ExtResource("3_fighter")
+texture = ExtResource("3_hull")
 
 [node name="Camera2D" type="Camera2D" parent="Ship"]
 

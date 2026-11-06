@@ -1,57 +1,27 @@
 # Architecture
 
-## The two ship slices
+## The ship slice
 
-The project carries two complete implementations of "a ship in space", and the
-HUD is the only place they meet.
+There is one ship: `scenes/world/SpaceMap.tscn` (the project's `run/main_scene`),
+`scripts/ship/ship_controller.gd` (a RigidBody2D whose flight model, camera,
+assists, audio and systems all hang off it as children) and
+`scripts/world/world_field.gd` (the chunked endless field). `scripts/hud.gd` is
+the glass of that hull only: telemetry off the controller, radar contacts off the
+field, and objective rows from a node in the `mission` group when one exists.
 
-| | Legacy | Current |
-| --- | --- | --- |
-| Scene | `scenes/main.tscn` | `scenes/world/SpaceMap.tscn` |
-| Controller | `scripts/ship.gd` | `scripts/ship/ship_controller.gd` |
-| Field | `scripts/asteroid_field.gd` | `scripts/world/world_field.gd` |
-| Status | production | production |
+The old Node2D fighter slice was removed: `scenes/main.tscn`, `scripts/ship.gd`,
+`scripts/asteroid_field.gd`, `scripts/asteroid.gd`, `scripts/hull_bank.gdshader`,
+`scenes/Asteroid.tscn`, `assets/fighter.png` and its exhaust textures, and the
+`tools/asset_pipeline/ship/` generator. The HUD's armour bars went with it - the
+current hull has no shield to report, so the bottom-left block is telemetry. The
+suites that loaded `main.tscn` (smoke, asteroid, combat and the legacy visual
+checks) were removed too; the current hull is covered by `stage1_*`, `ship_*`,
+`cruiser_test`, `collision_response_test` and the visual scenes that mount
+`TestControlMap.tscn`.
 
-Both are in production. `scenes/main.tscn` is the project's legacy main scene
-but **not** `run/main_scene` - that points at `SpaceMap.tscn`. `scripts/hud.gd`
-holds both together: `scripts/hud.gd` was written to talk to either hull.
-
-### What depends on the legacy slice
-
-* `scenes/main.tscn`, `scripts/ship.gd`, `scripts/asteroid_field.gd`,
-  `scripts/asteroid.gd`, `scripts/asteroid_shapes.gd`,
-  `scripts/hull_bank.gdshader`, `scenes/obstacles/Rock.tscn`.
-* Tests that load it by path: `smoke_test.gd`, `asteroid_test.gd`,
-  `combat_test.gd`, `main_flight_screens.gd`, `screenshot.gd`,
-  `ship_anim_screens.gd`, `stage1_flight_screens.gd`.
-* `tests/hud_test.gd` asserts 19 legacy behaviours against `main.tscn`.
-
-### Why it was not removed
-
-1. Deleting it would delete seven suites, including the combat and asteroid
-   coverage, which is the opposite of the brief.
-2. The migration has an accepted interface problem to solve first: the HUD
-   reads `shield_ratio()` off the legacy hull and asks the current world field
-   for its bodies a different way. That interface is the whole cost.
-3. The `hull_bank.gdshader` bank/roll effect is only exercised by the legacy
-   sprite.
-
-### The agreed direction
-
-* The current slice is the one that grows. New features land on
-  `ship_controller.gd` and `world_field.gd`.
-* The legacy slice is isolated but not deleted: it stays as the regression
-  fixture for the flight model and for the HUD's legacy contract.
-* The HUD must stop distinguishing the hulls by poking at implementation
-  internals. The right shape is one small protocol both answer - something like
-  `hull_ratio() -> float` and `radar_bodies() -> Array` - declared once in
-  `scripts/` and implemented by both. That is a follow-up task, listed in
-  `technical_cleanup_log.md`; it was not done here because it changes a scene
-  that seven passing suites depend on.
-* `move_left/right/up/down` in `project.godot` are bound only by the legacy
-  hull and are asserted by `smoke_test.gd` (`action bound: move_left` and
-  friends). They are kept for that reason and documented here rather than
-  deleted on suspicion.
+`move_left/right/up/down` stay in `project.godot` because the background review
+scene's `scripts/space_background/test_ship.gd` reads them. The game itself does
+not bind them.
 
 ## Global services
 
@@ -119,6 +89,15 @@ under `Ship/Systems` and nothing else. Its condition (`NOMINAL` / `DAMAGED` / `O
 is derived from its switch, its integrity and its power grant by one function in
 `ShipSystemState`, so no device can declare itself healthy.
 
+The first device built this way is the survey scanner (stage 5.1, `scanner.md`).
+`ShipScanner` is a `ShipComponent`, so it draws from the same reserve, shows the same
+condition and answers the same `equipment_status()`; what it added was a device that
+*does* something. The one new question it asks is of the world -
+`EchoWorldField.objects_near()` - and it asks it by group and by method name rather
+than by import, so every ship-only suite still mounts it in a scene with no world.
+Nothing in the flight model, the hub, the energy system or the HUD was edited to add
+it, which is the claim the extension point was built to support.
+
 ## World generation
 
 `scripts/world/world_field.gd` is the heart of the current slice:
@@ -150,6 +129,20 @@ bodies, so a long flight does not grow the tree. `bg_system_test` and
 
 See `audio_requirements.md`. The subsystem is complete and silent: 19 named
 streams, 7 buses, a mixer, and no sound files yet.
+
+## Display
+
+The game is authored for a 960x540 canvas and runs with stretch mode
+`canvas_items` and aspect `expand`. The scale therefore stays uniform - a ship
+is never wider than it is tall - and a window that is not 16:9 gains visible
+world on one axis instead of black bars: extra width at 21:9, extra height at
+5:4. The HUD follows the same rule: anything that hugs a corner is offset from
+`DESIGN_SIZE` in `scripts/hud.gd` rather than pinned to a pixel, so the radar
+rides the right edge and the telemetry hangs off the bottom one.
+
+One caveat for tests: the headless display server hands out a 64x64 window,
+which `expand` turns into a 960x960 canvas. Suites that measure the authored
+frame pin `root.size` to 960x540 themselves.
 
 ## Testing
 

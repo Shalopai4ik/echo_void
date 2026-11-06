@@ -13,7 +13,7 @@ config_version=5
 config/name="echo_void"
 run/main_scene="res://scenes/world/SpaceMap.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
-config/icon="res://assets/fighter.png"
+config/icon="res://assets/cruiser.png"
 
 [display]
 
@@ -21,6 +21,7 @@ window/size/viewport_width=960
 window/size/viewport_height=540
 window/size/window_width_override=960
 window/size/window_height_override=540
+window/stretch/aspect="expand"
 window/stretch/mode="canvas_items"
 
 [input]

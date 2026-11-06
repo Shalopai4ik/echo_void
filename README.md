@@ -8,8 +8,9 @@ tells you what happened here.
   GL Compatibility renderer, 960x540 viewport.
 * **Status:** in development. The ship flight model, world generation and HUD are
   complete and tested; the internal systems architecture (power, condition, damage,
-  equipment) landed in stage 4.1 with its mechanics still to come. Combat, the upgrade
-  system and audio content are not.
+  equipment) landed in stage 4.1 and carries its first mechanic, the survey scanner
+  (stage 5.1). Combat, the upgrade system, the scanner's own interface and audio
+  content are not.
 
 ## Requirements
 
@@ -35,19 +36,19 @@ echo_void/
     world/                   decor + space_generation.tres
     audio/ship/              EMPTY - see docs/audio_requirements.md
   scenes/
-    world/SpaceMap.tscn      the current main scene (run/main_scene)
-    main.tscn                the legacy slice, still used by tests
+    world/SpaceMap.tscn      the main scene (run/main_scene)
     ship/, hud/, obstacles/, world/, test/
   scripts/
     ship/                    ship_controller + engine, camera, assist, boost, brake, audio
-    ship/systems/            power, condition, damage and equipment hub (stage 4.1)
+    ship/systems/            power, condition, damage and equipment hub (stage 4.1) + the survey scanner
+    scan/                    the scanner's vocabulary: ScanSignature, ScannerProfile
     world/                   world_field (chunked endless space), gas giant, generation settings
     space_background/        infinite parallax background
     audio/audio_mixer.gd
-    ship.gd, asteroid_field.gd, asteroid*.gd, hud.gd   the legacy slice
-  tests/                     31 suites (22 logic, 9 visual) + experiments/ benches
+    hud.gd                   the glass of the one hull
+  tests/                     27 suites (21 logic, 6 visual) + experiments/ benches
   tools/                     the art pipeline, the validator and the test runner
-  docs/                      architecture, testing, audio, space background, cleanup log
+  docs/                      architecture, testing, audio, scanner, space background, cleanup log
   test-output/               NOT IN GIT - what a run writes, .gdignore'd so Godot never imports it
 ```
 
@@ -59,21 +60,20 @@ godot --path .            # or open the folder in the editor
 
 `run/main_scene` is `res://scenes/world/SpaceMap.tscn`, so that is the scene to
 keep open while working on the game. The editor restores whatever scene was open
-last, and `scenes/main.tscn` is the legacy slice - if the 2D view does not match
-what F5 runs, check the scene tab first.
+last; if the 2D view does not match what F5 runs, check the scene tab first.
 
 ## Play
 
 `W` / `S` thrust and brake, `A` / `D` yaw, `Q` / `E` strafe, `Shift` boost,
-`Space` emergency brake, `R` scan, `F1` debug overlay.
+`Space` emergency brake, `R` radar sweep and survey sweep, `F1` debug overlay.
 
 ## Run the tests
 
 ```powershell
-tools\testing\run_tests.ps1                 # the 22 headless suites
+tools\testing\run_tests.ps1                 # the 21 headless suites
 tools\testing\run_tests.ps1 -List           # every suite and its kind
 tools\testing\run_tests.ps1 -Suite hud_test # one
-tools\testing\run_tests.ps1 -Visual         # the 9 that screenshot (needs a GPU)
+tools\testing\run_tests.ps1 -Visual         # the 6 that screenshot (needs a GPU)
 tools\testing\run_tests.ps1 -Full
 ```
 
@@ -83,7 +83,7 @@ failure and why the exit code alone is not trusted.
 One suite directly:
 
 ```powershell
-godot --headless --path . --script tests/smoke_test.gd
+godot --headless --path . --script tests/hud_test.gd
 ```
 
 ## Regenerate art
@@ -92,14 +92,15 @@ godot --headless --path . --script tests/smoke_test.gd
 python -m pip install -r tools/requirements.txt
 
 python tools/asset_pipeline/world/make_stage2_decor.py --output <scratch>\world
-python tools/asset_pipeline/ship/assemble_ship.py --output <scratch>
 python tools/asset_pipeline/background/prep_assets.py --output <scratch>\space_bg
 ```
 
-Every generator takes `--output`, `--dry-run` and `--force`. Two of the three
-reproduce the shipped assets byte for byte - see `tools/README.md` for the exact
-numbers and for the four background tiles that deliberately were **not**
-regenerated.
+Every generator takes `--output`, `--dry-run` and `--force`. The world generator
+reproduces its 9 files byte for byte; the background one reproduces 153 of 157
+shipped PNGs - see `tools/README.md` for the exact numbers and for the four
+background tiles that deliberately were **not** regenerated. The cruiser art has
+no committed generator: the old fighter pipeline was removed with the legacy
+ship.
 
 ## Validate assets
 
@@ -144,9 +145,11 @@ and **reports a notice rather than guessing at a version** if it does not.
 * The layer-split ladder cannot be re-run end to end: its 1672x941 source plate
   is not in the repository. The extracted plates are, so `prep_assets.py` still
   works.
-* Two implementations of the ship coexist. `docs/architecture.md` explains what
-  depends on which and the agreed direction.
+* `assets/cruiser.png` has no committed generator. The pipeline that produced the
+  old fighter and its exhaust textures was removed together with that ship.
 * No suite frees its scene before quitting, so the "leaked at exit" reports are
   measured and classified (engine artefacts, not project leaks) but not asserted
   away. `docs/testing.md` has the evidence.
-* `move_left/right/up/down` are kept because `smoke_test.gd` asserts them.
+* `move_left/right/up/down` are kept because the background review scene's
+  `test_ship.gd` reads them; the game itself uses `thrust_*`, `strafe_*`,
+  `turn_*` and `boost`.

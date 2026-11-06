@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://cg7npbojw3qge"]
+[gd_scene load_steps=10 format=3 uid="uid://cg7npbojw3qge"]
 
 [ext_resource type="PackedScene" path="res://scenes/ship/Ship.tscn" id="1_ship"]
 [ext_resource type="PackedScene" path="res://scenes/InfiniteSpaceBackground.tscn" id="2_bg"]
@@ -7,6 +7,8 @@
 [ext_resource type="Resource" path="res://assets/world/space_generation.tres" id="5_set"]
 [ext_resource type="PackedScene" path="res://scenes/hud/HUD.tscn" id="6_hud"]
 [ext_resource type="Script" uid="uid://c7adeuio3xh3k" path="res://scripts/world/world_chunk_debug.gd" id="7_chunks"]
+[ext_resource type="Script" path="res://scripts/ship/systems/scanner_system.gd" id="8_scanner"]
+[ext_resource type="Resource" path="res://assets/ship/scanner_profile.tres" id="9_profile"]
 
 [node name="SpaceMap" type="Node2D" unique_id=455158461]
 
@@ -24,4 +26,15 @@ script = ExtResource("7_chunks")
 [node name="Ship" parent="." unique_id=1241449712 instance=ExtResource("1_ship")]
 continuous_cd = 2
 
+[node name="Scanner" type="Node" parent="Ship/Systems"]
+script = ExtResource("8_scanner")
+profile = ExtResource("9_profile")
+component_id = "scanner"
+title = "Survey Scanner"
+power_priority = 20
+nominal_power_draw = 6.0
+starts_enabled = false
+
 [node name="HUD" parent="." unique_id=840427716 instance=ExtResource("6_hud")]
+
+[editable path="Ship"]

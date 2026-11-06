@@ -380,7 +380,7 @@ neighbour's power draw.
 | Damaged power plants | `ShipComponent.power_supply` / `ShipEnergySystem.device_supply()` | a supply that scales with the device's integrity and disappears when it is wrecked |
 | Death sequence | the `hull_destroyed` signal and `ShipSystems.state()` | a clamped pool, per-source costs, critical/destroyed latches, device hit location, and a plant that is cut with the hull |
 | HUD bars | `ShipSystems.energy_ratio()` / `energy_changed`, `hull_integrity()` / `hull_max_integrity()` / `hull_damaged`, `state()`, `system_event` | one writer per number, alarms as signals, no polling needed |
-| Research devices (scanner, decoy launcher, signal flares) | `ShipComponent` subclasses; `equipment_status()` / `activation_denied` | mount/switch/availability/power/damage/status, no hub edit |
+| Research devices (scanner, decoy launcher, signal flares) | `ShipComponent` subclasses; `equipment_status()` / `activation_denied` | mount/switch/availability/power/damage/status, no hub edit. The scanner is the first one built this way (stage 5.1, see `scanner.md`) |
 | Boost's tank | `BoostSystem.set_charge()` / `take_charge()` (documented seam since 1.3) | a `ShipComponent` with `nominal_power_draw` draws from the same reserve |
 
 ## Deliberately not implemented
@@ -393,8 +393,11 @@ neighbour's power draw.
   its control is not cut, and no explosion, camera move or game-over is attached. The
   latch *does* stop the ship's own plant and put every device `OFFLINE` (stage 4.5), but
   the wreck is still flyable and still takes input;
-* no device mechanics: no scanner sweep, no decoy launch, no signal flare. The control
-  system they will use is here; their own behaviour is their own sub-stage;
+* no decoy launcher and no signal flare, and no scanner UI or research: the scanner
+  itself landed in stage 5.1 as a `ShipComponent` (`scanner.md`) and is the template
+  those follow. Its own edge - what a pilot is allowed to learn from a sweep - lives
+  in a `ScannerProfile`, so a new kind of findable thing is a resource entry, not a
+  device change;
 * no equipment UI: no panel, no buttons, no hotkeys. `equipment_status()` is the read
   side a UI will use later;
 * no repair mechanic: `repair_hull()` exists as a seam from 4.1 and is used by tests, but

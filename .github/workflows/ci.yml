@@ -41,7 +41,6 @@ jobs:
         run: |
           python tools/asset_pipeline/world/make_stage2_decor.py --dry-run
           python tools/asset_pipeline/background/prep_assets.py --dry-run
-          python tools/asset_pipeline/ship/assemble_ship.py --dry-run
 
   godot:
     name: godot tests

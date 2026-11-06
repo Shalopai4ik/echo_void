@@ -6,9 +6,10 @@ Every suite is a GDScript file that extends `SceneTree` and is run headless:
 godot --headless --path . --script tests/<suite>.gd
 ```
 
-There are 34 files under `tests\`: 20 logic suites (headless, safe anywhere), 9 visual
-suites (they take screenshots, so they need a real GPU), and 5 `_exp_*` scratch scripts
-that are not suites and are not part of a verdict. `ship_systems_test.gd` is the stage
+There are 27 suites under `tests\`: 21 logic suites (headless, safe anywhere) and 6
+visual suites (they take screenshots, so they need a real GPU). The `_exp_*`
+scratch scripts live under `tests/experiments/`; they are not suites and are not
+part of a verdict. `ship_systems_test.gd` is the stage
 4.1 architecture suite, `ship_energy_test.gd` the stage 4.2 reserve suite,
 `ship_damage_test.gd` the stage 4.3 hull pool suite and `ship_equipment_test.gd` the
 stage 4.4 equipment control suite; `docs/ship_systems.md` says what their phases hold.
@@ -19,7 +20,7 @@ stage 4.4 equipment control suite; `docs/ship_systems.md` says what their phases
 tools\testing\run_tests.ps1                 # all logic suites
 tools\testing\run_tests.ps1 -List           # what exists, and what kind
 tools\testing\run_tests.ps1 -Suite hud_test # one suite
-tools\testing\run_tests.ps1 -Visual         # the 8 visual suites
+tools\testing\run_tests.ps1 -Visual         # the 6 visual suites
 tools\testing\run_tests.ps1 -Full           # both
 tools\testing\run_tests.ps1 -Filter '*world*'
 tools\testing\run_tests.ps1 -GodotPath <path> -Timeout 900
@@ -54,23 +55,21 @@ Exit code of the runner: 0 only when every requested suite passed.
 
 ## Known timing sensitivity
 
-Two assertions were measuring values that are painted in `_process` after
+One assertion was measuring a value that is painted in `_process` after
 waiting on the *physics* tick. On a loaded machine the process tick falls behind
 the physics tick, so the value can legitimately not have been drawn yet, and the
-assert fails for a ship behaving correctly. Both were fixed:
+assert fails for a ship behaving correctly. It was fixed:
 
-* `combat_test.gd` now has `_frames(n)` alongside `_steps(n)` and uses it for
-  every HUD reading. `_steps` documents why.
 * `stage1_5_audio_test.gd`'s "letting go does not cut the spin" now measures the
   spin loss against the flight model's own `angular_deceleration` over the
   wall-clock time that really elapsed, instead of demanding "75% of the release
   value still turning four frames later" - a 60 Hz assumption.
 
-Neither assert was weakened: an instant cut still fails either one.
+The assert was not weakened: an instant cut still fails it.
 
 ### Still open on a fast headless machine
 
-The second fix measures the spin loss against `angular_deceleration * elapsed`, but
+That fix measures the spin loss against `angular_deceleration * elapsed`, but
 `elapsed` is **wall-clock** time while the physics ticks are what took the spin away.
 On this workstation the headless tree delivers four `physics_frame` signals in ~0.03 s,
 so four fixed 1/60 s steps of simulation are compared against 0.03 s of deceleration

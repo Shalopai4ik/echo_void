@@ -1,0 +1,134 @@
+[gd_resource type="Resource" script_class="ScannerProfile" format=3]
+
+; The survey sensor the hull ships with, as data.
+;
+; Adding a kind of findable thing is a signature below - never a change to
+; scripts/ship/systems/scanner_system.gd. The order matters: the first signature
+; that matches an object answers for it, so a named population goes above a
+; general group.
+;
+; The two `phantom` entries are signals with no object behind them. They are
+; rolled from the world's own hash over a fixed lattice, so the same anomaly is in
+; the same place on every sweep, and `identify_at` above 1.0 keeps them unnamed
+; until a research stage exists to make sense of them.
+
+[ext_resource type="Script" path="res://scripts/scan/scanner_profile.gd" id="1_profile"]
+[ext_resource type="Script" path="res://scripts/scan/scan_signature.gd" id="2_signature"]
+
+[sub_resource type="Resource" id="Resource_asteroid"]
+script = ExtResource("2_signature")
+id = "asteroid"
+kind = "asteroid"
+uncertain_kind = "unknown_signal"
+populations = PackedStringArray("asteroids")
+kinds = PackedStringArray("asteroid")
+strength = 1.0
+detect_at = 0.03
+identify_at = 0.12
+reveal_keys = PackedStringArray("px_scale", "extent")
+
+[sub_resource type="Resource" id="Resource_debris"]
+script = ExtResource("2_signature")
+id = "debris"
+kind = "debris"
+uncertain_kind = "unknown_signal"
+populations = PackedStringArray("debris")
+kinds = PackedStringArray("debris")
+strength = 0.7
+detect_at = 0.02
+identify_at = 0.16
+reveal_keys = PackedStringArray("px_scale", "extent")
+
+[sub_resource type="Resource" id="Resource_derelict"]
+script = ExtResource("2_signature")
+id = "derelict"
+kind = "derelict"
+title = "derelict"
+uncertain_kind = "anomaly"
+populations = PackedStringArray("wrecks")
+strength = 0.55
+detect_at = 0.05
+identify_at = 0.3
+
+[sub_resource type="Resource" id="Resource_structure"]
+script = ExtResource("2_signature")
+id = "structure"
+kind = "structure"
+title = "structure"
+uncertain_kind = "anomaly"
+populations = PackedStringArray("structures")
+strength = 0.35
+detect_at = 0.04
+identify_at = 0.22
+
+[sub_resource type="Resource" id="Resource_beacon"]
+script = ExtResource("2_signature")
+id = "beacon"
+kind = "beacon"
+title = "beacon"
+uncertain_kind = "unknown_signal"
+populations = PackedStringArray("beacons")
+strength = 0.4
+detect_at = 0.06
+identify_at = 0.2
+
+[sub_resource type="Resource" id="Resource_hazard"]
+script = ExtResource("2_signature")
+id = "hazard"
+kind = "environmental_hazard"
+title = "hazard"
+uncertain_kind = "anomaly"
+groups = PackedStringArray("hazard", "environmental_hazard")
+kinds = PackedStringArray("environmental_hazard")
+strength = 0.45
+detect_at = 0.04
+identify_at = 0.35
+
+[sub_resource type="Resource" id="Resource_research"]
+script = ExtResource("2_signature")
+id = "research_site"
+kind = "interactable"
+uncertain_kind = "unknown_signal"
+groups = PackedStringArray("interactable")
+kinds = PackedStringArray("interactable")
+strength = 0.6
+detect_at = 0.03
+identify_at = 0.18
+
+[sub_resource type="Resource" id="Resource_resonance"]
+script = ExtResource("2_signature")
+id = "resonance"
+kind = "resonance"
+title = "resonance"
+uncertain_kind = "anomaly"
+strength = 0.5
+detect_at = 0.06
+identify_at = 1.01
+phantom = true
+phantom_cell = 1400.0
+phantom_chance = 0.05
+phantom_salt = 8111
+
+[sub_resource type="Resource" id="Resource_distress"]
+script = ExtResource("2_signature")
+id = "distress"
+kind = "distress"
+title = "distress call"
+uncertain_kind = "unknown_signal"
+strength = 0.45
+detect_at = 0.06
+identify_at = 1.01
+phantom = true
+phantom_cell = 2200.0
+phantom_chance = 0.03
+phantom_salt = 4242
+
+[resource]
+script = ExtResource("1_profile")
+range_px = 1100.0
+sweep_seconds = 3.5
+sweep_energy_cost = 12.0
+max_contacts = 48
+candidate_factor = 8
+signatures = Array[ExtResource("2_signature")]([SubResource("Resource_asteroid"), SubResource("Resource_debris"), SubResource("Resource_derelict"), SubResource("Resource_structure"), SubResource("Resource_beacon"), SubResource("Resource_hazard"), SubResource("Resource_research"), SubResource("Resource_resonance"), SubResource("Resource_distress")])
+title = "survey scanner"

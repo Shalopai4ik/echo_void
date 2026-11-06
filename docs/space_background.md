@@ -30,10 +30,8 @@ godot --path . --scene scenes/space_bg_test.tscn
 4. Всё. Камера, контроллер игрока и физика не требуются — но если камера в
    проекте есть, фон начнёт parallаксить от неё автоматически.
 
-В `scenes/main.tscn` это уже сделано: узлы-заглушки `ColorRect` (однотонный фон)
-и `Stars` (нарисованный звёздный слой) заменены одним экземпляром
-`InfiniteSpaceBackground.tscn` с именем `Background`. Файл `scripts/stars.gd`
-больше нигде не использовался и удалён.
+В `scenes/world/SpaceMap.tscn` это уже сделано: экземпляр
+`InfiniteSpaceBackground.tscn` с именем `Background` стоит первым узлом сцены.
 
 ### Структура папок
 
@@ -63,7 +61,7 @@ echo_void/
 ├─ scenes/
 │  ├─ InfiniteSpaceBackground.tscn  сама система
 │  ├─ space_bg_test.tscn            тестовая сцена: корабль + камера + HUD
-│  └─ main.tscn                     игровая сцена, фон уже подключён
+│  └─ world/SpaceMap.tscn           игровая сцена, фон уже подключён
 ├─ tests/
 │  ├─ bg_system_test.gd            24 автоматические проверки
 │  ├─ bg_screens.gd                серия скриншотов для визуальной оценки
@@ -72,9 +70,8 @@ echo_void/
 ```
 
 > В дереве показаны только файлы системы фона. Стекло и корабль живут
-> отдельно: `scenes/hud/HUD.tscn` — общее HUD (его инстанцируют и
-> `scenes/main.tscn`, и `scenes/world/SpaceMap.tscn`), `scripts/hud.gd` — его
-> логика. Карта готовности к Этапу 3 — `docs/stage3_readiness.md`.
+> отдельно: `scenes/hud/HUD.tscn` — HUD (его инстанцирует
+> `scenes/world/SpaceMap.tscn`), `scripts/hud.gd` — его логика.
 
 ---
 
@@ -198,27 +195,27 @@ InfiniteSpaceBackground (Node2D, z_index = -100)   infinite_space_background.gd
 
 1. `Camera2D`, если он есть и является текущим (`drive_mode = AUTO/CAMERA_ONLY`);
 2. накопленная скорость игрока — из `set_player_velocity()` или из узла в группе
-   `player` с полем `velocity` (это ровно то, что делает `scripts/ship.gd`);
+   `player` с полем `velocity` (так может делать любой контроллер, который сам
+   сообщает скорость);
 3. `idle_drift`, если ни первого, ни второго нет — небо никогда не замирает.
 
 ```gdscript
-# scripts/ship.gd — достаточно одной строки в _physics_process
+# контроллер корабля — достаточно одной строки в _physics_process
 func _physics_process(delta: float) -> void:
     ...
     position += velocity * delta
     get_node_or_null("../Background").set_player_velocity(velocity)  # опционально
 ```
 
-В `main.tscn` этот вызов **не** используется: там стоит `Camera2D` внутри
-`Player` (с `position_smoothing_enabled = true`, скорость 4.0), поэтому фон в
-режиме `AUTO` сам читает камеру. Если вместо камеры вызывать `set_player_velocity()`
-явно, автопоиск отключается и источник движения только ваш.
+В игре этот вызов **не** используется: в `scenes/ship/Ship.tscn` стоит `Camera2D`
+внутри `Ship`, поэтому фон в режиме `AUTO` сам читает камеру. Если вместо камеры
+вызывать `set_player_velocity()` явно, автопоиск отключается и источник движения
+только ваш.
 
-Корабль больше не зажат границами вьюпорта — `_keep_on_screen()` из `ship.gd`
-удалён, потому что его работу теперь выполняет камера: игрок летит в любую
-сторону без предела, а небо перетекает мимо. Проверка этого есть в
-`tests/main_flight_screens.gd` (после 1800 кадров полёта `x ≈ 20 600`, корабль
-в центре кадра, мир по-прежнему заполнен).
+Корабль не зажат границами вьюпорта: камера летит за ним, а небо перетекает
+мимо. Проверка этого есть в `tests/stage3_3_world_chunks_test.gd` и
+`tests/stage3_6_space_balance_test.gd` — полёт без границ и стриминг чанков
+вокруг камеры.
 
 Публичный API:
 
@@ -341,20 +338,19 @@ seed, `register_kind`, идентичность мира при одинаков
 кадра, совпадение мира после телепорта с миром после плавного полёта,
 статистика хэша.
 
-Существующий тест корабля тоже проходит: `26 PASS / ALL PASS`
-(`godot --headless --path . --script tests/smoke_test.gd`).
+Сьюты текущего среза (`tests/stage3_3_world_chunks_test.gd`,
+`tests/stage3_6_space_balance_test.gd`, `tests/hud_test.gd`) проходят.
 
 Визуально:
 
 ```
 godot --path . --script tests/bg_screens.gd --rendering-driver opengl3   # кадры в test-output/bg/
 godot --path . --script tests/bg_debug.gd  --rendering-driver opengl3   # каждая полоса отдельно, сценарий завершается сам
-godot --path . --script tests/screenshot.gd --rendering-driver opengl3   # idle/cruise/boost в test-output/game/
 ```
 
-`tests/main_flight_screens.gd` дополнительно проверяет саму игру: корабль
-улетает за 20 000 px, камера держит его в кадре (расхождение 0.0 px), полосы
-фона остаются заполненными, кадры пишутся в `test-output/game/`.
+`tests/stage1_flight_screens.gd` и `tests/stage2_flight_screens.gd` проверяют
+саму игру: камера держит корабль в кадре, полосы фона остаются заполненными,
+кадры пишутся в `test-output/`.
 
 Ручная проверка в тестовой сцене (`scenes/space_bg_test.tscn`):
 
