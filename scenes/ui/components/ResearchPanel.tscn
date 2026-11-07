@@ -1,0 +1,145 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Theme" path="res://ui/theme/echo_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://ui/research/research_panel.gd" id="2_panel"]
+[ext_resource type="PackedScene" path="res://scenes/ui/components/ResearchObjectVisual.tscn" id="3_visual"]
+[ext_resource type="PackedScene" path="res://scenes/ui/components/ResearchResults.tscn" id="4_results"]
+
+[node name="ResearchPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("1_theme")
+script = ExtResource("2_panel")
+
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Visual" parent="Content/Header" instance=ExtResource("3_visual")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(84, 84)
+layout_mode = 2
+
+[node name="Info" type="VBoxContainer" parent="Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Type" type="Label" parent="Content/Header/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 9
+text = "ТИП ОБЪЕКТА"
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="Title" type="Label" parent="Content/Header/Info"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 13
+text = "НАЗВАНИЕ ОБЪЕКТА"
+autowrap_mode = 2
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="Category" type="Label" parent="Content/Header/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 8
+text = "КАТЕГОРИЯ"
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="Description" type="Label" parent="Content/Header/Info"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 9
+text = "КРАТКОЕ ОПИСАНИЕ ОБЪЕКТА"
+autowrap_mode = 2
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="Separator" type="HSeparator" parent="Content"]
+layout_mode = 2
+
+[node name="StatusRow" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Knowledge" type="Label" parent="Content/StatusRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 9
+text = "ИЗУЧЕННОСТЬ 0/5"
+
+[node name="Status" type="Label" parent="Content/StatusRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.36, 0.86, 0.9, 1)
+theme_override_font_sizes/font_size = 9
+text = "НЕТ ДАННЫХ"
+horizontal_alignment = 1
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="Remaining" type="Label" parent="Content/StatusRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 9
+text = "ОСТАЛОСЬ --:--"
+horizontal_alignment = 2
+
+[node name="ProgressRow" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Progress" type="ProgressBar" parent="Content/ProgressRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+size_flags_horizontal = 3
+show_percentage = false
+
+[node name="ProgressText" type="Label" parent="Content/ProgressRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(86, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.46, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 9
+text = "АНАЛИЗ 000%"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Results" parent="Content" instance=ExtResource("4_results")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Separator2" type="HSeparator" parent="Content"]
+layout_mode = 2
+
+[node name="Action" type="Button" parent="Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "НАЧАТЬ ИССЛЕДОВАНИЕ"
+
+[node name="Placeholder" type="Label" parent="Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.56, 0.6, 1)
+theme_override_font_sizes/font_size = 10
+text = "ОБЪЕКТ НЕ ВЫБРАН"
+horizontal_alignment = 1

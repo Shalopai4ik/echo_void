@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/scanner/scanner_marker.gd" id="1_marker"]
+
+[node name="ScannerMarker" type="Control"]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 20.0
+offset_bottom = 20.0
+mouse_filter = 2
+script = ExtResource("1_marker")

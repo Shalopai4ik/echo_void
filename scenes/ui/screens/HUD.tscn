@@ -1,0 +1,63 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Theme" path="res://ui/theme/echo_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://ui/hud/hud_screen.gd" id="2_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/components/ShipStatusPanel.tscn" id="3_status"]
+[ext_resource type="PackedScene" path="res://scenes/ui/components/SystemNotificationFeed.tscn" id="4_feed"]
+[ext_resource type="Resource" path="res://ui/hud/hud_demo_data.tres" id="5_demo"]
+
+[node name="HUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_hud")
+demo_data = ExtResource("5_demo")
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
+
+[node name="Layout" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="TopSpacer" type="Control" parent="SafeArea/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="BottomRow" type="HBoxContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+alignment = 2
+
+[node name="ShipStatus" parent="SafeArea/Layout/BottomRow" instance=ExtResource("3_status")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 8
+
+[node name="CenterSpacer" type="Control" parent="SafeArea/Layout/BottomRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8
+mouse_filter = 2
+
+[node name="Notifications" parent="SafeArea/Layout/BottomRow" instance=ExtResource("4_feed")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 8

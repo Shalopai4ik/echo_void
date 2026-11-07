@@ -1,0 +1,132 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://ui/theme/echo_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://ui/core/viewport_policy.gd" id="2_policy"]
+
+[node name="UpgradesScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_policy")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.004, 0.018, 0.03, 0.92)
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="Layout" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="SafeArea/Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "УЛУЧШЕНИЯ"
+
+[node name="Currency" type="Label" parent="SafeArea/Layout/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 12
+text = "МАТЕРИАЛЫ 000"
+vertical_alignment = 1
+
+[node name="Rule" type="HSeparator" parent="SafeArea/Layout"]
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="List" type="VBoxContainer" parent="SafeArea/Layout/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="Scanner" type="PanelContainer" parent="SafeArea/Layout/Scroll/List"]
+layout_mode = 2
+
+[node name="Content" type="HBoxContainer" parent="SafeArea/Layout/Scroll/List/Scanner"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Index" type="Label" parent="SafeArea/Layout/Scroll/List/Scanner/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 11
+text = "01"
+
+[node name="Info" type="VBoxContainer" parent="SafeArea/Layout/Scroll/List/Scanner/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="Title" type="Label" parent="SafeArea/Layout/Scroll/List/Scanner/Content/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "УСИЛЕНИЕ СКАНЕРА"
+
+[node name="Description" type="Label" parent="SafeArea/Layout/Scroll/List/Scanner/Content/Info"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 11
+text = "Расширяет дальность обхода и снижает энергопотребление."
+
+[node name="Cost" type="Label" parent="SafeArea/Layout/Scroll/List/Scanner/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 12
+text = "УРОВЕНЬ 0 / 1\nЦЕНА 040"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Empty" type="PanelContainer" parent="SafeArea/Layout/Scroll/List"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="SafeArea/Layout/Scroll/List/Empty"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.56, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = "ДРУГИЕ ВЕТКИ УЛУЧШЕНИЙ ОТКРЫВАЮТСЯ ПОСЛЕ ИССЛЕДОВАНИЙ"
+horizontal_alignment = 1
+
+[node name="Footer" type="HBoxContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Hint" type="Label" parent="SafeArea/Layout/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 11
+text = "[ESC] ЗАКРЫТЬ"
+
+[node name="Action" type="Button" parent="SafeArea/Layout/Footer"]
+layout_mode = 2
+disabled = true
+text = "НЕДОСТАТОЧНО МАТЕРИАЛОВ"

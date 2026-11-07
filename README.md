@@ -9,8 +9,8 @@ tells you what happened here.
 * **Status:** in development. The ship flight model, world generation and HUD are
   complete and tested; the internal systems architecture (power, condition, damage,
   equipment) landed in stage 4.1 and carries its first mechanic, the survey scanner
-  (stage 5.1). Combat, the upgrade system, the scanner's own interface and audio
-  content are not.
+  (stage 5.1). Its visual interface is now available as an unconnected UI screen.
+  Combat, the upgrade system and audio content are still in development.
 
 ## Requirements
 

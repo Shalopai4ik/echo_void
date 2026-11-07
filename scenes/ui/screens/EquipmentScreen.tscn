@@ -1,0 +1,135 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://ui/theme/echo_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://ui/core/viewport_policy.gd" id="2_policy"]
+
+[node name="EquipmentScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_policy")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.004, 0.018, 0.03, 0.92)
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="Layout" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="SafeArea/Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "ОБОРУДОВАНИЕ"
+
+[node name="Load" type="Label" parent="SafeArea/Layout/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 12
+text = "НАГРУЗКА 28%"
+vertical_alignment = 1
+
+[node name="Rule" type="HSeparator" parent="SafeArea/Layout"]
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Grid" type="GridContainer" parent="SafeArea/Layout/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 3
+
+[node name="Scanner" type="PanelContainer" parent="SafeArea/Layout/Scroll/Grid"]
+custom_minimum_size = Vector2(170, 120)
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="SafeArea/Layout/Scroll/Grid/Scanner"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Index" type="Label" parent="SafeArea/Layout/Scroll/Grid/Scanner/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 10
+text = "MODULE 01 / INSTALLED"
+
+[node name="Name" type="Label" parent="SafeArea/Layout/Scroll/Grid/Scanner/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "SURVEY SCANNER"
+
+[node name="State" type="Label" parent="SafeArea/Layout/Scroll/Grid/Scanner/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 11
+text = "НЕИСПРАВЕН · 6.0 кВт"
+
+[node name="Empty" type="PanelContainer" parent="SafeArea/Layout/Scroll/Grid"]
+custom_minimum_size = Vector2(170, 120)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="SafeArea/Layout/Scroll/Grid/Empty"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.45, 0.48, 1)
+theme_override_font_sizes/font_size = 11
+text = "СЛОТ ОБОРУДОВАНИЯ\nПУСТ"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Empty2" type="PanelContainer" parent="SafeArea/Layout/Scroll/Grid"]
+custom_minimum_size = Vector2(170, 120)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="SafeArea/Layout/Scroll/Grid/Empty2"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.45, 0.48, 1)
+theme_override_font_sizes/font_size = 11
+text = "СЛОТ ОБОРУДОВАНИЯ\nПУСТ"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Footer" type="HBoxContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Hint" type="Label" parent="SafeArea/Layout/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 11
+text = "[ESC] ЗАКРЫТЬ"
+
+[node name="Action" type="Button" parent="SafeArea/Layout/Footer"]
+layout_mode = 2
+text = "УСТАНОВИТЬ МОДУЛЬ"

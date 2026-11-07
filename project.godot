@@ -21,8 +21,14 @@ window/size/viewport_width=960
 window/size/viewport_height=540
 window/size/window_width_override=960
 window/size/window_height_override=540
-window/stretch/aspect="expand"
+window/size/resizable=true
+window/size/mode=0
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[gui]
+
+theme/custom="res://ui/theme/echo_theme.tres"
 
 [input]
 
@@ -116,6 +122,8 @@ textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 environment/defaults/default_clear_color=Color(0.02, 0.043, 0.078, 1)
+
 [autoload]
 
 SignalBroadcaster="res://scripts/signal/signal_broadcaster.gd"
+

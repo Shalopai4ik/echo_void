@@ -48,7 +48,7 @@ $logDir = Join-Path $outRoot 'logs'
 # Suites that draw. Under --headless Godot uses a dummy renderer and there is
 # nothing to screenshot, so these run without --headless and open a window.
 $visualSuites = @('bg_screens', 'bg_debug', 'stage1_flight_screens', 'stage2_flight_screens',
-            'stage3_3_chunk_screens', 'stage3_4_space_screens')
+            'stage3_3_chunk_screens', 'stage3_4_space_screens', 'scanner_ui_visual')
 $expectedEngine = '4.7'
 
 function Get-Suites {

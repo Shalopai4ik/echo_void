@@ -1,0 +1,48 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://ui/theme/echo_theme.tres" id="1_theme"]
+[ext_resource type="PackedScene" path="res://scenes/ui/components/SystemNotificationItem.tscn" id="2_item"]
+
+[node name="SystemNotificationFeed" type="PanelContainer"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+theme = ExtResource("1_theme")
+
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="Header" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Title" type="Label" parent="Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 10
+text = "СИСТЕМНЫЕ СООБЩЕНИЯ"
+
+[node name="Count" type="Label" parent="Content/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 9
+text = "03"
+horizontal_alignment = 2
+
+[node name="Items" type="VBoxContainer" parent="Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="Info" parent="Content/Items" instance=ExtResource("2_item")]
+layout_mode = 2
+
+[node name="Warning" parent="Content/Items" instance=ExtResource("2_item")]
+layout_mode = 2
+
+[node name="Problem" parent="Content/Items" instance=ExtResource("2_item")]
+layout_mode = 2

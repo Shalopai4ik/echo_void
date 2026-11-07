@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/research/research_object_visual.gd" id="1_visual"]
+
+[node name="ResearchObjectVisual" type="Control"]
+custom_minimum_size = Vector2(84, 84)
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+script = ExtResource("1_visual")

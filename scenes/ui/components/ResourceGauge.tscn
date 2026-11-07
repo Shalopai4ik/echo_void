@@ -1,0 +1,40 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/hud/resource_gauge.gd" id="1_gauge"]
+
+[node name="ResourceGauge" type="VBoxContainer"]
+custom_minimum_size = Vector2(220, 40)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+script = ExtResource("1_gauge")
+
+[node name="Header" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Label" type="Label" parent="Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 10
+text = "РЕСУРС"
+
+[node name="Value" type="Label" parent="Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 12
+text = "72 / 100"
+horizontal_alignment = 2
+
+[node name="Bar" type="ProgressBar" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+max_value = 100.0
+value = 72.0
+show_percentage = false

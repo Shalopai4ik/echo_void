@@ -1,0 +1,10 @@
+[gd_resource type="FontVariation" load_steps=2 format=3]
+
+[sub_resource type="SystemFont" id="SystemFont_technical"]
+font_names = PackedStringArray("Bahnschrift", "Segoe UI", "Arial")
+font_weight = 300
+subpixel_positioning = 1
+
+[resource]
+base_font = SubResource("SystemFont_technical")
+spacing_glyph = 1.5

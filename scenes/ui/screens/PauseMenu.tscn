@@ -1,0 +1,107 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Theme" path="res://ui/theme/echo_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://ui/core/viewport_policy.gd" id="2_policy"]
+[ext_resource type="Script" path="res://ui/core/window_mode_button.gd" id="3_mode"]
+
+[node name="PauseMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_policy")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.004, 0.016, 0.028, 0.78)
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="Layout" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="SafeArea/Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_sizes/font_size = 24
+text = "СИСТЕМА ПРИОСТАНОВЛЕНА"
+
+[node name="Clock" type="Label" parent="SafeArea/Layout/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 12
+text = "СЕАНС 00:00:00"
+vertical_alignment = 1
+
+[node name="Rule" type="HSeparator" parent="SafeArea/Layout"]
+layout_mode = 2
+
+[node name="Center" type="CenterContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Panel" type="PanelContainer" parent="SafeArea/Layout/Center"]
+custom_minimum_size = Vector2(330, 0)
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="SafeArea/Layout/Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Resume" type="Button" parent="SafeArea/Layout/Center/Panel/Content"]
+layout_mode = 2
+text = "ПРОДОЛЖИТЬ"
+
+[node name="Settings" type="Button" parent="SafeArea/Layout/Center/Panel/Content"]
+layout_mode = 2
+text = "НАСТРОЙКИ"
+
+[node name="DisplayMode" type="Button" parent="SafeArea/Layout/Center/Panel/Content"]
+layout_mode = 2
+script = ExtResource("3_mode")
+text = "РЕЖИМ: ОКНО"
+
+[node name="Abort" type="Button" parent="SafeArea/Layout/Center/Panel/Content"]
+layout_mode = 2
+text = "ЗАВЕРШИТЬ ИССЛЕДОВАНИЕ"
+
+[node name="Footer" type="HBoxContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Status" type="Label" parent="SafeArea/Layout/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.42, 0.56, 0.6, 1)
+theme_override_font_sizes/font_size = 10
+text = "ВСЕ СИСТЕМЫ УДЕРЖИВАЮТ ТЕКУЩЕЕ СОСТОЯНИЕ"
+
+[node name="Hint" type="Label" parent="SafeArea/Layout/Footer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 10
+text = "ESC  ПРОДОЛЖИТЬ"
+vertical_alignment = 1

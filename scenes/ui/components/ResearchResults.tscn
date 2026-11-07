@@ -1,0 +1,64 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/research/research_results.gd" id="1_results"]
+
+[node name="ResearchResults" type="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+script = ExtResource("1_results")
+
+[node name="XpRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="XpCaption" type="Label" parent="XpRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 9
+text = "RESEARCH XP"
+
+[node name="XpValue" type="Label" parent="XpRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.95, 0.84, 1)
+theme_override_font_sizes/font_size = 12
+text = "+0"
+horizontal_alignment = 2
+
+[node name="PropertiesLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 9
+text = "ОТКРЫТЫЕ СВОЙСТВА / 0"
+
+[node name="Properties" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="NotificationPanel" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+
+[node name="Content" type="HBoxContainer" parent="NotificationPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Accent" type="ColorRect" parent="NotificationPanel/Content"]
+custom_minimum_size = Vector2(3, 0)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.48, 0.95, 0.84, 1)
+
+[node name="Notification" type="Label" parent="NotificationPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.48, 0.95, 0.84, 1)
+theme_override_font_sizes/font_size = 9
+text = "АНАЛИЗ ЗАВЕРШЁН"
+autowrap_mode = 2

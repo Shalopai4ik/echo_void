@@ -1,0 +1,287 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Theme" path="res://ui/theme/echo_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://ui/scanner/scanner_screen.gd" id="2_screen"]
+[ext_resource type="Script" path="res://ui/scanner/scanner_scope.gd" id="3_scope"]
+
+[node name="ScannerScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_theme")
+script = ExtResource("2_screen")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.004, 0.018, 0.03, 0.94)
+
+[node name="SafeArea" type="MarginContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Layout" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" type="HBoxContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="SafeArea/Layout/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.82, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 18
+text = "ГЛУБИННЫЙ СКАНЕР / SP-04"
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="State" type="Label" parent="SafeArea/Layout/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 0.86, 0.9, 1)
+theme_override_font_sizes/font_size = 10
+text = "● ГОТОВ"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Device" type="PanelContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="SafeArea/Layout/Device"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Top" type="HBoxContainer" parent="SafeArea/Layout/Device/Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Readiness" type="Label" parent="SafeArea/Layout/Device/Content/Top"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.9, 0.84, 1)
+theme_override_font_sizes/font_size = 9
+text = "ГОТОВНОСТЬ 100%"
+
+[node name="ScanStatus" type="Label" parent="SafeArea/Layout/Device/Content/Top"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 9
+text = "РЕЖИМ: ПАССИВНЫЙ"
+horizontal_alignment = 1
+
+[node name="Remaining" type="Label" parent="SafeArea/Layout/Device/Content/Top"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 9
+text = "ОСТАЛОСЬ --:--"
+horizontal_alignment = 2
+
+[node name="ProgressRow" type="HBoxContainer" parent="SafeArea/Layout/Device/Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Progress" type="ProgressBar" parent="SafeArea/Layout/Device/Content/ProgressRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 9)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 100.0
+show_percentage = false
+
+[node name="ProgressText" type="Label" parent="SafeArea/Layout/Device/Content/ProgressRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 8
+text = "ПРОГРЕСС 000%"
+horizontal_alignment = 2
+
+[node name="Main" type="HBoxContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="ScopePanel" type="PanelContainer" parent="SafeArea/Layout/Main"]
+custom_minimum_size = Vector2(190, 130)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Content" type="VBoxContainer" parent="SafeArea/Layout/Main/ScopePanel"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="ScopeCaption" type="Label" parent="SafeArea/Layout/Main/ScopePanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 8
+text = "РАДАР / ОЖИДАНИЕ"
+
+[node name="Scope" type="Control" parent="SafeArea/Layout/Main/ScopePanel/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 100)
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+script = ExtResource("3_scope")
+
+[node name="Legend" type="Label" parent="SafeArea/Layout/Main/ScopePanel/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 7
+text = "● АСТЕРОИД  ◆ ОБЛОМКИ  ▲ МАЯК  ◇ СИГНАЛ  □ АНОМАЛИЯ"
+text_overrun_behavior = 3
+clip_text = true
+horizontal_alignment = 1
+
+[node name="ContactsPanel" type="PanelContainer" parent="SafeArea/Layout/Main"]
+custom_minimum_size = Vector2(210, 130)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Content" type="VBoxContainer" parent="SafeArea/Layout/Main/ContactsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ContactCount" type="Label" parent="SafeArea/Layout/Main/ContactsPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 8
+text = "РЕЕСТР КОНТАКТОВ / 00"
+
+[node name="Separator" type="HSeparator" parent="SafeArea/Layout/Main/ContactsPanel/Content"]
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="SafeArea/Layout/Main/ContactsPanel/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ContactList" type="VBoxContainer" parent="SafeArea/Layout/Main/ContactsPanel/Content/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Empty" type="Label" parent="SafeArea/Layout/Main/ContactsPanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.56, 0.6, 1)
+theme_override_font_sizes/font_size = 9
+text = "ЗАПИСЕЙ НЕТ\n\nЗапустите полный обход сектора,\nчтобы зафиксировать сигнатуры."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Detail" type="PanelContainer" parent="SafeArea/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 82)
+layout_mode = 2
+
+[node name="Content" type="HBoxContainer" parent="SafeArea/Layout/Detail"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Kind" type="VBoxContainer" parent="SafeArea/Layout/Detail/Content"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="DetailType" type="Label" parent="SafeArea/Layout/Detail/Content/Kind"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 8
+text = "ТИП ОБНАРУЖЕНИЯ"
+autowrap_mode = 2
+
+[node name="DetailTitle" type="Label" parent="SafeArea/Layout/Detail/Content/Kind"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 10
+text = "НАЗВАНИЕ"
+autowrap_mode = 2
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="Description" type="VBoxContainer" parent="SafeArea/Layout/Detail/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="DetailDescription" type="Label" parent="SafeArea/Layout/Detail/Content/Description"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 8
+text = "КРАТКОЕ ОПИСАНИЕ ОБНАРУЖЕННОГО ОБЪЕКТА"
+autowrap_mode = 2
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="DetailResearch" type="Label" parent="SafeArea/Layout/Detail/Content/Description"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 8
+text = "СТАТУС ИССЛЕДОВАНИЯ"
+
+[node name="Analysis" type="VBoxContainer" parent="SafeArea/Layout/Detail/Content"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="DetailAnalysis" type="Label" parent="SafeArea/Layout/Detail/Content/Analysis"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.9, 0.84, 1)
+theme_override_font_sizes/font_size = 8
+text = "АНАЛИЗ ДОСТУПЕН"
+horizontal_alignment = 2
+
+[node name="Footer" type="HBoxContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Hint" type="Label" parent="SafeArea/Layout/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 8
+text = "[ESC] ЗАКРЫТЬ  •  ДЕМО-РЕЖИМ"
+
+[node name="DemoState" type="Button" parent="SafeArea/Layout/Footer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "СЛЕД. СОСТОЯНИЕ"
+
+[node name="Action" type="Button" parent="SafeArea/Layout/Footer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "НАЧАТЬ ОБХОД"
