@@ -1,0 +1,555 @@
+[gd_resource type="Resource" script_class="ResearchUpgradeProfile" format=3]
+
+[ext_resource type="Script" path="res://scripts/research/research_upgrade_profile.gd" id="1_profile"]
+[ext_resource type="Script" path="res://scripts/research/research_upgrade.gd" id="2_upgrade"]
+
+; ------------------------------------------------------------------- scanner ---
+
+[sub_resource type="Resource" id="R_scanner_range_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "scanner.range"
+display_name = "Scanner: Detection Range"
+description = "Increases the scanner's detection radius."
+device_id = "scanner"
+device_type = "ShipScanner"
+attribute = "range_multiplier"
+level = 1
+max_level = 4
+modifier_type = "multiply"
+value = 1.25
+cost_xp = 50
+
+[sub_resource type="Resource" id="R_scanner_range_2"]
+script = ExtResource("2_upgrade")
+upgrade_id = "scanner.range"
+display_name = "Scanner: Detection Range II"
+description = "Increases the scanner's detection radius further."
+device_id = "scanner"
+device_type = "ShipScanner"
+attribute = "range_multiplier"
+level = 2
+max_level = 4
+modifier_type = "multiply"
+value = 1.25
+cost_xp = 100
+
+[sub_resource type="Resource" id="R_scanner_range_3"]
+script = ExtResource("2_upgrade")
+upgrade_id = "scanner.range"
+display_name = "Scanner: Detection Range III"
+description = "Increases the scanner's detection radius further."
+device_id = "scanner"
+device_type = "ShipScanner"
+attribute = "range_multiplier"
+level = 3
+max_level = 4
+modifier_type = "multiply"
+value = 1.25
+cost_xp = 200
+
+[sub_resource type="Resource" id="R_scanner_range_4"]
+script = ExtResource("2_upgrade")
+upgrade_id = "scanner.range"
+display_name = "Scanner: Detection Range IV"
+description = "Maximum detection range for the survey scanner."
+device_id = "scanner"
+device_type = "ShipScanner"
+attribute = "range_multiplier"
+level = 4
+max_level = 4
+modifier_type = "multiply"
+value = 1.25
+cost_xp = 400
+
+[sub_resource type="Resource" id="R_scanner_time_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "scanner.scan_time"
+display_name = "Scanner: Faster Sweep"
+description = "Reduces the time a survey sweep takes."
+device_id = "scanner"
+device_type = "ShipScanner"
+attribute = "sweep_seconds_multiplier"
+level = 1
+max_level = 4
+modifier_type = "multiply"
+value = 0.85
+cost_xp = 50
+
+[sub_resource type="Resource" id="R_scanner_time_2"]
+script = ExtResource("2_upgrade")
+upgrade_id = "scanner.scan_time"
+display_name = "Scanner: Faster Sweep II"
+description = "Reduces the time a survey sweep takes further."
+device_id = "scanner"
+device_type = "ShipScanner"
+attribute = "sweep_seconds_multiplier"
+level = 2
+max_level = 4
+modifier_type = "multiply"
+value = 0.85
+cost_xp = 100
+
+[sub_resource type="Resource" id="R_scanner_time_3"]
+script = ExtResource("2_upgrade")
+upgrade_id = "scanner.scan_time"
+display_name = "Scanner: Faster Sweep III"
+description = "Reduces the time a survey sweep takes further."
+device_id = "scanner"
+device_type = "ShipScanner"
+attribute = "sweep_seconds_multiplier"
+level = 3
+max_level = 4
+modifier_type = "multiply"
+value = 0.85
+cost_xp = 200
+
+[sub_resource type="Resource" id="R_scanner_time_4"]
+script = ExtResource("2_upgrade")
+upgrade_id = "scanner.scan_time"
+display_name = "Scanner: Faster Sweep IV"
+description = "Minimum sweep time for the survey scanner."
+device_id = "scanner"
+device_type = "ShipScanner"
+attribute = "sweep_seconds_multiplier"
+level = 4
+max_level = 4
+modifier_type = "multiply"
+value = 0.85
+cost_xp = 400
+
+[sub_resource type="Resource" id="R_scanner_sensitivity_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "scanner.sensitivity"
+display_name = "Scanner: Anomaly Detection"
+description = "Improves detection of weak and anomalous signatures."
+device_id = "scanner"
+device_type = "ShipScanner"
+attribute = "sensitivity"
+level = 1
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 50
+
+[sub_resource type="Resource" id="R_scanner_sensitivity_2"]
+script = ExtResource("2_upgrade")
+upgrade_id = "scanner.sensitivity"
+display_name = "Scanner: Anomaly Detection II"
+description = "Improves detection of weak and anomalous signatures further."
+device_id = "scanner"
+device_type = "ShipScanner"
+attribute = "sensitivity"
+level = 2
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 100
+
+[sub_resource type="Resource" id="R_scanner_sensitivity_3"]
+script = ExtResource("2_upgrade")
+upgrade_id = "scanner.sensitivity"
+display_name = "Scanner: Anomaly Detection III"
+description = "Improves detection of weak and anomalous signatures further."
+device_id = "scanner"
+device_type = "ShipScanner"
+attribute = "sensitivity"
+level = 3
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 200
+
+[sub_resource type="Resource" id="R_scanner_sensitivity_4"]
+script = ExtResource("2_upgrade")
+upgrade_id = "scanner.sensitivity"
+display_name = "Scanner: Anomaly Detection IV"
+description = "Maximum anomaly detection for the survey scanner."
+device_id = "scanner"
+device_type = "ShipScanner"
+attribute = "sensitivity"
+level = 4
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 400
+
+; ------------------------------------------------------------- signal lights ---
+
+[sub_resource type="Resource" id="R_signal_radius_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "signal_light.radius"
+display_name = "Signal Light: Signal Radius"
+description = "Increases the radius of the signal beacon."
+device_id = "signal_light"
+device_type = "ShipSignalLight"
+attribute = "radius_px"
+level = 1
+max_level = 4
+modifier_type = "multiply"
+value = 1.3
+cost_xp = 50
+
+[sub_resource type="Resource" id="R_signal_radius_2"]
+script = ExtResource("2_upgrade")
+upgrade_id = "signal_light.radius"
+display_name = "Signal Light: Signal Radius II"
+description = "Increases the radius of the signal beacon further."
+device_id = "signal_light"
+device_type = "ShipSignalLight"
+attribute = "radius_px"
+level = 2
+max_level = 4
+modifier_type = "multiply"
+value = 1.3
+cost_xp = 100
+
+[sub_resource type="Resource" id="R_signal_radius_3"]
+script = ExtResource("2_upgrade")
+upgrade_id = "signal_light.radius"
+display_name = "Signal Light: Signal Radius III"
+description = "Increases the radius of the signal beacon further."
+device_id = "signal_light"
+device_type = "ShipSignalLight"
+attribute = "radius_px"
+level = 3
+max_level = 4
+modifier_type = "multiply"
+value = 1.3
+cost_xp = 200
+
+[sub_resource type="Resource" id="R_signal_radius_4"]
+script = ExtResource("2_upgrade")
+upgrade_id = "signal_light.radius"
+display_name = "Signal Light: Signal Radius IV"
+description = "Maximum signal beacon radius."
+device_id = "signal_light"
+device_type = "ShipSignalLight"
+attribute = "radius_px"
+level = 4
+max_level = 4
+modifier_type = "multiply"
+value = 1.3
+cost_xp = 400
+
+[sub_resource type="Resource" id="R_signal_duration_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "signal_light.duration"
+display_name = "Signal Light: Duration"
+description = "Increases how long the signal beacon burns."
+device_id = "signal_light"
+device_type = "ShipSignalLight"
+attribute = "duration_sec"
+level = 1
+max_level = 4
+modifier_type = "multiply"
+value = 1.25
+cost_xp = 50
+
+[sub_resource type="Resource" id="R_signal_duration_2"]
+script = ExtResource("2_upgrade")
+upgrade_id = "signal_light.duration"
+display_name = "Signal Light: Duration II"
+description = "Increases how long the signal beacon burns further."
+device_id = "signal_light"
+device_type = "ShipSignalLight"
+attribute = "duration_sec"
+level = 2
+max_level = 4
+modifier_type = "multiply"
+value = 1.25
+cost_xp = 100
+
+[sub_resource type="Resource" id="R_signal_duration_3"]
+script = ExtResource("2_upgrade")
+upgrade_id = "signal_light.duration"
+display_name = "Signal Light: Duration III"
+description = "Increases how long the signal beacon burns further."
+device_id = "signal_light"
+device_type = "ShipSignalLight"
+attribute = "duration_sec"
+level = 3
+max_level = 4
+modifier_type = "multiply"
+value = 1.25
+cost_xp = 200
+
+[sub_resource type="Resource" id="R_signal_duration_4"]
+script = ExtResource("2_upgrade")
+upgrade_id = "signal_light.duration"
+display_name = "Signal Light: Duration IV"
+description = "Maximum signal beacon burn time."
+device_id = "signal_light"
+device_type = "ShipSignalLight"
+attribute = "duration_sec"
+level = 4
+max_level = 4
+modifier_type = "multiply"
+value = 1.25
+cost_xp = 400
+
+[sub_resource type="Resource" id="R_signal_intensity_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "signal_light.intensity"
+display_name = "Signal Light: Intensity"
+description = "Increases the signal beacon's intensity."
+device_id = "signal_light"
+device_type = "ShipSignalLight"
+attribute = "intensity"
+level = 1
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 50
+
+[sub_resource type="Resource" id="R_signal_intensity_2"]
+script = ExtResource("2_upgrade")
+upgrade_id = "signal_light.intensity"
+display_name = "Signal Light: Intensity II"
+description = "Increases the signal beacon's intensity further."
+device_id = "signal_light"
+device_type = "ShipSignalLight"
+attribute = "intensity"
+level = 2
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 100
+
+[sub_resource type="Resource" id="R_signal_intensity_3"]
+script = ExtResource("2_upgrade")
+upgrade_id = "signal_light.intensity"
+display_name = "Signal Light: Intensity III"
+description = "Increases the signal beacon's intensity further."
+device_id = "signal_light"
+device_type = "ShipSignalLight"
+attribute = "intensity"
+level = 3
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 200
+
+[sub_resource type="Resource" id="R_signal_intensity_4"]
+script = ExtResource("2_upgrade")
+upgrade_id = "signal_light.intensity"
+display_name = "Signal Light: Intensity IV"
+description = "Maximum signal beacon intensity."
+device_id = "signal_light"
+device_type = "ShipSignalLight"
+attribute = "intensity"
+level = 4
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 400
+
+; ----------------------------------------------------------------- decoys ---
+
+[sub_resource type="Resource" id="R_decoy_lifetime_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "decoy.lifetime"
+display_name = "Decoy: Lifetime"
+description = "Increases how long a decoy stays in flight."
+device_id = "decoy_launcher"
+device_type = "ShipDecoyLauncher"
+attribute = "decoy_lifetime"
+level = 1
+max_level = 4
+modifier_type = "multiply"
+value = 1.25
+cost_xp = 50
+
+[sub_resource type="Resource" id="R_decoy_lifetime_2"]
+script = ExtResource("2_upgrade")
+upgrade_id = "decoy.lifetime"
+display_name = "Decoy: Lifetime II"
+description = "Increases how long a decoy stays in flight further."
+device_id = "decoy_launcher"
+device_type = "ShipDecoyLauncher"
+attribute = "decoy_lifetime"
+level = 2
+max_level = 4
+modifier_type = "multiply"
+value = 1.25
+cost_xp = 100
+
+[sub_resource type="Resource" id="R_decoy_lifetime_3"]
+script = ExtResource("2_upgrade")
+upgrade_id = "decoy.lifetime"
+display_name = "Decoy: Lifetime III"
+description = "Increases how long a decoy stays in flight further."
+device_id = "decoy_launcher"
+device_type = "ShipDecoyLauncher"
+attribute = "decoy_lifetime"
+level = 3
+max_level = 4
+modifier_type = "multiply"
+value = 1.25
+cost_xp = 200
+
+[sub_resource type="Resource" id="R_decoy_lifetime_4"]
+script = ExtResource("2_upgrade")
+upgrade_id = "decoy.lifetime"
+display_name = "Decoy: Lifetime IV"
+description = "Maximum decoy flight time."
+device_id = "decoy_launcher"
+device_type = "ShipDecoyLauncher"
+attribute = "decoy_lifetime"
+level = 4
+max_level = 4
+modifier_type = "multiply"
+value = 1.25
+cost_xp = 400
+
+[sub_resource type="Resource" id="R_decoy_signal_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "decoy.signal"
+display_name = "Decoy: Signal Strength"
+description = "Increases the decoy's signal strength."
+device_id = "decoy_launcher"
+device_type = "ShipDecoyLauncher"
+attribute = "signal_intensity"
+level = 1
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 50
+
+[sub_resource type="Resource" id="R_decoy_signal_2"]
+script = ExtResource("2_upgrade")
+upgrade_id = "decoy.signal"
+display_name = "Decoy: Signal Strength II"
+description = "Increases the decoy's signal strength further."
+device_id = "decoy_launcher"
+device_type = "ShipDecoyLauncher"
+attribute = "signal_intensity"
+level = 2
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 100
+
+[sub_resource type="Resource" id="R_decoy_signal_3"]
+script = ExtResource("2_upgrade")
+upgrade_id = "decoy.signal"
+display_name = "Decoy: Signal Strength III"
+description = "Increases the decoy's signal strength further."
+device_id = "decoy_launcher"
+device_type = "ShipDecoyLauncher"
+attribute = "signal_intensity"
+level = 3
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 200
+
+[sub_resource type="Resource" id="R_decoy_signal_4"]
+script = ExtResource("2_upgrade")
+upgrade_id = "decoy.signal"
+display_name = "Decoy: Signal Strength IV"
+description = "Maximum decoy signal strength."
+device_id = "decoy_launcher"
+device_type = "ShipDecoyLauncher"
+attribute = "signal_intensity"
+level = 4
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 400
+
+[sub_resource type="Resource" id="R_decoy_speed_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "decoy.speed"
+display_name = "Decoy: Speed"
+description = "Increases the decoy's flight speed."
+device_id = "decoy_launcher"
+device_type = "ShipDecoyLauncher"
+attribute = "decoy_speed"
+level = 1
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 50
+
+[sub_resource type="Resource" id="R_decoy_speed_2"]
+script = ExtResource("2_upgrade")
+upgrade_id = "decoy.speed"
+display_name = "Decoy: Speed II"
+description = "Increases the decoy's flight speed further."
+device_id = "decoy_launcher"
+device_type = "ShipDecoyLauncher"
+attribute = "decoy_speed"
+level = 2
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 100
+
+[sub_resource type="Resource" id="R_decoy_speed_3"]
+script = ExtResource("2_upgrade")
+upgrade_id = "decoy.speed"
+display_name = "Decoy: Speed III"
+description = "Increases the decoy's flight speed further."
+device_id = "decoy_launcher"
+device_type = "ShipDecoyLauncher"
+attribute = "decoy_speed"
+level = 3
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 200
+
+[sub_resource type="Resource" id="R_decoy_speed_4"]
+script = ExtResource("2_upgrade")
+upgrade_id = "decoy.speed"
+display_name = "Decoy: Speed IV"
+description = "Maximum decoy flight speed."
+device_id = "decoy_launcher"
+device_type = "ShipDecoyLauncher"
+attribute = "decoy_speed"
+level = 4
+max_level = 4
+modifier_type = "multiply"
+value = 1.2
+cost_xp = 400
+
+[resource]
+script = ExtResource("1_profile")
+upgrades = Array[ExtResource("2_upgrade")]([
+    SubResource("R_scanner_range_1"),
+    SubResource("R_scanner_range_2"),
+    SubResource("R_scanner_range_3"),
+    SubResource("R_scanner_range_4"),
+    SubResource("R_scanner_time_1"),
+    SubResource("R_scanner_time_2"),
+    SubResource("R_scanner_time_3"),
+    SubResource("R_scanner_time_4"),
+    SubResource("R_scanner_sensitivity_1"),
+    SubResource("R_scanner_sensitivity_2"),
+    SubResource("R_scanner_sensitivity_3"),
+    SubResource("R_scanner_sensitivity_4"),
+    SubResource("R_signal_radius_1"),
+    SubResource("R_signal_radius_2"),
+    SubResource("R_signal_radius_3"),
+    SubResource("R_signal_radius_4"),
+    SubResource("R_signal_duration_1"),
+    SubResource("R_signal_duration_2"),
+    SubResource("R_signal_duration_3"),
+    SubResource("R_signal_duration_4"),
+    SubResource("R_signal_intensity_1"),
+    SubResource("R_signal_intensity_2"),
+    SubResource("R_signal_intensity_3"),
+    SubResource("R_signal_intensity_4"),
+    SubResource("R_decoy_lifetime_1"),
+    SubResource("R_decoy_lifetime_2"),
+    SubResource("R_decoy_lifetime_3"),
+    SubResource("R_decoy_lifetime_4"),
+    SubResource("R_decoy_signal_1"),
+    SubResource("R_decoy_signal_2"),
+    SubResource("R_decoy_signal_3"),
+    SubResource("R_decoy_signal_4"),
+    SubResource("R_decoy_speed_1"),
+    SubResource("R_decoy_speed_2"),
+    SubResource("R_decoy_speed_3"),
+    SubResource("R_decoy_speed_4"),
+])

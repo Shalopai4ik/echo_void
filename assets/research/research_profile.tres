@@ -1,0 +1,126 @@
+[gd_resource type="Resource" script_class="ResearchProfile" format=3]
+
+[ext_resource type="Script" path="res://scripts/research/research_profile.gd" id="1_profile"]
+[ext_resource type="Script" path="res://scripts/research/research_type.gd" id="2_type"]
+
+[sub_resource type="Resource" id="Resource_asteroid"]
+script = ExtResource("2_type")
+type_id = "asteroid"
+display_name = "Asteroid"
+signature_ids = PackedStringArray("asteroid")
+kinds = PackedStringArray("asteroid")
+base_time_seconds = 20.0
+base_xp = 30
+complexity = 2
+rare = false
+data_keys = PackedStringArray("px_scale", "extent")
+
+[sub_resource type="Resource" id="Resource_debris"]
+script = ExtResource("2_type")
+type_id = "debris"
+display_name = "Debris"
+signature_ids = PackedStringArray("debris")
+kinds = PackedStringArray("debris")
+base_time_seconds = 15.0
+base_xp = 20
+complexity = 1
+rare = false
+data_keys = PackedStringArray("px_scale", "extent")
+
+[sub_resource type="Resource" id="Resource_derelict"]
+script = ExtResource("2_type")
+type_id = "derelict"
+display_name = "Derelict"
+signature_ids = PackedStringArray("derelict")
+kinds = PackedStringArray("debris")
+base_time_seconds = 60.0
+base_xp = 150
+complexity = 4
+rare = false
+data_keys = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_structure"]
+script = ExtResource("2_type")
+type_id = "structure"
+display_name = "Structure"
+signature_ids = PackedStringArray("structure")
+kinds = PackedStringArray("structure")
+base_time_seconds = 45.0
+base_xp = 100
+complexity = 3
+rare = false
+data_keys = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_beacon"]
+script = ExtResource("2_type")
+type_id = "beacon"
+display_name = "Beacon"
+signature_ids = PackedStringArray("beacon")
+kinds = PackedStringArray("beacon")
+base_time_seconds = 30.0
+base_xp = 50
+complexity = 2
+rare = false
+data_keys = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_hazard"]
+script = ExtResource("2_type")
+type_id = "environmental_hazard"
+display_name = "Environmental Hazard"
+signature_ids = PackedStringArray("hazard")
+kinds = PackedStringArray("environmental_hazard")
+base_time_seconds = 40.0
+base_xp = 80
+complexity = 3
+rare = false
+data_keys = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_research_site"]
+script = ExtResource("2_type")
+type_id = "research_site"
+display_name = "Research Site"
+signature_ids = PackedStringArray("research_site")
+kinds = PackedStringArray("interactable")
+base_time_seconds = 90.0
+base_xp = 200
+complexity = 5
+rare = false
+data_keys = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_resonance"]
+script = ExtResource("2_type")
+type_id = "resonance"
+display_name = "Resonance Anomaly"
+signature_ids = PackedStringArray("resonance")
+kinds = PackedStringArray("anomaly")
+base_time_seconds = 120.0
+base_xp = 300
+complexity = 5
+rare = true
+data_keys = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_distress"]
+script = ExtResource("2_type")
+type_id = "distress"
+display_name = "Distress Signal"
+signature_ids = PackedStringArray("distress")
+kinds = PackedStringArray("unknown_signal")
+base_time_seconds = 75.0
+base_xp = 120
+complexity = 4
+rare = true
+data_keys = PackedStringArray()
+
+[resource]
+script = ExtResource("1_profile")
+types = Array[ExtResource("2_type")]([
+    SubResource("Resource_asteroid"),
+    SubResource("Resource_debris"),
+    SubResource("Resource_derelict"),
+    SubResource("Resource_structure"),
+    SubResource("Resource_beacon"),
+    SubResource("Resource_hazard"),
+    SubResource("Resource_research_site"),
+    SubResource("Resource_resonance"),
+    SubResource("Resource_distress"),
+])

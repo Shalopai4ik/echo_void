@@ -65,6 +65,9 @@ signal scan_refused(reason: String)
 ## Multiplies every measured return, which is what makes a weak, distant signature
 ## nameable. The seam a future upgrade turns.
 @export_range(0.1, 8.0, 0.05) var sensitivity := 1.0
+## Multiplies the sweep duration. The seam a future upgrade turns - values below
+## 1.0 make sweeps faster.
+@export_range(0.1, 8.0, 0.05) var sweep_seconds_multiplier := 1.0
 ## Ordering a sweep lights the sensor if it is switched off. One command, one key;
 ## a crew that wants the device cold can switch it off again, and nothing is spent
 ## on a cold sensor because a sweep still has to be ordered.
@@ -188,7 +191,7 @@ func range_now() -> float:
 func sweep_seconds_now() -> float:
 	if profile == null:
 		return MIN_SWEEP_SECONDS
-	return maxf(profile.sweep_seconds / _health_scale(0.5, 1.0), MIN_SWEEP_SECONDS)
+	return maxf(profile.sweep_seconds * sweep_seconds_multiplier / _health_scale(0.5, 1.0), MIN_SWEEP_SECONDS)
 
 
 ## Energy a sweep costs right now, in `ShipSystemsParameters` power units.
