@@ -108,9 +108,9 @@ func _verify_window(res: Vector2i, hud: Control, bg: Node, cam: Camera2D) -> voi
 	var radar: Vector2 = metrics["radar_center"]
 	var design_radar := Vector2(hud.radar_center)
 	var radar_right := DESIGN.x - design_radar.x
-	var radar_top := design_radar.y
-	_check(tag + ": the radar keeps its top-right margin",
-		is_equal_approx(visible.x - radar.x, radar_right) and is_equal_approx(radar.y, radar_top),
+	var radar_bottom := DESIGN.y - design_radar.y
+	_check(tag + ": the radar keeps its bottom-right margin",
+		is_equal_approx(visible.x - radar.x, radar_right) and is_equal_approx(visible.y - radar.y, radar_bottom),
 		"radar=%s" % str(radar))
 
 	# The telemetry block has no fixed height - it grows with what the hull can

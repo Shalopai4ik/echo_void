@@ -12,7 +12,14 @@ extends Control
 ## full bars for a ship that cannot be hurt. The radar asks the world field for
 ## its bodies and draws each one's own collision silhouette.
 
-const ACCENT := Color(0.24, 0.80, 0.92)
+const ACCENT := Color(0.20, 0.78, 0.94)
+const ACCENT_BRIGHT := Color(0.62, 0.96, 1.0)
+const PANEL_FILL := Color(0.01, 0.075, 0.12, 0.88)
+const PANEL_EDGE := Color(0.10, 0.55, 0.72, 0.82)
+const HULL_FILL := Color(0.14, 0.82, 0.94)
+const ENERGY_FILL := Color(0.20, 0.62, 0.94)
+const TEXT_DIM := Color(0.57, 0.76, 0.84, 0.92)
+const TEXT_BRIGHT := Color(0.82, 0.95, 0.98, 1.0)
 const CONTACT_HOT := Color(0.85, 0.34, 0.28)
 const CONTACT_COOL := Color(0.55, 0.90, 1.0)
 
@@ -42,14 +49,16 @@ const TELEMETRY_FONT_SIZE := 14
 ## World pixels the radar disc covers. Measured off the reference: the dish spans
 ## a little over three ship lengths, so a stone on the glass is the size it really
 ## is next to the hull. A sweep catches a handful of rocks, not the whole belt.
-@export var radar_center := Vector2(838.0, 92.0)
-@export var radar_radius := 76.0
+@export var radar_center := Vector2(884.0, 454.0)
+@export var radar_radius := 61.0
 ## How long a sweep's picture stays useful before it is simply stale.
 @export var radar_range := 880.0
 
 var _contacts: Array = []
 
 var _ship: Node2D
+## The ship's systems hub. Read for hull integrity and energy reserve.
+var _systems: Node
 ## The world field that answers the radar and the world line of the telemetry.
 var _world: Node2D
 ## Optional objective provider: a node in the "mission" group that answers
@@ -127,6 +136,10 @@ func _read_ship(_delta: float) -> void:
 	_find_ship()
 	_find_world()
 	_find_mission()
+	if _ship != null and is_instance_valid(_ship):
+		_systems = _ship.get_node_or_null("Systems")
+	else:
+		_systems = null
 
 	## Mark telemetry dirty when ship/world values change
 	if _ship != null and _ship.has_method("speed"):
@@ -306,10 +319,128 @@ func contacts() -> Array:
 # ---------------------------------------------------------------------- drawing
 
 func _draw() -> void:
-	if _rows_visible:
-		_draw_bullets()
-	_draw_telemetry()
+	_draw_ship_status()
+	_draw_objective_panel()
+	_draw_ability_slots()
 	_draw_radar()
+
+
+## Top-left ship status: the hull silhouette and two live resource bars.
+func _draw_ship_status() -> void:
+	var font := get_theme_default_font()
+	if font == null:
+		return
+	var icon_center := Vector2(37.0, 42.0)
+	draw_circle(icon_center, 26.0, Color(0.01, 0.12, 0.19, 0.82))
+	draw_arc(icon_center, 26.0, 0.0, TAU, 64, ACCENT, 1.5, true)
+	draw_arc(icon_center, 21.0, -PI * 0.85, PI * 0.85, 48, Color(ACCENT, 0.24), 1.0, true)
+
+	# Compact cruiser silhouette, deliberately schematic rather than a texture.
+	var hull := PackedVector2Array([
+		Vector2(37.0, 19.0), Vector2(42.0, 35.0), Vector2(45.0, 53.0),
+		Vector2(39.0, 58.0), Vector2(35.0, 50.0), Vector2(29.0, 58.0),
+		Vector2(32.0, 35.0),
+	])
+	draw_colored_polygon(hull, Color(ACCENT_BRIGHT, 0.92))
+	draw_line(Vector2(37.0, 20.0), Vector2(37.0, 55.0), Color(0.75, 0.96, 1.0, 0.9), 1.0, true)
+
+	var hull_ratio := _ship_hull_ratio()
+	var energy_ratio := _ship_energy_ratio()
+	_draw_resource_bar(Rect2(88.0, 24.0, 148.0, 13.0), hull_ratio, HULL_FILL)
+	_draw_resource_bar(Rect2(88.0, 45.0, 148.0, 13.0), energy_ratio, ENERGY_FILL)
+	draw_string(font, Vector2(95.0, 35.0), "КОРПУС", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 9, TEXT_BRIGHT)
+	draw_string(font, Vector2(95.0, 56.0), "ЭНЕРГИЯ", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 9, TEXT_BRIGHT)
+	draw_string(font, Vector2(207.0, 35.0), "%d%%" % roundi(hull_ratio * 100.0), HORIZONTAL_ALIGNMENT_RIGHT, 24.0, 9, TEXT_DIM)
+	draw_string(font, Vector2(207.0, 56.0), "%d%%" % roundi(energy_ratio * 100.0), HORIZONTAL_ALIGNMENT_RIGHT, 24.0, 9, TEXT_DIM)
+
+
+func _draw_resource_bar(rect: Rect2, ratio: float, fill: Color) -> void:
+	draw_rect(rect, Color(0.01, 0.06, 0.10, 0.88), true)
+	draw_rect(Rect2(rect.position + Vector2(1.0, 1.0), Vector2(maxf((rect.size.x - 2.0) * ratio, 0.0), rect.size.y - 2.0)), fill, true)
+	var outline := PackedVector2Array([
+		rect.position + Vector2(7.0, 0.0), rect.position + Vector2(rect.size.x, 0.0),
+		rect.position + rect.size, rect.position + Vector2(0.0, rect.size.y),
+		rect.position + Vector2(0.0, 7.0), rect.position,
+	])
+	draw_polyline(outline, Color(ACCENT, 0.78), 1.0, true)
+
+
+func _ship_hull_ratio() -> float:
+	if _systems != null and is_instance_valid(_systems) and _systems.has_method("hull_ratio"):
+		return clampf(float(_systems.hull_ratio()), 0.0, 1.0)
+	return 1.0
+
+
+func _ship_energy_ratio() -> float:
+	if _systems != null and is_instance_valid(_systems) and _systems.has_method("energy_ratio"):
+		return clampf(float(_systems.energy_ratio()), 0.0, 1.0)
+	return 1.0
+
+
+## Top-right mission panel. It mirrors the reference's compact objective card.
+func _draw_objective_panel() -> void:
+	var font := get_theme_default_font()
+	if font == null:
+		return
+	var right := size.x - 18.0
+	var rect := Rect2(right - 154.0, 18.0, 154.0, 48.0)
+	_draw_chamfered_panel(rect, 9.0)
+	var icon := rect.position + Vector2(18.0, 24.0)
+	draw_polyline(PackedVector2Array([icon + Vector2(0.0, -7.0), icon + Vector2(7.0, 0.0), icon + Vector2(0.0, 7.0), icon + Vector2(-7.0, 0.0), icon + Vector2(0.0, -7.0)]), ACCENT_BRIGHT, 1.0, true)
+	draw_string(font, rect.position + Vector2(34.0, 21.0), "ИССЛЕДОВАТЬ СЕКТОР", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 10, TEXT_BRIGHT)
+	draw_string(font, rect.position + Vector2(34.0, 37.0), "0 / 1", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 11, TEXT_DIM)
+
+
+## Bottom-left equipment slots. The first four controls mirror the reference's
+## compact module row; only the scanner is currently mounted, so it is lit.
+func _draw_ability_slots() -> void:
+	var font := get_theme_default_font()
+	if font == null:
+		return
+	var y := size.y - 78.0
+	var scanner_ready := _scanner_available()
+	for i in 4:
+		var rect := Rect2(24.0 + float(i) * 43.0, y, 38.0, 38.0)
+		_draw_chamfered_panel(rect, 6.0, Color(0.01, 0.10, 0.16, 0.82), Color(ACCENT, 0.80))
+		_draw_slot_icon(rect.get_center(), i, i == 1 and scanner_ready)
+		draw_string(font, rect.position + Vector2(rect.size.x * 0.5, rect.size.y + 12.0), str(i + 1), HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 10, TEXT_DIM)
+
+
+func _scanner_available() -> bool:
+	if _systems == null or not is_instance_valid(_systems) or not _systems.has_method("equipment_status"):
+		return false
+	return not (_systems.equipment_status("scanner") as Dictionary).is_empty()
+
+
+func _draw_slot_icon(center: Vector2, index: int, active: bool) -> void:
+	var tone := ACCENT_BRIGHT if active else Color(ACCENT, 0.68)
+	match index:
+		0:
+			draw_polyline(PackedVector2Array([center + Vector2(0.0, -10.0), center + Vector2(8.0, -5.0), center + Vector2(0.0, 10.0), center + Vector2(-8.0, -5.0), center + Vector2(0.0, -10.0)]), tone, 1.0, true)
+		1:
+			draw_arc(center, 9.0, 0.0, TAU, 40, tone, 1.0, true)
+			draw_line(center - Vector2(12.0, 0.0), center + Vector2(12.0, 0.0), tone, 1.0, true)
+			draw_line(center - Vector2(0.0, 12.0), center + Vector2(0.0, -12.0), tone, 1.0, true)
+		2:
+			draw_polyline(PackedVector2Array([center + Vector2(2.0, -11.0), center + Vector2(-6.0, 1.0), center + Vector2(0.0, 1.0), center + Vector2(-2.0, 11.0), center + Vector2(7.0, -2.0), center + Vector2(1.0, -2.0), center + Vector2(2.0, -11.0)]), tone, 1.0, true)
+		3:
+			for i in 3:
+				var yy := center.y - 8.0 + float(i) * 7.0
+				draw_line(center + Vector2(-9.0, yy), center + Vector2(9.0, yy), tone, 1.0, true)
+
+
+func _draw_chamfered_panel(rect: Rect2, cut: float, fill: Color = PANEL_FILL, edge: Color = PANEL_EDGE) -> void:
+	var p := rect.position
+	var s := rect.size
+	var outline := PackedVector2Array([
+		p + Vector2(cut, 0.0), p + Vector2(s.x - cut, 0.0), p + Vector2(s.x, cut),
+		p + Vector2(s.x, s.y - cut), p + Vector2(s.x - cut, s.y), p + Vector2(cut, s.y),
+		p + Vector2(0.0, s.y - cut), p + Vector2(0.0, cut),
+	])
+	draw_colored_polygon(outline, fill)
+	var border := outline.duplicate()
+	border.append(border[0])
+	draw_polyline(border, edge, 1.0, true)
 
 
 ## What a hull without armour can still be honest about: how fast it is going,
@@ -386,7 +517,10 @@ func hud_extra() -> Vector2:
 ## in from the right one, so the dish has to ride the right edge when the viewport
 ## grows wider.
 func radar_center_at() -> Vector2:
-	return radar_center + Vector2(hud_extra().x, 0.0)
+	return Vector2(
+		size.x - (DESIGN_SIZE.x - radar_center.x),
+		size.y - (DESIGN_SIZE.y - radar_center.y)
+	)
 
 
 ## Corner-hugging geometry, for the display suite: the same numbers the drawing
@@ -472,7 +606,8 @@ func _draw_contacts(c: Vector2, r: float) -> void:
 				continue
 			drawn = true
 			if solid:
-				draw_colored_polygon(clean, Color(tone, 0.07 * fade))
+				# Keep radar contacts as crisp wireframes at the compact scale.
+				pass
 			var closed := clean.duplicate()
 			closed.append(closed[0])
 			draw_polyline(closed, line, 1.0, true)
