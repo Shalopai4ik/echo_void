@@ -99,11 +99,15 @@ func set_form(which: String, scale_px: float, color: Color) -> void:
 	sprite.texture = texture
 	sprite.scale = Vector2(scale_px, scale_px)
 	sprite.modulate = color
-	var pieces: Array = SHAPES.SHAPES.get("asteroid_" + shape, [])
-	if pieces.is_empty():
-		push_error("no collision piece for asteroid_%s" % shape)
+	# The generated table stores the outer visible silhouette as well as the old
+	# convex decomposition. One concave polygon in SOLID mode lets Godot decompose
+	# it internally, so every side of the rock is collidable without overlapping
+	# child shapes producing duplicate contact reports.
+	var outlines: Array = SHAPES.OUTLINES.get("asteroid_" + shape, [])
+	if outlines.is_empty():
+		push_error("no collision outline for asteroid_%s" % shape)
 		return
-	for v in pieces[0]:
+	for v in outlines[0]:
 		var point: Vector2 = v * scale_px
 		piece.append(point)
 		extent = maxf(extent, point.length())

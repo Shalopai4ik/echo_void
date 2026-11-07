@@ -79,6 +79,7 @@ GAMMA = 0.8         # lift: sheet lit for a backdrop, sprite drawn against a voi
 SHAPE_NODES = 6     # pieces per rock in scripts/asteroid_shapes.gd
 # Simplification scales to try, in order, before a rock is judged too ragged.
 EPS_STEPS = (1.0, 0.7, 1.4, 0.5, 2.0)
+OUTLINE_SIMPLIFY = 0.006
 COUNT = 20          # sprites in assets/asteroids/
 LONG_MAX = 76       # px, the biggest sprite the belt was balanced with
 LONG_MIN = 20       # px, the smallest
@@ -187,7 +188,9 @@ def collision(sprite):
             continue
         cx, cy = sprite.shape[1] / 2.0, sprite.shape[0] / 2.0
         local = [[(round(px - cx, 2), round(py - cy, 2)) for px, py in p] for p in dec]
-        return local, iou_of(dec, solid)
+        outline = cv2.approxPolyDP(lobes[0], cv2.arcLength(lobes[0], True) * OUTLINE_SIMPLIFY, True)
+        outline = [(round(px[0] - cx, 2), round(px[1] - cy, 2)) for px in outline]
+        return local, iou_of(dec, solid), [outline]
     return None
 
 
@@ -257,18 +260,19 @@ def main(argv=None) -> int:
             LOG.step("skipped the %dx%d rock at %s: more than %d collision pieces"
                      % (box[2], box[3], box[:2], SHAPE_NODES))
             continue
-        cut_rocks.append(("asteroid_%02d" % (rank + 1), sprite, shape[0], shape[1], box, area))
+        cut_rocks.append(("asteroid_%02d" % (rank + 1), sprite, shape[0], shape[1], box, area, shape[2]))
 
     if len(cut_rocks) < args.count:
         fail("only %d of the %d rocks on the sheet can be cut into %d convex pieces"
              % (len(cut_rocks), len(candidates), SHAPE_NODES))
 
     report = []
-    for name, sprite, pieces, iou, box, area in cut_rocks:
+    for name, sprite, pieces, iou, box, area, outline in cut_rocks:
         report.append({
             "file": name + ".png",
             "size": [int(sprite.shape[1]), int(sprite.shape[0])],
             "outline": sum(len(p) for p in pieces),
+            "outline_points": outline,
             "pieces": len(pieces),
             "iou": round(iou, 3),
             "note": "",
@@ -284,7 +288,7 @@ def main(argv=None) -> int:
 
     out_dir = Path(args.output)
     out_dir.mkdir(parents=True, exist_ok=True)
-    for name, sprite, _pieces, _iou, _box, _area in cut_rocks:
+    for name, sprite, _pieces, _iou, _box, _area, _outline in cut_rocks:
         save_rgba(out_dir / (name + ".png"), sprite, force=args.force, what=name)
 
     Path(args.manifest).parent.mkdir(parents=True, exist_ok=True)

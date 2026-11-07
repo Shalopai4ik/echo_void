@@ -256,6 +256,19 @@ def emit_gd(report, path, by="tools/extract_asteroids.py"):
             lines.append("\t\t[%s]," % pts)
         lines.append("\t],")
     lines += ["}", ""]
+    lines += [
+        "## Outer visible silhouettes in the same texture-pixel coordinates. A concave",
+        "## outline is fed to CollisionPolygon2D in SOLID mode so the engine creates the",
+        "## required convex decomposition without discarding any side of the rock.",
+        "const OUTLINES := {",
+    ]
+    for r in report:
+        lines.append('\t"%s": [' % r["file"].rsplit(".", 1)[0])
+        for ring in r.get("outline_points", []):
+            pts = ", ".join("Vector2(%g, %g)" % xy for xy in ring)
+            lines.append("\t\t[%s]," % pts)
+        lines.append("\t],")
+    lines += ["}", ""]
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(lines))
 
@@ -303,6 +316,9 @@ def main():
         tile = tile_rgba(padded[y:y + h + 2 * PAD, x:x + w + 2 * PAD], box)
         dec, note = decompose(lobes)
         outline = sum(len(simplify(c)) for c in lobes)
+        outer = cv2.approxPolyDP(max(lobes, key=cv2.contourArea),
+                                 cv2.arcLength(max(lobes, key=cv2.contourArea), True) * 0.006,
+                                 True)
 
         name = "asteroid_%02d" % (len([r for r in report]) + 1)
         cv2.imwrite(os.path.join(out_dir, name + ".png"), tile)
@@ -311,9 +327,11 @@ def main():
         cx, cy = (w + 2 * PAD) / 2.0, (h + 2 * PAD) / 2.0
         local = [[(round(px + PAD - cx, 2), round(py + PAD - cy, 2)) for px, py in p]
                  for p in dec]
+        outer_local = [[(round(px[0] + PAD - cx, 2), round(px[1] + PAD - cy, 2))
+                        for px in outer]]
         report.append({
             "file": name + ".png", "size": [int(w + 2 * PAD), int(h + 2 * PAD)],
-            "outline": outline, "pieces": len(local),
+            "outline": outline, "outline_points": outer_local, "pieces": len(local),
             "iou": round(iou_of(dec, solid), 3), "note": note, "shapes": local,
         })
 
