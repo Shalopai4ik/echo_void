@@ -93,6 +93,7 @@ func _meet(shape: String, px_scale: float, speed: float, stone_speed: float,
 	ship.linear_velocity = Vector2(speed, 0.0)
 	ship.angular_velocity = 0.0
 	var start := rock.global_position
+	var rock_v0 := rock.linear_velocity
 	await _steps(2)
 
 	var contact := -1
@@ -115,7 +116,9 @@ func _meet(shape: String, px_scale: float, speed: float, stone_speed: float,
 	var out := {
 		"mass": rock.mass, "v0": speed, "hit": contact >= 0,
 		"keep": keep, "min_vx": min_vx, "peak": peak, "spin": spin,
-		"rock_v": rock_v.length(), "moved": start.distance_to(rock.global_position),
+		"rock_v": rock_v.length(), "rock_vx": rock_v.x,
+		"rock_gain": (rock_v - rock_v0).length(),
+		"moved": start.distance_to(rock.global_position),
 		"end": ship.linear_velocity.length(),
 	}
 	ship.queue_free()
@@ -125,8 +128,8 @@ func _meet(shape: String, px_scale: float, speed: float, stone_speed: float,
 
 
 func _detail(label: String, r: Dictionary) -> String:
-	return "%s: mass %.2f, keep %.2f, min_vx %.0f, spin %.2f, stone %.0f px/s, moved %.0f px" % [
-		label, r["mass"], r["keep"], r["min_vx"], r["spin"], r["rock_v"], r["moved"]]
+	return "%s: mass %.2f, keep %.2f, min_vx %.0f, spin %.2f, stone %.0f px/s (vx %.0f, gain %.0f), moved %.0f px" % [
+		label, r["mass"], r["keep"], r["min_vx"], r["spin"], r["rock_v"], r["rock_vx"], r["rock_gain"], r["moved"]]
 
 
 ## 1. the scenes themselves. A regression here is what brings the rubber ball
@@ -233,8 +236,9 @@ func _test_oncoming() -> void:
 	_ok("an oncoming stone leaves the hull slower",
 		coming["end"] < parked["end"] - 5.0,
 		"parked ends %.0f px/s, oncoming ends %.0f px/s" % [parked["end"], coming["end"]])
-	_ok("an oncoming stone leaves faster", coming["rock_v"] > parked["rock_v"],
-		_detail("oncoming chunk", coming))
+	_ok("an oncoming stone leaves faster", coming["rock_gain"] > parked["rock_gain"],
+		"parked gains %.0f px/s, oncoming gains %.0f px/s" % [
+			parked["rock_gain"], coming["rock_gain"]])
 	_ok("an oncoming stone does not throw the hull back", coming["min_vx"] > 0.0,
 		_detail("oncoming chunk", coming))
 
