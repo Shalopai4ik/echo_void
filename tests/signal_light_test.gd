@@ -47,7 +47,7 @@ func _steps(count: int) -> void:
 		await physics_frame
 
 
-func _on_refused(_id: String, reason: String) -> void:
+func _on_refused(reason: String) -> void:
 	_refusals.append(reason)
 
 
@@ -254,3 +254,6 @@ func _run() -> void:
 		"%d left" % _hub.count())
 	_broadcaster.clear_all()
 	print("RESULT: ", "ALL PASS" if _failed == 0 else "FAILED %d of %d" % [_failed, _checks])
+	# The suite has to end the process itself: a headless SceneTree keeps
+	# running after the last check, and the runner would wait forever.
+	quit(1 if _failed > 0 else 0)
