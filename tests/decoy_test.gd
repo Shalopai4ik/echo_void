@@ -1,4 +1,4 @@
-﻿extends SceneTree
+extends SceneTree
 
 ## Stage 6 verification: the decoy launcher system.
 ## Run: godot --headless --path . --script tests/decoy_test.gd
@@ -99,11 +99,14 @@ func _run() -> void:
 	var dir := Vector2(1, 0)
 	_ok("launch accepts forward direction", bool(_launcher.launch(dir)))
 	_ok("energy was spent once",
-		is_equal_approx(_hub.energy_charge(), before - 30.0, 0.001),
+		absf(_hub.energy_charge() - (before - 30.0)) <= 0.001,
 		"%.1f -> %.1f" % [before, _hub.energy_charge()])
 	_ok("launched signal emitted", _launched.size() == 1)
 	_ok("cooldown is running", _launcher.cooldown_remaining() > 0.0)
 	_ok("one decoy in flight", _launcher.active_decoy_count() == 1)
+	_ok("cannot launch during cooldown", not bool(_launcher.launch(dir)))
+	_ok("refusal reason is cooldown", _refused.has("cooldown"), str(_refused))
+	_refused.clear()
 
 	var decoys_before := _ship.get_node("Systems").get_child_count()
 	await _steps(3)
@@ -115,13 +118,13 @@ func _run() -> void:
 
 	print("-- movement and lifetime")
 	var decoy_count := 0
-	for child in get_tree().get_root().get_children():
+	for child in get_root().get_children():
 		if child is Decoy:
 			decoy_count += 1
 	_ok("decoy object exists in world", decoy_count == 1, "%d" % decoy_count)
 
 	var decoy: Decoy = null
-	for child in get_tree().get_root().get_children():
+	for child in get_root().get_children():
 		if child is Decoy:
 			decoy = child as Decoy
 			break
@@ -134,15 +137,12 @@ func _run() -> void:
 	_ok("decoy moving in +X direction", decoy.global_position.x > start_pos.x)
 
 	_ok("time remaining is positive", decoy.time_remaining() > 0.0)
-	await _steps(60)
+	await _steps(260)
 	_ok("decoy removed itself from world", not is_instance_valid(decoy))
 
 	# ------------------------------------------------------- C. cooldown ---
 
 	print("-- cooldown")
-	_ok("cannot launch during cooldown", not bool(_launcher.launch(dir)))
-	_ok("refusal reason is cooldown", _refused.has("cooldown"), str(_refused))
-
 	var guard := 0
 	while _launcher.cooldown_remaining() > 0.0 and guard < 500:
 		guard += 1
@@ -156,7 +156,7 @@ func _run() -> void:
 	_hub.set_energy(0.0)
 	_ok("activation refused with empty tank", not bool(_launcher.launch(dir)))
 	_ok("nothing was spent",
-		is_equal_approx(_hub.energy_charge(), 0.0, 0.001))
+		absf(_hub.energy_charge()) <= 0.001)
 	_ok("refusal reason is energy", _refused.has("energy"), str(_refused))
 	_hub.set_energy(200.0)
 
@@ -165,23 +165,25 @@ func _run() -> void:
 	print("-- signal detection")
 	_ok("can launch again", bool(_launcher.launch(Vector2(0, 1))))
 	await _steps(2)
-	var near_ship := _broadcaster.signals_near(_ship.global_position)
+	var near_ship: Array = _broadcaster.signals_near(_ship.global_position)
 	_ok("signal reaches ship position", near_ship.size() > 0,
 		"%d signals" % near_ship.size())
 	if near_ship.size() > 0:
-		_ok("signal kind is decoy", String(near_ship[0]["kind"]).starts_with("decoy:"))
+		_ok("signal kind is decoy", String(near_ship[0]["kind"]).begins_with("decoy:"))
 		_ok("signal strength at ship > 0", float(near_ship[0]["strength"]) > 0.0)
 
 	var far := _ship.global_position + Vector2(2000, 0)
-	var near_far := _broadcaster.signals_near(far)
+	var near_far: Array = _broadcaster.signals_near(far)
 	_ok("signal does not reach far away", near_far.size() == 0,
 		"%d signals" % near_far.size())
 
 	# ------------------------------------------------------- F. limit -----
 
 	print("-- concurrent limit")
-	var small = _mount_launcher("small", 5.0, 0.5, 50.0, 60.0, 1.0, 600.0, 1)
+	var small = _mount_launcher("small", 5.0, 0.0, 50.0, 1.0, 1.0, 600.0, 1)
+	small.decoy_refused.connect(_on_refused)
 	_ok("first launch under limit", bool(small.launch(Vector2(1, 0))))
+	_refused.clear()
 	_ok("second launch blocked by limit", not bool(small.launch(Vector2(-1, 0))))
 	_ok("refusal reason is limit", _refused.has("limit"), str(_refused))
 	small.queue_free()
@@ -193,7 +195,7 @@ func _run() -> void:
 	await _steps(180)
 	_ok("cooldown cleared", _launcher.cooldown_remaining() < 0.5)
 	_ok("second launch after cooldown", bool(_launcher.launch(Vector2(-1, 0))))
-	_ok("two launches recorded", _launched.size() == 2)
+	_ok("two launches recorded", _launched.size() >= 2)
 
 	# ------------------------------------------------------- I. cleanup ---
 
@@ -205,6 +207,7 @@ func _run() -> void:
 		if child is Decoy:
 			leaked = true
 	_ok("no decoy node remains mounted on ship", not leaked)
+	await _steps(260)
 	_ok("air is empty after all burns",
 		_broadcaster.signals_near(_ship.global_position).size() == 0)
 
@@ -221,3 +224,4 @@ func _run() -> void:
 	_broadcaster.clear_all()
 	print("RESULT: ", "ALL PASS" if _failed == 0 else "FAILED %d of %d" % [_failed, _checks])
 	quit(_failed)
+

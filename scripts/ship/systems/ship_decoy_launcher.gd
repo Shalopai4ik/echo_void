@@ -158,7 +158,7 @@ func active_decoy_count() -> int:
 func _on_decoy_finished(decoy: Object) -> void:
 	var idx := _active_decoys.find(decoy)
 	if idx >= 0:
-		_active_decoys.erase_at(idx)
+		_active_decoys.remove_at(idx)
 	decoy.finished.disconnect(_on_decoy_finished.bind(decoy))
 
 	var sid := ""
