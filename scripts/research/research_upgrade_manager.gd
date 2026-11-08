@@ -51,9 +51,19 @@ func _ready() -> void:
 
 ## ------------------------------------------------------------------- spending ---
 
+## The research desk this manager spends through, or null when none is mounted.
+## A panel subscribes to its `xp_gained` / `xp_spent` signals through this.
+func research_system() -> ResearchSystem:
+	return _research
+
 ## The running research XP total, or 0 when no research desk is connected.
 func get_xp() -> int:
 	return _research.get_xp() if _research != null else 0
+
+## The device mounted under this hub with `device_id`, or null when the ship
+## does not carry it. A panel uses it to read the live characteristic value.
+func device_for(device_id: String) -> Object:
+	return _find_device(device_id)
 
 ## True when `upgrade_id` has a next level and the desk can pay for it.
 func can_afford(upgrade_id: String) -> bool:

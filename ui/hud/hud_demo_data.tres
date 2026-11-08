@@ -10,6 +10,7 @@ energy_current = 74.0
 energy_maximum = 100.0
 speed = 128.0
 speed_unit = "м/с"
+research_xp = 340
 ship_state = "НОРМА"
 hull_warning_ratio = 0.5
 hull_critical_ratio = 0.25

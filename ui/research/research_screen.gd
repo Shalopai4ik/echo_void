@@ -1,9 +1,16 @@
-extends UiViewportPolicy
+extends InterfaceScreen
 class_name ResearchScreen
 
-## Visual-only research interface. All values come from local demonstration
-## snapshots. No gameplay system and no `ResearchSystem` is referenced here -
-## stage 7 will map a gameplay snapshot onto these components.
+## The research interface.
+##
+## In the flight scene the panel is fed by `ResearchConsole` with the real
+## research desk's picture (`ResearchSnapshot`): the list is the desk's own
+## registry of subjects, the progress is the desk's own progress, and the XP
+## total is the desk's own total. The button asks the desk to start or to
+## pause an analysis, and the desk decides.
+##
+## The demonstration table is still here for the preview scene, where there is
+## no ship to read.
 
 signal research_requested(object_id: String)
 signal research_pause_requested(object_id: String)
@@ -25,6 +32,9 @@ var _objects: Array[ResearchObject] = []
 var _cards: Dictionary = {}
 var _selected_id: String = ""
 var _demo_state: int = ResearchObject.State.AVAILABLE
+## True when the panel is fed by the real desk rather than by the
+## demonstration table.
+var _live := false
 
 
 func _ready() -> void:
@@ -37,9 +47,25 @@ func _ready() -> void:
 	set_demo_state(initial_state)
 
 
+## The real desk's registry. The panel shows the subjects the desk knows and
+## asks for nothing itself.
+func set_live_objects(objects: Array[ResearchObject], xp: int) -> void:
+	_live = true
+	_demo.visible = false
+	_rebuild(objects)
+	_xp_label.text = "RESEARCH XP %s" % ResearchObject.format_number(xp)
+	_apply_state_label()
+
+
 func set_demo_state(state: int, objects: Array[ResearchObject] = []) -> void:
 	_demo_state = state
-	_objects = objects if not objects.is_empty() else ResearchDemoData.objects_for_state(state)
+	_rebuild(objects if not objects.is_empty() else ResearchDemoData.objects_for_state(state))
+	_apply_safe_insets()
+
+
+## The subject list, rebuilt from scratch.
+func _rebuild(objects: Array[ResearchObject]) -> void:
+	_objects = objects
 	_cards.clear()
 	for child in _object_list.get_children():
 		child.queue_free()
@@ -53,7 +79,6 @@ func set_demo_state(state: int, objects: Array[ResearchObject] = []) -> void:
 	_registry_count.text = "РЕЕСТР ОБЪЕКТОВ / %02d" % _objects.size()
 	_selected_id = ""
 	_select_first_matching_state()
-	_apply_safe_insets()
 
 
 func select_object(object_id: String) -> void:
@@ -75,6 +100,16 @@ func current_object() -> ResearchObject:
 
 
 func _select_first_matching_state() -> void:
+	if _live:
+		for object in _objects:
+			if object.state == ResearchObject.State.IN_PROGRESS:
+				select_object(object.id)
+				return
+		if not _objects.is_empty():
+			select_object(_objects[0].id)
+		else:
+			_panel.clear()
+		return
 	for object in _objects:
 		if object.state == _demo_state:
 			select_object(object.id)
@@ -107,7 +142,8 @@ func _apply_state_label() -> void:
 	var object := current_object()
 	if object == null:
 		_state_label.text = "○ НЕТ ОБЪЕКТОВ"
-		_xp_label.text = "RESEARCH XP 0"
+		if not _live:
+			_xp_label.text = "RESEARCH XP 0"
 		return
 	_state_label.text = "● " + object.status_text()
 	_state_label.add_theme_color_override("font_color", _state_color(object))

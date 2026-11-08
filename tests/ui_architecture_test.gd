@@ -13,6 +13,8 @@ const SCREENS := [
 	"res://scenes/ui/screens/ResearchPreview.tscn",
 	"res://scenes/ui/screens/EquipmentScreen.tscn",
 	"res://scenes/ui/screens/UpgradesScreen.tscn",
+	"res://scenes/ui/screens/UpgradesPreview.tscn",
+	"res://scenes/ui/UpgradesConsole.tscn",
 	"res://scenes/ui/screens/MainMenu.tscn",
 	"res://scenes/ui/screens/PauseMenu.tscn",
 ]
@@ -22,6 +24,7 @@ const RESOLUTIONS := [
 	Vector2i(1280, 720),
 	Vector2i(1920, 1080),
 	Vector2i(2560, 1080),
+	Vector2i(2560, 1440),
 	Vector2i(1024, 768),
 ]
 

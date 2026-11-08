@@ -60,6 +60,10 @@ signal research_available(contact: Dictionary)
 ## Multiplies every analysis time. A damaged desk is slower; a future upgrade
 ## is faster.
 @export_range(0.1, 8.0, 0.05) var time_multiplier: float = 1.0
+## How far the hull may be from the subject while the analysis runs. Past it the
+## analysis waits (nothing is lost). 0 means no limit, which is how the desk
+## behaved before and how its own suites drive it.
+@export_range(0.0, 20000.0, 50.0, "suffix:px") var max_range_px: float = 0.0
 
 ## The subject under analysis right now, or "" when the desk is idle.
 var _current_subject: String = ""
@@ -120,6 +124,9 @@ func start_research(contact: Dictionary) -> bool:
 		return _refuse("already_done")
 	_current_subject = subject_id
 	_current_type = rtype.type_id
+	var at: Variant = contact.get("position", Vector2.INF)
+	_subject_position = at if at is Vector2 else Vector2.INF
+	_out_of_range = false
 	_required_time = maxf(rtype.time_value() * time_multiplier * _health_scale(0.5, 1.0),
 		MIN_ANALYSIS_SECONDS)
 	_elapsed = _progress_for(subject_id).get("progress", 0.0) * _required_time
@@ -269,6 +276,9 @@ func _physics_process(delta: float) -> void:
 		return
 	if not is_operational():
 		cancel_research("unpowered")
+		return
+	_out_of_range = _beyond_range()
+	if _out_of_range:
 		return
 	_elapsed = minf(_elapsed + maxf(delta, 0.0) * _rate_scale(), _required_time)
 	research_progress.emit(_current_subject, progress())
@@ -472,6 +482,7 @@ func status() -> Dictionary:
 	out["research_xp"] = _xp
 	out["research_subjects"] = _progress.size()
 	out["research_last_refusal"] = _refuse_reason
+	out["research_out_of_range"] = is_out_of_range()
 	return out
 
 
@@ -487,3 +498,43 @@ var _scanner: Node = null
 var _refuse_reason: String = ""
 ## Whether analysis is running right now.
 var _scanning: bool = false
+## Where the subject under analysis is, or INF when the contact had no position.
+var _subject_position: Vector2 = Vector2.INF
+## True while the hull is too far from the subject for the analysis to advance.
+var _out_of_range: bool = false
+
+
+## The subject under analysis, or "".
+func current_subject() -> String:
+	return _current_subject
+
+
+## Is the analysis waiting for the hull to come back into range?
+func is_out_of_range() -> bool:
+	return _scanning and _out_of_range
+
+
+## Distance from the hull to the subject, or -1 when unknown.
+func subject_distance() -> float:
+	if _subject_position == Vector2.INF:
+		return -1.0
+	var hull := _hull_node()
+	if hull == null:
+		return -1.0
+	return hull.global_position.distance_to(_subject_position)
+
+
+func _beyond_range() -> bool:
+	if max_range_px <= 0.0:
+		return false
+	var d := subject_distance()
+	return d >= 0.0 and d > max_range_px
+
+
+func _hull_node() -> Node2D:
+	var node := get_parent()
+	while node != null:
+		if node is Node2D:
+			return node as Node2D
+		node = node.get_parent()
+	return null

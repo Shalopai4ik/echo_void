@@ -1,6 +1,10 @@
-# Audio: what exists, what is missing
+# Audio: what exists
 
-The audio subsystem is written and wired. The sound files are not.
+The audio subsystem is written and wired, and since stage 11 the files exist:
+`tools/asset_pipeline/godot/make_audio.gd` synthesises all of them inside Godot
+(19 ship streams in `assets/audio/ship/`, 25 effects in `assets/audio/sfx/`,
+5 music loops in `assets/audio/music/`). The sections below describe the
+contract the files follow; the "missing" notes are historical.
 
 ## What is in place
 

@@ -13,6 +13,13 @@
 | `stage3_readiness.md` | stage 3 entry checklist |
 | `stage3_4_report.md` | stage 3.4 report (space objects) |
 | `stage3_6_report.md` | stage 3.6 report (space balance) |
+| `stage6_6_report.md` | stage 6.6 report (equipment upgrades panel and Research XP readout) |
+| `stage6_7_report.md` | stage 6.7 report (upgrades purchase loop wired to Research XP and the devices) |
+| `stage6_8_report.md` | stage 6.8 report (flight interface audit, layout and input fixes, adaptive checks) |
+| `stage7_report.md` | stage 7 report (equipment panel, pause, slots 1–4, the sector card, every screen and menu wired to the ship) |
+| `stage8_13_report.md` | stages 6.6-13: research objects, the creature and its brood, decoys and flares, mission and ending, sound and music, menus, performance and refactoring |
+| `display_testing.md` | manual checklist for fullscreen and a second monitor (what was checked and what was not) |
+| `ui/README.md` | the interface foundation: layers, screens, components, visual rules |
 
 Design documents are tracked; anything a suite writes goes to `test-output/`,
 which is not.

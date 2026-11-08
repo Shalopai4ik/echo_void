@@ -37,6 +37,8 @@ const PROFILE := preload("res://scripts/scan/scanner_profile.gd")
 ## by path, so a ship in a test scene finds a test world and a ship in the game
 ## finds the field - the same injection rule the rest of this layer follows.
 const WORLD_GROUP := "world_field"
+## Nodes outside the field that a sweep should still read.
+const SCAN_TARGET_GROUP := "scan_target"
 ## A sweep may not be shorter than this, whatever the profile says: a zero-length
 ## sweep would still emit a start and a finish in the same frame.
 const MIN_SWEEP_SECONDS := 0.1
@@ -68,6 +70,12 @@ signal scan_refused(reason: String)
 ## Multiplies the sweep duration. The seam a future upgrade turns - values below
 ## 1.0 make sweeps faster.
 @export_range(0.1, 8.0, 0.05) var sweep_seconds_multiplier := 1.0
+## How loud a sweep is to the thing in the dark (1 = full, 0.5 = the silenced
+## dish). Read by `ThreatAttention`; bought as a one-time upgrade.
+@export_range(0.0, 1.0, 0.05) var noise_factor := 1.0
+## The threat-sense module: 1 shows the bearing of the large disturbance on
+## the flight radar. A one-time upgrade.
+@export_range(0.0, 1.0, 1.0) var threat_sense := 0.0
 ## Ordering a sweep lights the sensor if it is switched off. One command, one key;
 ## a crew that wants the device cold can switch it off again, and nothing is spent
 ## on a cold sensor because a sweep still has to be ordered.
@@ -289,6 +297,7 @@ func _finish() -> void:
 ## on numbers it already has.
 func _collect(origin: Vector2, radius: float) -> Array:
 	var out: Array = []
+	var priority: Array = []
 	var source := world()
 	if source != null and source.has_method("objects_near"):
 		var raw: Array = source.call("objects_near", origin, radius, _candidate_limit())
@@ -298,11 +307,25 @@ func _collect(origin: Vector2, radius: float) -> Array:
 			var contact := _read_object(node, origin, radius)
 			if not contact.is_empty():
 				out.append(contact)
+	# Objects that live outside the stone field - research objects, the thing
+	# in the dark - join one group and are read through the same profile. They
+	# are few and they are what the survey is for, so the stones never crowd them
+	# out of the contact list.
+	if is_inside_tree():
+		for node in get_tree().get_nodes_in_group(SCAN_TARGET_GROUP):
+			if node == null or not is_instance_valid(node) or not node is Node2D:
+				continue
+			var extra := _read_object(node, origin, radius)
+			if not extra.is_empty():
+				priority.append(extra)
 	for signature in profile.phantoms():
 		_raise_phantoms(signature, origin, radius, out)
 	out.sort_custom(_nearest_first)
-	if out.size() > profile.max_contacts:
-		out.resize(profile.max_contacts)
+	var room := maxi(profile.max_contacts - priority.size(), 0)
+	if out.size() > room:
+		out.resize(room)
+	out.append_array(priority)
+	out.sort_custom(_nearest_first)
 	return out
 
 

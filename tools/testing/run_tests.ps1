@@ -48,7 +48,8 @@ $logDir = Join-Path $outRoot 'logs'
 # Suites that draw. Under --headless Godot uses a dummy renderer and there is
 # nothing to screenshot, so these run without --headless and open a window.
 $visualSuites = @('bg_screens', 'bg_debug', 'stage1_flight_screens', 'stage2_flight_screens',
-            'stage3_3_chunk_screens', 'stage3_4_space_screens', 'scanner_ui_visual')
+            'stage3_3_chunk_screens', 'stage3_4_space_screens', 'scanner_ui_visual',
+            'upgrades_ui_visual')
 $expectedEngine = '4.7'
 
 function Get-Suites {
@@ -82,7 +83,16 @@ This runner never guesses at a different engine version.
 
 function Test-EngineVersion($exe) {
     $version = & $exe --version 2>$null
-    if ($LASTEXITCODE -ne 0 -or -not $version) {
+    if (-not $version) {
+        # GUI-subsystem builds (the Steam one) do not hand stdout back to a
+        # PowerShell pipeline; a redirected Start-Process does read it.
+        $tmp = [System.IO.Path]::GetTempFileName()
+        Start-Process -FilePath $exe -ArgumentList '--version' -Wait `
+            -RedirectStandardOutput $tmp -WindowStyle Hidden | Out-Null
+        $version = Get-Content -LiteralPath $tmp -Raw
+        Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue
+    }
+    if (-not $version) {
         throw "could not read the engine version from $exe"
     }
     $text = ($version | Out-String).Trim()

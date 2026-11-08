@@ -6,13 +6,19 @@ Every suite is a GDScript file that extends `SceneTree` and is run headless:
 godot --headless --path . --script tests/<suite>.gd
 ```
 
-There are 27 suites under `tests\`: 21 logic suites (headless, safe anywhere) and 6
+There are 40 suites under `tests\`: 32 logic suites (headless, safe anywhere) and 8
 visual suites (they take screenshots, so they need a real GPU). The `_exp_*`
 scratch scripts live under `tests/experiments/`; they are not suites and are not
 part of a verdict. `ship_systems_test.gd` is the stage
 4.1 architecture suite, `ship_energy_test.gd` the stage 4.2 reserve suite,
 `ship_damage_test.gd` the stage 4.3 hull pool suite and `ship_equipment_test.gd` the
 stage 4.4 equipment control suite; `docs/ship_systems.md` says what their phases hold.
+`upgrades_ui_test.gd` covers the stage 6.6 equipment upgrades panel and
+`upgrades_ui_visual.gd` renders its screenshots; `upgrades_integration_test.gd`
+covers the stage 6.7 purchase loop against a real ship.
+`interface_integration_test.gd` covers the stage 7 interface layer: the
+equipment panel, the four slots, the sector card, the pause menu and the
+"one panel at a time" rule against the real flight scene.
 
 ## One runner
 
@@ -20,7 +26,7 @@ stage 4.4 equipment control suite; `docs/ship_systems.md` says what their phases
 tools\testing\run_tests.ps1                 # all logic suites
 tools\testing\run_tests.ps1 -List           # what exists, and what kind
 tools\testing\run_tests.ps1 -Suite hud_test # one suite
-tools\testing\run_tests.ps1 -Visual         # the 6 visual suites
+tools\testing\run_tests.ps1 -Visual         # the 8 visual suites
 tools\testing\run_tests.ps1 -Full           # both
 tools\testing\run_tests.ps1 -Filter '*world*'
 tools\testing\run_tests.ps1 -GodotPath <path> -Timeout 900

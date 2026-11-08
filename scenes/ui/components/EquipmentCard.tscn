@@ -1,0 +1,41 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/equipment/equipment_card.gd" id="1_card"]
+
+[node name="EquipmentCard" type="PanelContainer"]
+custom_minimum_size = Vector2(210, 116)
+layout_mode = 2
+script = ExtResource("1_card")
+
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Index" type="Label" parent="Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 10
+text = "СЛОТ 01 · [1]"
+
+[node name="Name" type="Label" parent="Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "—"
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="State" type="Label" parent="Content"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 10
+text = "—"
+autowrap_mode = 2
+
+[node name="Action" type="Button" parent="Content"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "—"

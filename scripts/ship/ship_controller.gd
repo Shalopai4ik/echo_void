@@ -130,6 +130,11 @@ enum Mode {
 ## Cut the controls - a cutscene, a dead hull, a docking lock. Thrust and rudder
 ## stop, momentum and collisions keep working.
 @export var movement_enabled: bool = true
+## An interface panel is holding the levers. Distinct from `movement_enabled`:
+## there the hull is switched off, here the pilot is reading a screen. Nothing is
+## pressed while it is on, no assist borrows the empty axes, and the state layer
+## still reports what the ship is really doing.
+var interface_input_locked: bool = false
 ## Flight diagnostics: hull vectors and a numeric readout. Off by default,
 ## because the void is the picture and this is a tool, not a HUD.
 @export var show_debug: bool = false
@@ -254,6 +259,7 @@ var _stabilization_latch := false
 
 func _ready() -> void:
 	add_to_group("ship")
+	add_to_group("player")
 	body_entered.connect(_on_body_entered)
 	# The shape-level signal is the one that can say *which* of the hull's eleven slabs
 	# touched, and it fires once per shape pair - which is also why the contact bookkeeping
@@ -305,7 +311,7 @@ func _physics_process(delta: float) -> void:
 	# from, and each answers one question: what would you like the retro plant, the
 	# manoeuvring pair and the verniers to do, and how hard. None of them is given
 	# the hull, and none of them has a `_physics_process` to help it.
-	var hands_on_hull := not movement_enabled
+	var hands_on_hull := not movement_enabled or interface_input_locked
 	emergency_brake.step(ship_frame, _emergency_input)
 	stabilization.step(ship_frame, angular_velocity, _thrust_input or hands_on_hull,
 		_retard_input or hands_on_hull, absf(_strafe_input) > 0.0 or hands_on_hull,
@@ -363,16 +369,12 @@ func _read_input() -> void:
 	# is not under control: the key goes down, the state flips once, and a ship with
 	# the controls cut cannot be flipped a second time by the same press.
 	var stabilization_key := Input.is_action_pressed("toggle_stabilization")
-	if stabilization_key and not _stabilization_latch and movement_enabled:
+	if stabilization_key and not _stabilization_latch and movement_enabled \
+			and not interface_input_locked:
 		stabilization.toggle()
 	_stabilization_latch = stabilization_key
-	if not movement_enabled:
-		_thrust_input = false
-		_retard_input = false
-		_strafe_input = 0.0
-		_rudder_input = 0.0
-		_emergency_input = false
-		_boost_input = false
+	if not movement_enabled or interface_input_locked:
+		_drop_levers()
 		return
 	_thrust_input = Input.is_action_pressed("thrust_forward")
 	_retard_input = Input.is_action_pressed("thrust_backward")
@@ -783,13 +785,31 @@ func set_control_enabled(value: bool) -> void:
 		# The levers are dropped the same frame the switch goes: a key that was down when
 		# control was taken away must not still be commanding a burn while the pilot is
 		# supposedly not flying.
-		_thrust_input = false
-		_retard_input = false
-		_strafe_input = 0.0
-		_rudder_input = 0.0
-		_emergency_input = false
-		_boost_input = false
+		_drop_levers()
 		ship_control_disabled.emit()
+
+
+## An open panel takes the levers for as long as it is up: the pilot is reading a
+## screen, not flying. Like the control switch it drops whatever was held; unlike
+## it, the ship is still under control, so the assists keep working and the state
+## layer does not report a dead hull.
+func set_interface_input_locked(value: bool) -> void:
+	if interface_input_locked == value:
+		return
+	interface_input_locked = value
+	if value:
+		_drop_levers()
+
+
+## Forget every held lever at once. The one storage the three switches share, so
+## a cut, a menu and the frame after them cannot disagree about what is pressed.
+func _drop_levers() -> void:
+	_thrust_input = false
+	_retard_input = false
+	_strafe_input = 0.0
+	_rudder_input = 0.0
+	_emergency_input = false
+	_boost_input = false
 
 
 # ------------------------------------------------------------- 4. readout ------

@@ -12,6 +12,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_theme")
+process_mode = 3
 script = ExtResource("2_screen")
 
 [node name="Backdrop" type="ColorRect" parent="."]

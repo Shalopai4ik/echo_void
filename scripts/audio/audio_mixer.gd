@@ -37,11 +37,12 @@ const SHIP_ENGINES := &"ShipEngines"
 const SHIP_SYSTEMS := &"ShipSystems"
 const SHIP_IMPACTS := &"ShipImpacts"
 const UI := &"UI"
+const MUSIC := &"Music"
 
 ## The buses the layout is expected to carry, in creation order. Read by the ship's
 ## audio component (to pick a fallback) and by the regression test (to prove the
 ## layout actually arrived).
-const ALL := [MASTER, AMBIENCE, SHIP, SHIP_ENGINES, SHIP_SYSTEMS, SHIP_IMPACTS, UI]
+const ALL := [MASTER, AMBIENCE, SHIP, SHIP_ENGINES, SHIP_SYSTEMS, SHIP_IMPACTS, UI, MUSIC]
 
 
 ## The bus index for a name, or `Master` when the name is not in the layout. A

@@ -44,6 +44,22 @@ func upgrade_ids() -> Array[String]:
 			ids.append(u.upgrade_id)
 	return ids
 
+## Every device_id the catalogue installs on, in the order first seen.
+func device_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for u in upgrades:
+		if u != null and not u.device_id.is_empty() and not ids.has(u.device_id):
+			ids.append(u.device_id)
+	return ids
+
+## Every upgrade_id installed on `device_id`, in the order first seen.
+func paths_for_device(device_id: String) -> Array[String]:
+	var ids: Array[String] = []
+	for u in upgrades:
+		if u != null and u.device_id == device_id and not ids.has(u.upgrade_id):
+			ids.append(u.upgrade_id)
+	return ids
+
 ## All entries for one upgrade path, sorted by level.
 func path(upgrade_id: String) -> Array[ResearchUpgrade]:
 	var out: Array[ResearchUpgrade] = []

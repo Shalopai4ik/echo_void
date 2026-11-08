@@ -774,7 +774,7 @@ func _test_integration() -> void:
 	var hud := _map.get_node("HUD/Root")
 	var state: Dictionary = hud.call("hud_state")
 	_ok("the HUD is still bound to the ship", bool(state["ship_bound"]),
-		String(state["slice"]))
+		str(state.keys()))
 	_ok("and still prints world telemetry", (state["telemetry"] as Array).size() >= 4,
 		str(state["telemetry"]))
 	var panel := _ship.get_node("FlightDebug") as ShipDebug

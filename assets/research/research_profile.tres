@@ -111,9 +111,166 @@ complexity = 4
 rare = true
 data_keys = PackedStringArray()
 
+
+[sub_resource type="Resource" id="Resource_poi_wreck_fragment"]
+script = ExtResource("2_type")
+type_id = "poi_wreck_fragment"
+display_name = "Обломок"
+signature_ids = PackedStringArray("poi_wreck_fragment")
+kinds = PackedStringArray("poi_wreck_fragment")
+base_time_seconds = 12.0
+base_xp = 25
+complexity = 1
+rare = false
+
+[sub_resource type="Resource" id="Resource_poi_hull_section"]
+script = ExtResource("2_type")
+type_id = "poi_hull_section"
+display_name = "Секция корпуса"
+signature_ids = PackedStringArray("poi_hull_section")
+kinds = PackedStringArray("poi_hull_section")
+base_time_seconds = 30.0
+base_xp = 70
+complexity = 3
+rare = false
+
+[sub_resource type="Resource" id="Resource_poi_ring_segment"]
+script = ExtResource("2_type")
+type_id = "poi_ring_segment"
+display_name = "Сегмент кольца"
+signature_ids = PackedStringArray("poi_ring_segment")
+kinds = PackedStringArray("poi_ring_segment")
+base_time_seconds = 35.0
+base_xp = 90
+complexity = 3
+rare = false
+
+[sub_resource type="Resource" id="Resource_poi_crystal"]
+script = ExtResource("2_type")
+type_id = "poi_crystal"
+display_name = "Кристаллическое тело"
+signature_ids = PackedStringArray("poi_crystal")
+kinds = PackedStringArray("poi_crystal")
+base_time_seconds = 20.0
+base_xp = 45
+complexity = 2
+rare = false
+
+[sub_resource type="Resource" id="Resource_poi_signal_buoy"]
+script = ExtResource("2_type")
+type_id = "poi_signal_buoy"
+display_name = "Сигнальный буй"
+signature_ids = PackedStringArray("poi_signal_buoy")
+kinds = PackedStringArray("poi_signal_buoy")
+base_time_seconds = 25.0
+base_xp = 60
+complexity = 2
+rare = false
+
+[sub_resource type="Resource" id="Resource_poi_alien_orb"]
+script = ExtResource("2_type")
+type_id = "poi_alien_orb"
+display_name = "Сфера неизвестного происхождения"
+signature_ids = PackedStringArray("poi_alien_orb")
+kinds = PackedStringArray("poi_alien_orb")
+base_time_seconds = 50.0
+base_xp = 160
+complexity = 5
+rare = true
+
+[sub_resource type="Resource" id="Resource_poi_monolith"]
+script = ExtResource("2_type")
+type_id = "poi_monolith"
+display_name = "Порода с включениями"
+signature_ids = PackedStringArray("poi_monolith")
+kinds = PackedStringArray("poi_monolith")
+base_time_seconds = 40.0
+base_xp = 120
+complexity = 4
+rare = true
+
+[sub_resource type="Resource" id="Resource_poi_husk"]
+script = ExtResource("2_type")
+type_id = "poi_husk"
+display_name = "Органические останки"
+signature_ids = PackedStringArray("poi_husk")
+kinds = PackedStringArray("poi_husk")
+base_time_seconds = 45.0
+base_xp = 140
+complexity = 4
+rare = true
+
+[sub_resource type="Resource" id="Resource_poi_story_beacon"]
+script = ExtResource("2_type")
+type_id = "poi_story_beacon"
+display_name = "Маяк экспедиции"
+signature_ids = PackedStringArray("poi_story_beacon")
+kinds = PackedStringArray("poi_story_beacon")
+base_time_seconds = 28.0
+base_xp = 100
+complexity = 3
+rare = false
+
+[sub_resource type="Resource" id="Resource_poi_pelagia"]
+script = ExtResource("2_type")
+type_id = "poi_pelagia"
+display_name = "Корпус «Пелагии»"
+signature_ids = PackedStringArray("poi_pelagia")
+kinds = PackedStringArray("poi_pelagia")
+base_time_seconds = 60.0
+base_xp = 260
+complexity = 5
+rare = true
+
+[sub_resource type="Resource" id="Resource_poi_resonance_node"]
+script = ExtResource("2_type")
+type_id = "poi_resonance_node"
+display_name = "Резонансный узел"
+signature_ids = PackedStringArray("poi_resonance_node")
+kinds = PackedStringArray("poi_resonance_node")
+base_time_seconds = 45.0
+base_xp = 160
+complexity = 5
+rare = true
+
+[sub_resource type="Resource" id="Resource_poi_source"]
+script = ExtResource("2_type")
+type_id = "poi_source"
+display_name = "Источник"
+signature_ids = PackedStringArray("poi_source")
+kinds = PackedStringArray("poi_source")
+base_time_seconds = 90.0
+base_xp = 400
+complexity = 5
+rare = true
+
+[sub_resource type="Resource" id="Resource_poi_leviathan"]
+script = ExtResource("2_type")
+type_id = "poi_leviathan"
+display_name = "След неизвестной массы"
+signature_ids = PackedStringArray("poi_leviathan")
+kinds = PackedStringArray("poi_leviathan")
+base_time_seconds = 25.0
+base_xp = 120
+complexity = 5
+rare = true
+
 [resource]
 script = ExtResource("1_profile")
 types = Array[ExtResource("2_type")]([
+    SubResource("Resource_poi_wreck_fragment"),
+    SubResource("Resource_poi_hull_section"),
+    SubResource("Resource_poi_ring_segment"),
+    SubResource("Resource_poi_crystal"),
+    SubResource("Resource_poi_signal_buoy"),
+    SubResource("Resource_poi_alien_orb"),
+    SubResource("Resource_poi_monolith"),
+    SubResource("Resource_poi_husk"),
+    SubResource("Resource_poi_story_beacon"),
+    SubResource("Resource_poi_pelagia"),
+    SubResource("Resource_poi_resonance_node"),
+    SubResource("Resource_poi_source"),
+    SubResource("Resource_poi_leviathan"),
     SubResource("Resource_asteroid"),
     SubResource("Resource_debris"),
     SubResource("Resource_derelict"),

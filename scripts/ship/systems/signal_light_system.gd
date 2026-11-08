@@ -22,7 +22,21 @@ const ShipSystems := preload("res://scripts/ship/systems/ship_systems.gd")
 @export_range(0.0, 900.0, 0.5, "suffix:sec") var cooldown_sec: float = 45.0
 @export_range(0.0, 8.0, 0.1) var intensity: float = 1.0
 @export_range(0.0, 4096.0, 10.0, "suffix:px") var radius_px: float = 600.0
+## How many flares the rack holds. Negative means no limit (the behaviour the
+## device had before charges, and the one the older suites check). A float
+## because an upgrade writes it through `set()`.
+@export_range(-1.0, 20.0, 1.0) var max_charges: float = -1.0:
+	set(value):
+		var grown := value > max_charges and max_charges >= 0.0
+		max_charges = value
+		if grown:
+			add_charges(1)
+## Flares in the rack right now.
+@export_range(0, 20, 1) var charges: int = 0
+## Whether a visible flare is left in the world when the light burns.
+@export var spawn_flare: bool = true
 
+signal charges_changed(charges: int, max_charges: int)
 signal signal_activated(duration_sec: float, intensity: float, radius_px: float)
 signal signal_deactivated(reason: String)
 signal signal_finished()
@@ -32,6 +46,29 @@ var _active: bool = false
 var _ends_at: float = 0.0
 var _cooldown_until: float = 0.0
 var _source_id: String = ""
+var _flare: Node2D = null
+
+
+func _ready() -> void:
+	super._ready()
+	if has_charge_limit() and charges <= 0:
+		charges = int(max_charges)
+
+
+func has_charge_limit() -> bool:
+	return max_charges >= 0.0
+
+
+## Put flares back in the rack (a research reward). Returns how many fit.
+func add_charges(amount: int) -> int:
+	if not has_charge_limit() or amount <= 0:
+		return 0
+	var before := charges
+	charges = mini(charges + amount, int(max_charges))
+	if charges != before:
+		charges_changed.emit(charges, int(max_charges))
+	return charges - before
+
 
 func activate() -> bool:
 	if _active:
@@ -39,6 +76,9 @@ func activate() -> bool:
 	var now := ShipSystemEvent.now()
 	if now < _cooldown_until:
 		_refuse("cooldown")
+		return false
+	if has_charge_limit() and charges <= 0:
+		_refuse("no_charges")
 		return false
 	var hub_node := _systems()
 	if hub_node == null:
@@ -75,6 +115,10 @@ func activate() -> bool:
 	var broadcaster := _broadcaster()
 	if broadcaster != null:
 		broadcaster.broadcast(msg)
+	if has_charge_limit():
+		charges = maxi(charges - 1, 0)
+		charges_changed.emit(charges, int(max_charges))
+	_spawn_flare()
 	signal_activated.emit(duration_sec, intensity, radius_px)
 	publish("signal_activated", {
 		"source_id": _source_id,
@@ -115,8 +159,26 @@ func set_cooldown(value: float) -> void:
 func set_activation_cost(value: float) -> void:
 	activation_cost = maxf(value, 0.0)
 
+## Leave the burning flare in the world where the hull is now. The flare is
+## only a picture: the broadcast above is what the world hears.
+func _spawn_flare() -> void:
+	if not spawn_flare or not is_inside_tree():
+		return
+	var flare := SignalFlare.new()
+	flare.duration = duration_sec
+	flare.radius_px = radius_px
+	flare.global_position = _source_position()
+	var host: Node = get_tree().current_scene
+	if host == null:
+		host = get_tree().get_root()
+	host.add_child(flare)
+	_flare = flare
+
+
 func can_activate_now() -> bool:
 	if _active:
+		return false
+	if has_charge_limit() and charges <= 0:
 		return false
 	if ShipSystemEvent.now() < _cooldown_until:
 		return false
@@ -132,7 +194,8 @@ func can_activate_now() -> bool:
 	return hub.can_activate(component_id, activation_cost)
 
 func status() -> Dictionary:
-	return {
+	var out := super()
+	out.merge({
 		"id": resolved_id(),
 		"title": display_name(),
 		"state_name": "SIGNALING" if _active else ShipSystemState.name_of(state),
@@ -146,7 +209,12 @@ func status() -> Dictionary:
 		"radius_px": radius_px,
 		"activation_cost": activation_cost,
 		"can_activate": can_activate_now(),
-	}
+		"charges": charges if has_charge_limit() else -1,
+		"max_charges": int(max_charges),
+		"demand": 0.0,
+		"available": is_operational() or not enabled,
+	}, true)
+	return out
 
 ## End the burn early: the switch went off, the bus starved it, the hull died.
 func _end_signal(reason: String) -> void:
@@ -162,6 +230,9 @@ func _end_signal(reason: String) -> void:
 	var broadcaster := _broadcaster()
 	if broadcaster != null and not _source_id.is_empty():
 		broadcaster.retract(_source_id)
+	if _flare != null and is_instance_valid(_flare) and _flare.has_method("extinguish"):
+		_flare.call("extinguish")
+	_flare = null
 	signal_deactivated.emit(reason)
 	publish("signal_deactivated", {
 		"source_id": _source_id,

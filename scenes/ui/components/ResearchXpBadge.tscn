@@ -1,0 +1,68 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Theme" path="res://ui/theme/echo_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://ui/upgrades/research_xp_badge.gd" id="2_badge"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_badge"]
+bg_color = Color(0.008, 0.035, 0.055, 0.86)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.12, 0.55, 0.68, 0.58)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+content_margin_left = 7.0
+content_margin_top = 3.0
+content_margin_right = 7.0
+content_margin_bottom = 3.0
+
+[node name="ResearchXpBadge" type="PanelContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme = ExtResource("1_theme")
+theme_override_styles/panel = SubResource("StyleBox_badge")
+script = ExtResource("2_badge")
+
+[node name="Content" type="HBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Icon" type="Label" parent="Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 13
+text = "◈"
+vertical_alignment = 1
+
+[node name="Text" type="VBoxContainer" parent="Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="Caption" type="Label" parent="Content/Text"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 8
+text = "RESEARCH XP"
+
+[node name="Value" type="Label" parent="Content/Text"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 13
+text = "0"
+
+[node name="Delta" type="Label" parent="Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 0)
+layout_mode = 2
+visible = false
+theme_override_colors/font_color = Color(0.48, 0.95, 0.84, 1)
+theme_override_font_sizes/font_size = 9
+text = "+0"
+vertical_alignment = 1

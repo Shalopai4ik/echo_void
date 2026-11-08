@@ -14,12 +14,14 @@ extends Control
 
 const ACCENT := Color(0.20, 0.78, 0.94)
 const ACCENT_BRIGHT := Color(0.62, 0.96, 1.0)
-const PANEL_FILL := Color(0.01, 0.075, 0.12, 0.88)
-const PANEL_EDGE := Color(0.10, 0.55, 0.72, 0.82)
+const PANEL_FILL := Color(0.008, 0.035, 0.055, 0.88)
+const PANEL_EDGE := Color(0.12, 0.55, 0.68, 0.58)
 const HULL_FILL := Color(0.14, 0.82, 0.94)
 const ENERGY_FILL := Color(0.20, 0.62, 0.94)
 const TEXT_DIM := Color(0.57, 0.76, 0.84, 0.92)
 const TEXT_BRIGHT := Color(0.82, 0.95, 0.98, 1.0)
+## Text drawn on a lit resource bar.
+const BAR_INK := Color(0.01, 0.07, 0.11, 0.95)
 const CONTACT_HOT := Color(0.85, 0.34, 0.28)
 const CONTACT_COOL := Color(0.55, 0.90, 1.0)
 
@@ -27,6 +29,8 @@ const BULLET_X := 40.0
 const BULLET_SIZE := 6.0
 const BULLET_DROP := 8.0
 const ROW_NAMES := ["MissionTitle", "Objective1", "Objective2", "Objective3"]
+## Short captions under the four slot keys, in slot order.
+const SLOT_NAMES := ["СКАН", "ИССЛ", "ЛОЖН", "ОГНИ"]
 
 ## The frame the glass was authored in. `canvas_items` stretch keeps every glyph
 ## and sprite at its authored proportion; with aspect `expand` the window only
@@ -40,11 +44,24 @@ const DESIGN_SIZE := Vector2(960.0, 540.0)
 ## prompt in the other corner. The block is measured up from the bottom edge, not
 ## down from the top: its line count depends on what the hull can report, and a
 ## fixed first baseline would push the last line off a screen that has only the
-## authored 540 px.
+## authored 540 px. The ability slot row owns the bottom-left corner, so the block
+## stops above it - otherwise the two would be drawn through each other.
 const TELEMETRY_X := 40.0
-const TELEMETRY_BOTTOM := 20.0
-const TELEMETRY_STEP := 18.0
-const TELEMETRY_FONT_SIZE := 14
+const TELEMETRY_BOTTOM := 96.0
+const TELEMETRY_STEP := 15.0
+const TELEMETRY_FONT_SIZE := 11
+## Where the values start, so six readouts line up as a table. The authored lines
+## are label + padding + value; the padding is what the draw splits on.
+const TELEMETRY_VALUE_X := 96.0
+
+## How often the world counters are re-read. `WorldField.stats()` builds a fresh
+## dictionary per population, and the numbers move at streaming pace, not at frame
+## pace - four samples a second is already faster than a pilot can read them.
+const WORLD_SAMPLE_SECONDS := 0.25
+
+## The group a modal panel joins while it is open. The radar sweep is a ship
+## control too, so the glass asks before answering the scan key.
+const MODAL_GROUP := "ui_modal"
 
 ## World pixels the radar disc covers. Measured off the reference: the dish spans
 ## a little over three ship lengths, so a stone on the glass is the size it really
@@ -74,6 +91,23 @@ var _sweep := 0.0
 var _pulse := -1.0
 var _rows: Array[float] = []
 
+## Seconds since the world counters and the equipment list were last sampled.
+var _world_clock := 0.0
+## Whether the survey scanner is mounted. `status()` builds a dictionary, so the
+## answer is cached on the world cadence instead of being asked every frame.
+var _scanner_mounted := false
+## The corner XP readout and the research desk feeding it. Found through the
+## hull, the same way the telemetry finds `Systems`.
+var _xp_badge: ResearchXpBadge
+var _research: Node
+## The slot registry: which device sits in each of the four slots and whether
+## it is running. Found through its own group, like the world and the ship.
+var _slots: EquipmentSlots
+## The last slot readings, one dictionary per slot, in slot order.
+var _slot_states: Array[Dictionary] = []
+## The sector card's numbers, taken from the research desk.
+var _sector: Dictionary = {}
+
 ## Cached telemetry to avoid rebuilding strings every frame
 var _telemetry_cache: Array[String] = []
 var _telemetry_dirty := true
@@ -86,9 +120,13 @@ var _cached_chunks := -1
 var _cached_asteroids := -1
 var _cached_debris := -1
 var _cached_decor := -1
+var _phantoms: Array = []
+var _flicker_left := 0.0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_to_group("radar_overlay")
+	add_to_group("hud_flicker")
 	for row_name in ROW_NAMES:
 		var row := get_node_or_null(row_name) as Control
 		if row == null:
@@ -96,20 +134,47 @@ func _ready() -> void:
 		_rows.append(row.position.y)
 		_row_nodes.append(row)
 		_row_texts.append((row as Label).text if row is Label else "")
-	_find_ship()
+	_xp_badge = get_node_or_null("XpBadge") as ResearchXpBadge
+	_read_ship()
+	_read_world()
 	_scan()
+
+## A contact with nothing behind it, put on the dish by the atmosphere for a
+## few seconds: world position and seconds left.
+func add_phantom(at: Vector2, seconds: float) -> void:
+	_phantoms.append({"at": at, "left": seconds})
+
+
+## The power bus stutters: the glass flickers for `seconds`.
+func flicker(seconds: float) -> void:
+	_flicker_left = maxf(_flicker_left, seconds)
+
 
 func _process(delta: float) -> void:
 	_time += delta
+	if _flicker_left > 0.0:
+		_flicker_left = maxf(_flicker_left - delta, 0.0)
+		modulate.a = 1.0 if _flicker_left <= 0.0 else (0.25 if fmod(_time * 13.0, 1.0) < 0.35 else 0.9)
+	for i in range(_phantoms.size() - 1, -1, -1):
+		_phantoms[i]["left"] = float(_phantoms[i]["left"]) - delta
+		if float(_phantoms[i]["left"]) <= 0.0:
+			_phantoms.remove_at(i)
 	_sweep = fmod(_sweep + delta * 0.9, TAU)
 	if _pulse >= 0.0:
 		_pulse += delta * 0.9
 		if _pulse > 1.0:
 			_pulse = -1.0
-	if Input.is_action_just_pressed("scan"):
+	if Input.is_action_just_pressed("scan") and not _modal_open():
 		_pulse = 0.0
 		_scan()
-	_read_ship(delta)
+	_read_ship()
+	# The ship's own numbers are cheap and change every physics frame; the world
+	# counters and the equipment list rebuild dictionaries, so they are sampled on
+	# their own cadence instead of once per frame.
+	_world_clock += delta
+	if _world_clock >= WORLD_SAMPLE_SECONDS:
+		_world_clock = 0.0
+		_read_world()
 	queue_redraw()
 
 # ------------------------------------------------------------------ live state
@@ -130,14 +195,23 @@ func _find_mission() -> void:
 	if _mission == null or not is_instance_valid(_mission):
 		_mission = get_tree().get_first_node_in_group("mission")
 
+
+## The slot registry, found through the group it joins. A scene without one
+## simply has no slots to draw.
+func _find_slots() -> void:
+	if _slots == null or not is_instance_valid(_slots):
+		_slots = get_tree().get_first_node_in_group(EquipmentSlots.GROUP) as EquipmentSlots
+
 ## Pull the telemetry off the ship rather than tracking its signals: the HUD is a
 ## sibling under a CanvasLayer and would otherwise have to care about load order.
-func _read_ship(_delta: float) -> void:
+func _read_ship() -> void:
 	_find_ship()
-	_find_world()
 	_find_mission()
+	if _research == null or not is_instance_valid(_research):
+		_bind_research()
 	if _ship != null and is_instance_valid(_ship):
-		_systems = _ship.get_node_or_null("Systems")
+		if _systems == null or not is_instance_valid(_systems):
+			_systems = _ship.get_node_or_null("Systems")
 	else:
 		_systems = null
 
@@ -163,8 +237,15 @@ func _read_ship(_delta: float) -> void:
 		if bpct != _cached_boost:
 			_cached_boost = bpct
 			_telemetry_dirty = true
-	
-	## Check world stats
+
+	_refresh_rows()
+
+
+## The world counters and the mounted equipment. Both answer with freshly built
+## dictionaries (`WorldField.stats()`, `ShipComponent.status()`), which is why they
+## live on the slow cadence and not inside `_read_ship`.
+func _read_world() -> void:
+	_find_world()
 	if _world != null and is_instance_valid(_world) and _world.has_method("stats"):
 		var stats: Dictionary = _world.stats()
 		var live := int(stats.get("live", 0))
@@ -193,8 +274,15 @@ func _read_ship(_delta: float) -> void:
 			_cached_debris = deb
 			_cached_decor = dec
 			_telemetry_dirty = true
-	
-	_refresh_rows()
+	_scanner_mounted = _query_scanner_mounted()
+	# The slots and the sector card are read on the same slow cadence: both are
+	# built from dictionaries, and both move at the speed of a device changing
+	# state, not at frame pace.
+	_find_slots()
+	_slot_states.clear()
+	if _slots != null and is_instance_valid(_slots):
+		_slot_states = _slots.slot_statuses()
+	_sector = SectorObjective.build(_research)
 
 
 ## The objective rows are the current slice's authored mission text. There is no
@@ -209,7 +297,8 @@ func _refresh_rows() -> void:
 	else:
 		_restore_objectives()
 	for row in _row_nodes:
-		row.visible = wanted
+		if row.visible != wanted:
+			row.visible = wanted
 	_rows_visible = wanted
 
 
@@ -239,6 +328,47 @@ func _restore_objectives() -> void:
 		var label := _row_nodes[i] as Label
 		if label != null and label.text != _row_texts[i]:
 			label.text = _row_texts[i]
+
+
+## ------------------------------------------------------------------ research ---
+
+## The corner badge reads the research desk itself, so a completed survey shows
+## its reward in flight and a purchase shows its cost, with no second copy of the
+## XP total anywhere. Found through the hull, connected once; a scene without a
+## desk simply has no badge to feed.
+func _bind_research() -> void:
+	if _research != null and is_instance_valid(_research):
+		return
+	_research = null
+	_find_ship()
+	if _ship != null and is_instance_valid(_ship):
+		_research = _ship.get_node_or_null("Systems/Research")
+	if _research == null:
+		return
+	if _research.has_signal("xp_gained") and not _research.is_connected("xp_gained", _on_xp_gained):
+		_research.xp_gained.connect(_on_xp_gained)
+	if _research.has_signal("xp_spent") and not _research.is_connected("xp_spent", _on_xp_spent):
+		_research.xp_spent.connect(_on_xp_spent)
+	if _xp_badge != null and _research.has_method("get_xp"):
+		_xp_badge.set_value(int(_research.get_xp()), false)
+
+
+func _on_xp_gained(_amount: int, total: int) -> void:
+	if _xp_badge != null:
+		_xp_badge.set_value(total)
+
+
+func _on_xp_spent(amount: int, total: int) -> void:
+	if _xp_badge == null:
+		return
+	_xp_badge.set_value(total, false)
+	_xp_badge.flash_spend(amount)
+
+
+## Whether an interface panel has the keys. Only asked when the scan key is
+## pressed, so the group lookup never runs on a frame that does not need it.
+func _modal_open() -> bool:
+	return not get_tree().get_nodes_in_group(MODAL_GROUP).is_empty()
 
 
 func _scan() -> void:
@@ -321,7 +451,9 @@ func contacts() -> Array:
 func _draw() -> void:
 	_draw_ship_status()
 	_draw_objective_panel()
+	_draw_telemetry()
 	_draw_ability_slots()
+	_draw_bullets()
 	_draw_radar()
 
 
@@ -348,10 +480,12 @@ func _draw_ship_status() -> void:
 	var energy_ratio := _ship_energy_ratio()
 	_draw_resource_bar(Rect2(88.0, 24.0, 148.0, 13.0), hull_ratio, HULL_FILL)
 	_draw_resource_bar(Rect2(88.0, 45.0, 148.0, 13.0), energy_ratio, ENERGY_FILL)
-	draw_string(font, Vector2(95.0, 35.0), "КОРПУС", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 9, TEXT_BRIGHT)
-	draw_string(font, Vector2(95.0, 56.0), "ЭНЕРГИЯ", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 9, TEXT_BRIGHT)
-	draw_string(font, Vector2(207.0, 35.0), "%d%%" % roundi(hull_ratio * 100.0), HORIZONTAL_ALIGNMENT_RIGHT, 24.0, 9, TEXT_DIM)
-	draw_string(font, Vector2(207.0, 56.0), "%d%%" % roundi(energy_ratio * 100.0), HORIZONTAL_ALIGNMENT_RIGHT, 24.0, 9, TEXT_DIM)
+	draw_string(font, Vector2(95.0, 35.0), "КОРПУС", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 9, BAR_INK if hull_ratio > 0.12 else TEXT_BRIGHT)
+	draw_string(font, Vector2(95.0, 56.0), "ЭНЕРГИЯ", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 9, BAR_INK if energy_ratio > 0.15 else TEXT_BRIGHT)
+	# the figure sits at the bar's right end: dark when the fill reaches under
+	# it, light on the empty track, so it reads at any level
+	draw_string(font, Vector2(207.0, 35.0), "%d%%" % roundi(hull_ratio * 100.0), HORIZONTAL_ALIGNMENT_RIGHT, 24.0, 9, _on_fill(hull_ratio))
+	draw_string(font, Vector2(207.0, 56.0), "%d%%" % roundi(energy_ratio * 100.0), HORIZONTAL_ALIGNMENT_RIGHT, 24.0, 9, _on_fill(energy_ratio))
 
 
 func _draw_resource_bar(rect: Rect2, ratio: float, fill: Color) -> void:
@@ -378,42 +512,96 @@ func _ship_energy_ratio() -> float:
 
 
 ## Top-right mission panel. It mirrors the reference's compact objective card.
+##
+## The card used to be a painted "0 / 1". It is not painted any more: the
+## numbers come from the research desk, so the card says how many subjects the
+## desk has seen and how many it has finished, and the goal is one studied
+## object. The desk is the only source - there is no second counter here.
 func _draw_objective_panel() -> void:
 	var font := get_theme_default_font()
 	if font == null:
 		return
 	var right := size.x - 18.0
-	var rect := Rect2(right - 154.0, 18.0, 154.0, 48.0)
+	# 176 wide because the title measures 126 px at size 10 and starts 34 px in:
+	# at the old 154 the word ran out over the border.
+	var rect := Rect2(right - 196.0, 18.0, 196.0, 48.0)
 	_draw_chamfered_panel(rect, 9.0)
 	var icon := rect.position + Vector2(18.0, 24.0)
 	draw_polyline(PackedVector2Array([icon + Vector2(0.0, -7.0), icon + Vector2(7.0, 0.0), icon + Vector2(0.0, 7.0), icon + Vector2(-7.0, 0.0), icon + Vector2(0.0, -7.0)]), ACCENT_BRIGHT, 1.0, true)
-	draw_string(font, rect.position + Vector2(34.0, 21.0), "ИССЛЕДОВАТЬ СЕКТОР", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 10, TEXT_BRIGHT)
-	draw_string(font, rect.position + Vector2(34.0, 37.0), "0 / 1", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 11, TEXT_DIM)
+	var heading := "ИССЛЕДОВАТЬ СЕКТОР"
+	var value := str(_sector.get("value_text", "0 / 1"))
+	var state_text := str(_sector.get("state_text", "НЕ НАЧАТО"))
+	# With the storyline running, the card names the chapter and counts every
+	# object the desk has finished - the same desk entries, a longer goal.
+	if _mission != null and is_instance_valid(_mission) and _mission.has_method("chapter_title"):
+		heading = str(_mission.call("chapter_title"))
+		value = "ИЗУЧЕНО: %d" % int(_sector.get("completed", 0))
+		state_text = "В ПРОЦЕССЕ" if int(_sector.get("state", 0)) != SectorObjective.State.IDLE else "НЕ НАЧАТО"
+	draw_string(font, rect.position + Vector2(34.0, 21.0), heading,
+		HORIZONTAL_ALIGNMENT_LEFT, rect.size.x - 40.0, 10, TEXT_BRIGHT)
+	var tone := TEXT_DIM
+	match int(_sector.get("state", SectorObjective.State.IDLE)):
+		SectorObjective.State.DONE:
+			tone = ACCENT_BRIGHT
+		SectorObjective.State.ACTIVE:
+			tone = ACCENT
+	draw_string(font, rect.position + Vector2(34.0, 37.0), "%s · %s" % [value, state_text],
+		HORIZONTAL_ALIGNMENT_LEFT, rect.size.x - 44.0, 11, tone)
 
 
 ## Bottom-left equipment slots. The first four controls mirror the reference's
-## compact module row; only the scanner is currently mounted, so it is lit.
+## compact module row. What each row shows is the slot registry's own reading:
+## a lit icon for a device that is running, a dim one for a device that is
+## mounted and off, and a faint one for an empty slot.
 func _draw_ability_slots() -> void:
 	var font := get_theme_default_font()
 	if font == null:
 		return
 	var y := size.y - 78.0
-	var scanner_ready := _scanner_available()
 	for i in 4:
 		var rect := Rect2(24.0 + float(i) * 43.0, y, 38.0, 38.0)
 		_draw_chamfered_panel(rect, 6.0, Color(0.01, 0.10, 0.16, 0.82), Color(ACCENT, 0.80))
-		_draw_slot_icon(rect.get_center(), i, i == 1 and scanner_ready)
-		draw_string(font, rect.position + Vector2(rect.size.x * 0.5, rect.size.y + 12.0), str(i + 1), HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 10, TEXT_DIM)
+		var state := _slot_state(i)
+		var mounted := not bool(state.get("empty", true))
+		var active := bool(state.get("enabled", false))
+		_draw_slot_icon(rect.get_center(), i, active, mounted)
+		# a trigger device shows its rack and its cooldown on the key itself
+		var cool := float(state.get("cooldown_remaining", 0.0))
+		if cool > 0.05:
+			var shade := Rect2(rect.position + Vector2(2.0, 2.0), Vector2(rect.size.x - 4.0, rect.size.y - 4.0))
+			draw_rect(shade, Color(0.0, 0.0, 0.0, 0.55))
+			draw_string(font, rect.get_center() + Vector2(-rect.size.x * 0.5, 4.0), "%d" % ceili(cool),
+				HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 11, TEXT_BRIGHT)
+		var charges := int(state.get("charges", -1))
+		if charges >= 0:
+			var tone := TEXT_BRIGHT if charges > 0 else CONTACT_HOT
+			draw_string(font, rect.position + Vector2(rect.size.x - 13.0, 10.0), str(charges),
+				HORIZONTAL_ALIGNMENT_LEFT, -1.0, 9, tone)
+		draw_string(font, rect.position + Vector2(0.0, rect.size.y + 12.0), "%d %s" % [i + 1, SLOT_NAMES[i]],
+			HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 8, TEXT_DIM)
 
 
-func _scanner_available() -> bool:
+## One slot's last reading. A slot the registry does not know about reads as
+## empty rather than as an error.
+func _slot_state(index: int) -> Dictionary:
+	if index < 0 or index >= _slot_states.size():
+		return {}
+	return _slot_states[index]
+
+
+## Ask the systems hub once whether the survey scanner is on the hull. Split from
+## the cached answer because `status()` builds a fresh dictionary for every call.
+func _query_scanner_mounted() -> bool:
 	if _systems == null or not is_instance_valid(_systems) or not _systems.has_method("equipment_status"):
 		return false
 	return not (_systems.equipment_status("scanner") as Dictionary).is_empty()
 
 
-func _draw_slot_icon(center: Vector2, index: int, active: bool) -> void:
-	var tone := ACCENT_BRIGHT if active else Color(ACCENT, 0.68)
+## The slot row's four icons. A running device is bright, a mounted device that
+## is off is dim, and an empty slot is barely there - the pilot can see at a
+## glance which of the four keys has something behind it.
+func _draw_slot_icon(center: Vector2, index: int, active: bool, mounted: bool = true) -> void:
+	var tone := ACCENT_BRIGHT if active else (Color(ACCENT, 0.72) if mounted else Color(ACCENT, 0.28))
 	match index:
 		0:
 			draw_polyline(PackedVector2Array([center + Vector2(0.0, -10.0), center + Vector2(8.0, -5.0), center + Vector2(0.0, 10.0), center + Vector2(-8.0, -5.0), center + Vector2(0.0, -10.0)]), tone, 1.0, true)
@@ -425,7 +613,8 @@ func _draw_slot_icon(center: Vector2, index: int, active: bool) -> void:
 			draw_polyline(PackedVector2Array([center + Vector2(2.0, -11.0), center + Vector2(-6.0, 1.0), center + Vector2(0.0, 1.0), center + Vector2(-2.0, 11.0), center + Vector2(7.0, -2.0), center + Vector2(1.0, -2.0), center + Vector2(2.0, -11.0)]), tone, 1.0, true)
 		3:
 			for i in 3:
-				var yy := center.y - 8.0 + float(i) * 7.0
+				# Box-local, like every other slot: `center` is already the anchor.
+				var yy := -8.0 + float(i) * 7.0
 				draw_line(center + Vector2(-9.0, yy), center + Vector2(9.0, yy), tone, 1.0, true)
 
 
@@ -446,7 +635,7 @@ func _draw_chamfered_panel(rect: Rect2, cut: float, fill: Color = PANEL_FILL, ed
 ## What a hull without armour can still be honest about: how fast it is going,
 ## what it is doing, how much boost is left and how much world is around it.
 func _draw_telemetry() -> void:
-	var lines := telemetry_lines()
+	var lines := flight_lines()
 	if lines.is_empty():
 		return
 	var font := get_theme_default_font()
@@ -455,10 +644,24 @@ func _draw_telemetry() -> void:
 	var origin := telemetry_origin(lines.size())
 	var y := origin.y
 	for line in lines:
-		draw_string(font, Vector2(origin.x, y), line,
-			HORIZONTAL_ALIGNMENT_LEFT, -1.0, TELEMETRY_FONT_SIZE,
-			Color(0.66, 0.79, 0.84, 0.95))
+		var parts := _split_readout(line)
+		draw_string(font, Vector2(origin.x, y), parts[0],
+			HORIZONTAL_ALIGNMENT_LEFT, -1.0, TELEMETRY_FONT_SIZE, TEXT_DIM)
+		if not parts[1].is_empty():
+			draw_string(font, Vector2(origin.x + TELEMETRY_VALUE_X, y), parts[1],
+				HORIZONTAL_ALIGNMENT_LEFT, -1.0, TELEMETRY_FONT_SIZE,
+				Color(0.82, 0.95, 0.98, 0.95))
 		y += TELEMETRY_STEP
+
+
+## Label and value of one readout. The authored line pads the value with spaces;
+## drawing both halves at fixed columns turns that padding into a real table
+## instead of a ragged one, and leaves `telemetry_lines()` unchanged for readers.
+func _split_readout(line: String) -> PackedStringArray:
+	var cut := line.find("  ")
+	if cut < 0:
+		return PackedStringArray([line, ""])
+	return PackedStringArray([line.substr(0, cut), line.substr(cut).strip_edges()])
 
 
 ## The readouts themselves, as lines - the drawing above and any test read the
@@ -470,14 +673,14 @@ func telemetry_lines() -> Array[String]:
 			_telemetry_dirty = false
 			return _telemetry_cache
 		if _ship.has_method("speed"):
-			_telemetry_cache.append("СКОРОСТЬ   %d px/s" % _cached_speed)
+			_telemetry_cache.append("СКОРОСТЬ   %d м/с" % roundi(_cached_speed / 10.0))
 		if _ship.has_method("mode_name"):
 			_telemetry_cache.append("РЕЖИМ      %s" % _cached_mode)
 		if _ship.has_method("state_name"):
 			_telemetry_cache.append("СОСТОЯНИЕ  %s" % _cached_state)
 		var boost_obj: Variant = _ship.get("boost")
 		if boost_obj != null and boost_obj.has_method("percent"):
-			_telemetry_cache.append("ЗАРЯД      %d%%" % _cached_boost)
+			_telemetry_cache.append("ФОРСАЖ     %d%%" % _cached_boost)
 		if _world != null and is_instance_valid(_world) and _world.has_method("stats"):
 			_telemetry_cache.append("МИР        %d тел / %d чанков" % [_cached_live, _cached_chunks])
 			_telemetry_cache.append("ОБЪЕКТЫ    камни %d / обломки %d / декор %d" % [_cached_asteroids, _cached_debris, _cached_decor])
@@ -493,6 +696,9 @@ func hud_state() -> Dictionary:
 		"contacts": _contacts.size(),
 		"rows": _rows_visible,
 		"telemetry": telemetry_lines(),
+		"research_xp": _xp_badge.value() if _xp_badge != null else -1,
+		"sector": _sector.duplicate(),
+		"slots": _slot_states.duplicate(true),
 	}
 
 ## First baseline of the telemetry block: the block hangs off the bottom edge by
@@ -501,7 +707,7 @@ func hud_state() -> Dictionary:
 ## already built the lines, so a frame does not format them twice.
 func telemetry_origin(count: int = -1) -> Vector2:
 	if count < 0:
-		count = telemetry_lines().size()
+		count = flight_lines().size()
 	count = maxi(count, 1)
 	return Vector2(TELEMETRY_X, size.y - TELEMETRY_BOTTOM - TELEMETRY_STEP * float(count - 1))
 
@@ -526,7 +732,7 @@ func radar_center_at() -> Vector2:
 ## Corner-hugging geometry, for the display suite: the same numbers the drawing
 ## uses, without reading pixels back.
 func hud_metrics() -> Dictionary:
-	var lines := telemetry_lines()
+	var lines := flight_lines()
 	var origin := telemetry_origin(lines.size())
 	return {
 		"viewport": size,
@@ -538,7 +744,11 @@ func hud_metrics() -> Dictionary:
 
 
 func _draw_bullets() -> void:
-	for top in _rows:
+	if not _rows_visible:
+		return
+	# The first row is the block's own title; only the objectives get a bullet.
+	for index in range(1, _rows.size()):
+		var top: float = _rows[index]
 		var r := Rect2(BULLET_X, top + BULLET_DROP, BULLET_SIZE, BULLET_SIZE)
 		draw_rect(r, Color(ACCENT, 0.75))
 		draw_rect(r.grow(1.5), Color(ACCENT, 0.12))
@@ -564,6 +774,7 @@ func _draw_radar() -> void:
 			Color(ACCENT, 0.55 if major else 0.22), 1.0, true)
 
 	_draw_contacts(c, r)
+	_draw_threats(c, r)
 
 	if _pulse >= 0.0:
 		draw_arc(c, lerpf(r * 0.15, r * 1.2, _pulse), 0.0, TAU, 96,
@@ -614,6 +825,50 @@ func _draw_contacts(c: Vector2, r: float) -> void:
 		if not drawn:
 			draw_rect(Rect2(centre - Vector2(1.0, 1.0), Vector2(2.0, 2.0)), line)
 
+## What the dish cannot help seeing: the brood (red, pinned to the rim when
+## they are past the dish's range), phantom blips the atmosphere put there, and
+## - only with the threat-sense upgrade - the bearing of the thing itself.
+func _draw_threats(c: Vector2, r: float) -> void:
+	if _ship == null or not is_instance_valid(_ship):
+		return
+	var k := r / maxf(radar_range, 1.0)
+	var frame := -_ship.rotation - PI * 0.5
+	for node in get_tree().get_nodes_in_group(BroodHunter.GROUP):
+		var hunter := node as Node2D
+		if hunter == null:
+			continue
+		var local := (hunter.global_position - _ship.global_position).rotated(frame) * k
+		var pinned := local.length() > r - 4.0
+		if pinned:
+			local = local.normalized() * (r - 4.0)
+		var blink := 0.6 + 0.4 * sin(_time * 8.0)
+		draw_circle(c + local, 3.0 if not pinned else 2.2, Color(1.0, 0.25, 0.2, blink))
+	for ph in _phantoms:
+		var local: Vector2 = (ph["at"] - _ship.global_position).rotated(frame) * k
+		if local.length() > r:
+			local = local.normalized() * (r - 4.0)
+		var a := clampf(float(ph["left"]) / 4.0, 0.0, 1.0)
+		draw_arc(c + local, 4.0, 0.0, TAU, 12, Color(1.0, 0.85, 0.6, 0.8 * a), 1.0, true)
+	if _threat_sense():
+		var lev := get_tree().get_first_node_in_group(Leviathan.GROUP) as Node2D
+		if lev != null and lev.has_method("state") and int(lev.call("state")) != 0:
+			var dir := (lev.global_position - _ship.global_position).rotated(frame).normalized()
+			var p := c + dir * (r + 5.0)
+			draw_colored_polygon(PackedVector2Array([p + dir * 7.0, p + dir.orthogonal() * 5.0,
+				p - dir.orthogonal() * 5.0]), Color(1.0, 0.2, 0.15, 0.6 + 0.3 * sin(_time * 3.0)))
+
+
+## The scanner's one-time threat-sense module, bought on the upgrades panel.
+func _threat_sense() -> bool:
+	if _systems == null or not is_instance_valid(_systems):
+		return false
+	var scanner := _systems.get_node_or_null("Scanner")
+	if scanner == null:
+		return false
+	var v: Variant = scanner.get("threat_sense")
+	return v != null and float(v) >= 0.5
+
+
 func _draw_own_marker(c: Vector2) -> void:
 	var chevron := PackedVector2Array([
 		c + Vector2(0.0, -9.0),
@@ -630,3 +885,31 @@ func _draw_own_marker(c: Vector2) -> void:
 		draw_colored_polygon(pts, Color(tone, halo * (1.0 - 0.25 * float(i))))
 	draw_colored_polygon(chevron, Color(0.80, 0.98, 1.0, 0.95))
 	draw_circle(c + Vector2(0.0, 3.0), 1.2, Color(0.9, 1.0, 1.0, 0.9))
+
+
+## The readouts the flight glass actually shows: the hull's own numbers. The
+## world counters stay in `telemetry_lines()` for the debug overlay (F1) and
+## the tests, and join the glass only while that overlay is up.
+func flight_lines() -> Array[String]:
+	var lines := telemetry_lines()
+	if _debug_overlay_on():
+		return lines
+	var out: Array[String] = []
+	for line in lines:
+		if line.begins_with("МИР") or line.begins_with("ОБЪЕКТЫ"):
+			continue
+		out.append(line)
+	return out
+
+
+func _debug_overlay_on() -> bool:
+	if _ship == null or not is_instance_valid(_ship):
+		return false
+	var dbg := _ship.get_node_or_null("FlightDebug") as CanvasItem
+	return dbg != null and dbg.visible
+
+
+## The colour for a bar's figure: dark ink over the fill, light over the track.
+## The figure starts at x 207 on a bar that runs 89..235.
+func _on_fill(ratio: float) -> Color:
+	return BAR_INK if 89.0 + 146.0 * ratio > 214.0 else TEXT_DIM

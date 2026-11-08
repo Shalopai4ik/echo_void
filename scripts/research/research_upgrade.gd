@@ -11,8 +11,8 @@ class_name ResearchUpgrade
 ##
 ## `modifier_type` decides how the per-level `value` combines with the
 ## device's base value:
-##   "multiply" - base * value^(level-1)
-##   "add"      - base + value * (level-1)
+##   "multiply" - base * value^level
+##   "add"      - base + value * level
 ##   "set"      - value (replaces base entirely at this level)
 ##
 ## `cost_xp` is the research XP price of this level. `max_level` caps the
@@ -81,7 +81,7 @@ func apply_to(device: Object) -> void:
 		"multiply":
 			target = base_value * pow(value, level)
 		"add":
-			target = base_value + value * (level - 1)
+			target = base_value + value * level
 		"set":
 			target = value
 		_:

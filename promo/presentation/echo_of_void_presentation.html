@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Эхо Пустоты — презентация</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@300..700&family=Inter:wght@400;600&display=swap">
+<style>
+html,body{margin:0;background:#020407;height:100%;overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center center}
+section{position:absolute;inset:0;width:1920px;height:1080px;box-sizing:border-box;overflow:hidden}
+section:not(.on){display:none!important}
+h1,h2,h3,p,ul,table{margin:0}
+ul{padding-left:1.2em}
+h1{font-weight:600}h2{font-weight:600}h3{font-weight:600}
+table{border-collapse:collapse}
+th,td{text-align:left;padding:.35em .6em;border-bottom:1px solid #1d3a4a}
+th{color:#3fc8e8;font-weight:600}
+aside{display:none}
+#hint{position:fixed;right:16px;bottom:12px;color:#6d8b96;font:14px Inter,Arial,sans-serif}
+@media print{
+ @page{size:1920px 1080px;margin:0}
+ html,body{overflow:visible;height:auto;background:none}
+ #stage{position:static;transform:none!important;width:1920px;height:auto}
+ section,section:not(.on){position:relative;display:flex!important;page-break-after:always;break-after:page}
+ section[style*="display:grid"],section[style*="display:grid"]:not(.on){display:grid!important}
+ #hint{display:none}
+}
+</style></head><body><div id="stage">
+<section id="cover" data-transition="fade" style="background:#070d16;color:#dcf0f6;font-family:Inter, Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:end;gap:24px">
+<img src="images/title.jpg" alt="Корабль «Эхо» на фоне газового гиганта Тифон" style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover">
+<div style="position:absolute;left:0;top:0;width:1920px;height:1080px;background:linear-gradient(to top, rgba(7,13,22,0.95) 0%, rgba(7,13,22,0.35) 55%, rgba(7,13,22,0.1) 100%)"></div>
+<p style="font-size:28px;letter-spacing:8px;color:#3fc8e8;text-transform:uppercase">2D космический хоррор · демоверсия</p>
+<h1 style="font-family:Oswald, Arial, sans-serif;font-size:160px;font-weight:500;letter-spacing:12px;line-height:1.0">ЭХО ПУСТОТЫ</h1>
+<p style="font-size:36px;color:#a9c7d2;width:1200px;line-height:1.35">Исследуйте пояс газового гиганта. Найдите следы пропавшей экспедиции. Не шумите — внизу кто-то слушает.</p>
+<aside>Открывающий слайд. Кадр взят из трейлера, который собран из реальной игры в движке. Одной фразой: исследовательский хоррор о тишине и масштабе.</aside>
+</section>
+
+<section id="concept" data-transition="fade" style="background:#070d16;color:#dcf0f6;font-family:Inter, Arial, sans-serif;padding:128px;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center">
+<div style="display:flex;flex-direction:column;gap:32px">
+<p style="font-size:26px;letter-spacing:6px;color:#3fc8e8;text-transform:uppercase">Концепция</p>
+<h2 style="font-family:Oswald, Arial, sans-serif;font-size:72px;font-weight:500;line-height:1.1">Страх строится на тишине, а не на атаках</h2>
+<p style="font-size:30px;color:#a9c7d2;line-height:1.45">Исследовательский корабль «Эхо» прибывает к газовому гиганту Тифон, где три года назад пропала экспедиция «Пелагия». В этом пространстве живёт существо размером с планету. Игрок почти никогда его не видит — только помехи, ложные контакты и далёкий зов.</p>
+<p style="font-size:30px;color:#dcf0f6;line-height:1.45"><b>Жанр:</b> 2D, вид сверху, исследование, атмосферный хоррор, выживание.</p>
+</div>
+<img src="images/pelagia.jpg" alt="Корпус «Пелагии» рядом с кораблём игрока" style="width:800px;height:450px;object-fit:cover;border-radius:12px;border:1px solid #1d3a4a">
+<aside>Главная идея: одиночество, неизвестность и масштаб. Прямых встреч мало, и они редкие.</aside>
+</section>
+
+<section id="loop" data-transition="fade" style="background:#0c1624;color:#dcf0f6;font-family:Inter, Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:64px">
+<p style="font-size:26px;letter-spacing:6px;color:#3fc8e8;text-transform:uppercase">Игровой цикл</p>
+<h2 style="font-family:Oswald, Arial, sans-serif;font-size:72px;font-weight:500;line-height:1.1">Каждое действие приносит знание — и шум</h2>
+<div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:24px">
+<div style="display:flex;flex-direction:column;gap:16px;background:#101e30;padding:32px;border-radius:12px;border-top:4px solid #3fc8e8">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:56px;color:#3fc8e8">01</p>
+<h3 style="font-size:32px;font-weight:600">Полёт</h3>
+<p style="font-size:24px;color:#a9c7d2;line-height:1.4">Бесконечный процедурный пояс у Тифона</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#101e30;padding:32px;border-radius:12px;border-top:4px solid #3fc8e8">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:56px;color:#3fc8e8">02</p>
+<h3 style="font-size:32px;font-weight:600">Обход</h3>
+<p style="font-size:24px;color:#a9c7d2;line-height:1.4">Сканер находит объекты, но громче всего на корабле</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#101e30;padding:32px;border-radius:12px;border-top:4px solid #3fc8e8">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:56px;color:#3fc8e8">03</p>
+<h3 style="font-size:32px;font-weight:600">Анализ</h3>
+<p style="font-size:24px;color:#a9c7d2;line-height:1.4">12–90 секунд рядом с объектом, Research XP и находки</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#101e30;padding:32px;border-radius:12px;border-top:4px solid #3fc8e8">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:56px;color:#3fc8e8">04</p>
+<h3 style="font-size:32px;font-weight:600">Улучшения</h3>
+<p style="font-size:24px;color:#a9c7d2;line-height:1.4">15 веток на 4 приборах, ни одна не обязательна</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;background:#101e30;padding:32px;border-radius:12px;border-top:4px solid #e8703f">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:56px;color:#e8703f">05</p>
+<h3 style="font-size:32px;font-weight:600">Выживание</h3>
+<p style="font-size:24px;color:#a9c7d2;line-height:1.4">Тишина, ложные цели и сигнальные огни</p>
+</div>
+</div>
+<aside>Цикл замкнут: исследование даёт опыт и ресурсы, но каждое действие слышно существу.</aside>
+</section>
+
+<section id="survey" data-transition="fade" style="background:#070d16;color:#dcf0f6;font-family:Inter, Arial, sans-serif;padding:128px;display:grid;grid-template-columns:1104px 1fr;gap:64px;align-items:center">
+<img src="images/survey.jpg" alt="Интерфейс полёта во время обхода сканером" style="width:1104px;height:621px;object-fit:cover;border-radius:12px;border:1px solid #1d3a4a">
+<div style="display:flex;flex-direction:column;gap:28px">
+<p style="font-size:26px;letter-spacing:6px;color:#3fc8e8;text-transform:uppercase">Интерфейс</p>
+<h2 style="font-family:Oswald, Arial, sans-serif;font-size:56px;font-weight:500;line-height:1.1">Всё на стекле — по краям</h2>
+<ul style="font-size:26px;color:#a9c7d2;line-height:1.5">
+<li>Корпус, энергия, 4 слота с зарядами</li>
+<li>Глава и задачи миссии</li>
+<li>Индикатор активности и шума</li>
+<li>Лента системных уведомлений</li>
+<li>Радар и маркер цели</li>
+</ul>
+</div>
+<aside>Центр экрана свободен: интерфейс занимает только края и не перекрывает корабль.</aside>
+</section>
+
+<section id="relics" data-transition="fade" style="background:#0c1624;color:#dcf0f6;font-family:Inter, Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:26px;letter-spacing:6px;color:#3fc8e8;text-transform:uppercase">Объекты исследования</p>
+<h2 style="font-family:Oswald, Arial, sans-serif;font-size:64px;font-weight:500;line-height:1.1">У каждой находки своя цена и своя награда</h2>
+<div style="display:grid;grid-template-columns:720px 1fr;gap:56px;align-items:start">
+<img src="images/relics.png" alt="Набор спрайтов объектов исследования: обломки, кольца, кристаллы, сфера" style="width:720px;height:360px;object-fit:contain;background:#070d16;border-radius:12px">
+<table style="font-size:26px;color:#dcf0f6;width:888px">
+<tr><th style="width:44%">Объект</th><th style="width:56%">Что даёт</th></tr>
+<tr><td>Обломок</td><td>ремонт корпуса</td></tr>
+<tr><td>Секция корпуса</td><td>ложная цель, ремонт</td></tr>
+<tr><td>Кольцо, кристалл</td><td>энергия в резерв</td></tr>
+<tr><td>Сигнальный буй</td><td>сигнальный огонь</td></tr>
+<tr><td>Сфера, останки</td><td>много XP, но громко</td></tr>
+</table>
+</div>
+<aside>8 полевых видов и 4 сюжетных. Спрайты вырезаны из присланных листов. Чем глубже к гиганту, тем чаще редкие и опасные виды.</aside>
+</section>
+
+<section id="creature" data-transition="fade" style="background:#070d16;color:#dcf0f6;font-family:Inter, Arial, sans-serif;padding:128px;display:grid;grid-template-columns:1fr 880px;gap:64px;align-items:center">
+<div style="display:flex;flex-direction:column;gap:28px">
+<p style="font-size:26px;letter-spacing:6px;color:#e8703f;text-transform:uppercase">Существо</p>
+<h2 style="font-family:Oswald, Arial, sans-serif;font-size:64px;font-weight:500;line-height:1.1">Оно не преследует — оно слушает</h2>
+<div style="display:flex;flex-wrap:wrap;gap:12px">
+<p style="font-size:24px;background:#13263a;padding:10px 20px;border-radius:24px">Скрытое присутствие</p>
+<p style="font-size:24px;background:#13263a;padding:10px 20px;border-radius:24px">Наблюдение</p>
+<p style="font-size:24px;background:#13263a;padding:10px 20px;border-radius:24px">Поиск</p>
+<p style="font-size:24px;background:#3a1c14;padding:10px 20px;border-radius:24px">Сближение</p>
+<p style="font-size:24px;background:#5a2414;padding:10px 20px;border-radius:24px">Проявление</p>
+<p style="font-size:24px;background:#13263a;padding:10px 20px;border-radius:24px">Отход и затишье</p>
+</div>
+<p style="font-size:28px;color:#a9c7d2;line-height:1.45">Оно идёт туда, где в последний раз услышало корабль. Огонь для него интереснее корпуса. После неудачной охоты всегда наступает затишье.</p>
+</div>
+<img src="images/manifest.jpg" alt="Силуэт существа с красным глазом проходит под кораблём" style="width:880px;height:495px;object-fit:cover;border-radius:12px;border:1px solid #3a1c14">
+<aside>Поведение не случайное: правила простые, и игрок постепенно их понимает.</aside>
+</section>
+
+<section id="counter" data-transition="fade" style="background:#0c1624;color:#dcf0f6;font-family:Inter, Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:26px;letter-spacing:6px;color:#3fc8e8;text-transform:uppercase">Выживание</p>
+<h2 style="font-family:Oswald, Arial, sans-serif;font-size:64px;font-weight:500;line-height:1.1">Оружия нет — есть обман и свет</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:48px">
+<div style="display:flex;flex-direction:column;gap:20px;background:#101e30;padding:32px;border-radius:12px">
+<img src="images/decoy.jpg" alt="Ложная цель уходит от корабля, выводок поворачивает за ней" style="width:768px;height:300px;object-fit:cover;border-radius:8px">
+<h3 style="font-size:36px;font-weight:600;color:#3fc8e8">Ложная цель · слот 3</h3>
+<p style="font-size:26px;color:#a9c7d2;line-height:1.4">Звучит как корпус. Малые особи гонятся за ней и гибнут. 3 заряда, 30 энергии за пуск.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px;background:#101e30;padding:32px;border-radius:12px">
+<img src="images/flare.jpg" alt="Сигнальный огонь горит в пустоте" style="width:768px;height:300px;object-fit:cover;border-radius:8px">
+<h3 style="font-size:36px;font-weight:600;color:#e8703f">Сигнальный огонь · слот 4</h3>
+<p style="font-size:26px;color:#a9c7d2;line-height:1.4">Манит большое существо и ослепляет малых. Бросьте и уходите. 4 заряда, горит 25 с.</p>
+</div>
+</div>
+<aside>Два инструмента с разными плюсами и минусами: ложная цель против выводка, огонь против крупной массы. Заряды пополняются из находок.</aside>
+</section>
+
+<section id="hears" data-transition="fade" style="background:#5a1f12;color:#fbeee8;font-family:Inter, Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;gap:56px">
+<h2 style="font-family:Oswald, Arial, sans-serif;font-size:140px;font-weight:500;letter-spacing:10px;line-height:1.0">ОНО СЛЫШИТ ТЕБЯ</h2>
+<div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:24px">
+<div style="display:flex;flex-direction:column;gap:8px;border-top:2px solid #f2b8a4;padding:24px 0 0 0">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:48px">Обход</p>
+<p style="font-size:26px;color:#f2c9bb">самый громкий звук корабля</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;border-top:2px solid #f2b8a4;padding:24px 0 0 0">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:48px">Форсаж</p>
+<p style="font-size:26px;color:#f2c9bb">скорость слышна издалека</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;border-top:2px solid #f2b8a4;padding:24px 0 0 0">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:48px">Анализ</p>
+<p style="font-size:26px;color:#f2c9bb">тихий гул всё время работы</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;border-top:2px solid #f2b8a4;padding:24px 0 0 0">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:48px">Глубина</p>
+<p style="font-size:26px;color:#f2c9bb">ближе к облакам — лучше слышно</p>
+</div>
+</div>
+<aside>Ключевая механика: всё, что делает игрок, складывается в шкалу внимания. Тихий корабль теряется, громкий — находится.</aside>
+</section>
+
+<section id="story" data-transition="fade" style="background:#070d16;color:#dcf0f6;font-family:Inter, Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:56px">
+<p style="font-size:26px;letter-spacing:6px;color:#3fc8e8;text-transform:uppercase">Сюжет · 15–20 минут</p>
+<h2 style="font-family:Oswald, Arial, sans-serif;font-size:64px;font-weight:500;line-height:1.1">Пять глав — от обучения до глаза в облаках</h2>
+<div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:20px">
+<div style="display:flex;flex-direction:column;gap:12px;border-left:3px solid #3fc8e8;padding:0 0 0 20px">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:40px;color:#3fc8e8">I</p>
+<h3 style="font-size:30px;font-weight:600">Прибытие</h3>
+<p style="font-size:24px;color:#a9c7d2;line-height:1.4">Обучение: сканер, анализ, первые XP</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;border-left:3px solid #3fc8e8;padding:0 0 0 20px">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:40px;color:#3fc8e8">II</p>
+<h3 style="font-size:30px;font-weight:600">След «Пелагии»</h3>
+<p style="font-size:24px;color:#a9c7d2;line-height:1.4">Три маяка и записи пропавшего экипажа</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;border-left:3px solid #3fc8e8;padding:0 0 0 20px">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:40px;color:#3fc8e8">III</p>
+<h3 style="font-size:30px;font-weight:600">Присутствие</h3>
+<p style="font-size:24px;color:#a9c7d2;line-height:1.4">Корпус «Пелагии», первая охота выводка</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;border-left:3px solid #e8703f;padding:0 0 0 20px">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:40px;color:#e8703f">IV</p>
+<h3 style="font-size:30px;font-weight:600">Глубина</h3>
+<p style="font-size:24px;color:#a9c7d2;line-height:1.4">Три резонансных узла и сигнал-пульс</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;border-left:3px solid #e8703f;padding:0 0 0 20px">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:40px;color:#e8703f">V</p>
+<h3 style="font-size:30px;font-weight:600">Источник</h3>
+<p style="font-size:24px;color:#a9c7d2;line-height:1.4">Анализ под охотой, проявление, эвакуация</p>
+</div>
+</div>
+<p style="font-size:28px;color:#a9c7d2;line-height:1.45;width:1400px">История подаётся короткими радиосообщениями, журналами экипажа и находками. Финал оставляет задел для полной версии.</p>
+<aside>Никаких длинных диалогов: голоса станции «Гелиос-7», научного офицера Ланской и записи «Пелагии».</aside>
+</section>
+
+<section id="upgrades" data-transition="fade" style="background:#0c1624;color:#dcf0f6;font-family:Inter, Arial, sans-serif;padding:128px;display:grid;grid-template-columns:1fr 1056px;gap:64px;align-items:center">
+<div style="display:flex;flex-direction:column;gap:36px">
+<p style="font-size:26px;letter-spacing:6px;color:#3fc8e8;text-transform:uppercase">Прогрессия</p>
+<h2 style="font-family:Oswald, Arial, sans-serif;font-size:60px;font-weight:500;line-height:1.1">Research XP превращается в оборудование</h2>
+<div style="display:flex;gap:40px">
+<div style="display:flex;flex-direction:column;gap:4px">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:96px;color:#3fc8e8;line-height:1.0">15</p>
+<p style="font-size:24px;color:#a9c7d2">веток улучшений</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:4px">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:96px;color:#3fc8e8;line-height:1.0">4</p>
+<p style="font-size:24px;color:#a9c7d2">прибора</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:4px">
+<p style="font-family:Oswald, Arial, sans-serif;font-size:96px;color:#e8703f;line-height:1.0">2</p>
+<p style="font-size:24px;color:#a9c7d2">одноразовых модуля</p>
+</div>
+</div>
+<p style="font-size:26px;color:#a9c7d2;line-height:1.45">Дальность и тихий обход сканера, скорость анализа, ёмкость магазинов, модуль угроз на радаре. Характеристики «до → после» видны перед покупкой.</p>
+</div>
+<img src="images/upgrades_panel.png" alt="Панель улучшений оборудования" style="width:1056px;height:594px;object-fit:contain;background:#070d16;border-radius:12px;border:1px solid #1d3a4a">
+<aside>Пройти игру можно без единой покупки: улучшения облегчают, но не открывают прохождение.</aside>
+</section>
+
+<section id="sound" data-transition="fade" style="background:#070d16;color:#dcf0f6;font-family:Inter, Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<p style="font-size:26px;letter-spacing:6px;color:#3fc8e8;text-transform:uppercase">Звук и атмосфера</p>
+<h2 style="font-family:Oswald, Arial, sans-serif;font-size:64px;font-weight:500;line-height:1.1">Музыка меняется вместе с угрозой</h2>
+<div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:16px">
+<div style="background:#12304a;padding:28px;border-radius:10px"><p style="font-family:Oswald, Arial, sans-serif;font-size:36px">Спокойствие</p><p style="font-size:24px;color:#a9c7d2">мягкие приглушённые пэды</p></div>
+<div style="background:#1a3046;padding:28px;border-radius:10px"><p style="font-family:Oswald, Arial, sans-serif;font-size:36px">Неопределённость</p><p style="font-size:24px;color:#a9c7d2">дрон и одинокие колокола</p></div>
+<div style="background:#2b2a3a;padding:28px;border-radius:10px"><p style="font-family:Oswald, Arial, sans-serif;font-size:36px">Напряжение</p><p style="font-size:24px;color:#c9b8b8">пульс 52 удара в минуту</p></div>
+<div style="background:#3e2222;padding:28px;border-radius:10px"><p style="font-family:Oswald, Arial, sans-serif;font-size:36px">Опасность</p><p style="font-size:24px;color:#d8b4a8">ускоренный пульс, кластеры</p></div>
+<div style="background:#5a1f12;padding:28px;border-radius:10px"><p style="font-family:Oswald, Arial, sans-serif;font-size:36px">Кульминация</p><p style="font-size:24px;color:#f2c9bb">хор и низкая медь</p></div>
+</div>
+<ul style="font-size:28px;color:#a9c7d2;line-height:1.5">
+<li>19 потоков двигателей и систем корабля, 25 звуковых эффектов</li>
+<li>Позиционный звук выводка, помехи, зов существа, толчки</li>
+<li>Настройки громкости: общая, музыка, эффекты, интерфейс</li>
+</ul>
+<aside>Все звуки и музыка синтезированы средствами самого движка — без сторонних файлов. Дорожки играют синхронно и переходят друг в друга плавно.</aside>
+</section>
+
+<section id="tech" data-transition="fade" style="background:#0c1624;color:#dcf0f6;font-family:Inter, Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<p style="font-size:26px;letter-spacing:6px;color:#3fc8e8;text-transform:uppercase">Состояние проекта</p>
+<h2 style="font-family:Oswald, Arial, sans-serif;font-size:64px;font-weight:500;line-height:1.1">Демоверсия собрана и проверена</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:56px">
+<table style="font-size:26px;color:#dcf0f6">
+<tr><th style="width:52%">Параметр</th><th style="width:48%">Значение</th></tr>
+<tr><td>Движок</td><td>Godot 4.7, GL Compatibility</td></tr>
+<tr><td>Платформа</td><td>Windows, один .exe</td></tr>
+<tr><td>Автотесты</td><td>34 логических набора</td></tr>
+<tr><td>Сценарий демо</td><td>63 проверки, все пройдены</td></tr>
+<tr><td>Трейлер</td><td>62 с, 1080p, снят в движке</td></tr>
+</table>
+<div style="display:flex;flex-direction:column;gap:20px">
+<h3 style="font-size:36px;font-weight:600;color:#e8703f">Дальше</h3>
+<ul style="font-size:28px;color:#a9c7d2;line-height:1.5">
+<li>Обновить 5 старых тестов под новую сцену</li>
+<li>Ручное прохождение и тонкая настройка сложности</li>
+<li>Посадка на поверхность Тифона — полная версия</li>
+</ul>
+</div>
+</div>
+<aside>Честный статус: в полном прогоне 27 из 34 наборов зелёные; 5 падений — устаревшие ожидания тестов после изменений сцены, 2 — известные проблемы времени кадра и звука удара.</aside>
+</section>
+
+<section id="finale" data-transition="fade" style="background:#05090f;color:#dcf0f6;font-family:Inter, Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:32px">
+<img src="images/logo.jpg" alt="Финальный титр трейлера" style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover;opacity:0.35">
+<h1 style="font-family:Oswald, Arial, sans-serif;font-size:140px;font-weight:500;letter-spacing:14px;line-height:1.0;text-align:center">ЭХО ПУСТОТЫ</h1>
+<p style="font-size:36px;color:#a9c7d2;text-align:center">Источник был не дверью. Он был глазом — и теперь он открыт.</p>
+<p style="font-size:26px;letter-spacing:6px;color:#3fc8e8;text-transform:uppercase;text-align:center">демоверсия · трейлер · build/echo_of_void.exe</p>
+<aside>Финальный слайд. Здесь можно запустить трейлер: build/trailer/echo_of_void_trailer.mp4.</aside>
+</section>
+
+</div><div id="hint">← → / пробел — листать · F — полный экран · Ctrl+P — PDF</div>
+<script>
+const s=[...document.querySelectorAll('#stage>section')];let i=0;
+function show(n){i=Math.max(0,Math.min(s.length-1,n));s.forEach((e,k)=>e.classList.toggle('on',k===i));location.hash='#'+(i+1)}
+function fit(){const k=Math.min(innerWidth/1920,innerHeight/1080);document.getElementById('stage').style.transform=`translate(-50%,-50%) scale(${k})`}
+addEventListener('resize',fit);
+addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key))show(i+1);if(['ArrowLeft','PageUp'].includes(e.key))show(i-1);if(e.key==='f')document.documentElement.requestFullscreen?.()});
+addEventListener('click',e=>show(e.clientX>innerWidth/2?i+1:i-1));
+fit();show((parseInt(location.hash.slice(1))||1)-1);
+</script></body></html>

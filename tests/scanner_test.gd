@@ -777,8 +777,11 @@ func _test_real_world() -> void:
 		return
 	var pulses: Array = []
 	map_hub.system_event.connect(func(event): pulses.append(event))
+	# the flight scene widens the dish by its own range_multiplier (1.5): the
+	# profile's 1100 px times the scene's tuning, nothing hard-coded twice
 	_ok("it is a cold device with a full disc",
-		not scanner.enabled and is_equal_approx(scanner.range_now(), 1100.0),
+		not scanner.enabled and is_equal_approx(scanner.range_now(),
+			scanner.profile.range_px * scanner.range_multiplier),
 		"%.0f px" % scanner.range_now())
 	_ok("it finds the field by group, not by path", scanner.world() == field)
 

@@ -123,6 +123,150 @@ phantom_cell = 2200.0
 phantom_chance = 0.03
 phantom_salt = 4242
 
+
+[sub_resource type="Resource" id="Resource_poi_wreck_fragment"]
+script = ExtResource("2_signature")
+id = "poi_wreck_fragment"
+kind = "poi_wreck_fragment"
+uncertain_kind = "unknown_signal"
+groups = PackedStringArray("poi_wreck_fragment")
+strength = 0.75
+detect_at = 0.05
+identify_at = 0.3
+reveal_keys = PackedStringArray("title", "description", "poi_kind")
+
+[sub_resource type="Resource" id="Resource_poi_hull_section"]
+script = ExtResource("2_signature")
+id = "poi_hull_section"
+kind = "poi_hull_section"
+uncertain_kind = "unknown_signal"
+groups = PackedStringArray("poi_hull_section")
+strength = 0.9
+detect_at = 0.05
+identify_at = 0.3
+reveal_keys = PackedStringArray("title", "description", "poi_kind")
+
+[sub_resource type="Resource" id="Resource_poi_ring_segment"]
+script = ExtResource("2_signature")
+id = "poi_ring_segment"
+kind = "poi_ring_segment"
+uncertain_kind = "unknown_signal"
+groups = PackedStringArray("poi_ring_segment")
+strength = 0.85
+detect_at = 0.05
+identify_at = 0.3
+reveal_keys = PackedStringArray("title", "description", "poi_kind")
+
+[sub_resource type="Resource" id="Resource_poi_crystal"]
+script = ExtResource("2_signature")
+id = "poi_crystal"
+kind = "poi_crystal"
+uncertain_kind = "unknown_signal"
+groups = PackedStringArray("poi_crystal")
+strength = 0.7
+detect_at = 0.05
+identify_at = 0.3
+reveal_keys = PackedStringArray("title", "description", "poi_kind")
+
+[sub_resource type="Resource" id="Resource_poi_signal_buoy"]
+script = ExtResource("2_signature")
+id = "poi_signal_buoy"
+kind = "poi_signal_buoy"
+uncertain_kind = "unknown_signal"
+groups = PackedStringArray("poi_signal_buoy")
+strength = 0.95
+detect_at = 0.05
+identify_at = 0.3
+reveal_keys = PackedStringArray("title", "description", "poi_kind")
+
+[sub_resource type="Resource" id="Resource_poi_alien_orb"]
+script = ExtResource("2_signature")
+id = "poi_alien_orb"
+kind = "poi_alien_orb"
+uncertain_kind = "unknown_signal"
+groups = PackedStringArray("poi_alien_orb")
+strength = 0.8
+detect_at = 0.05
+identify_at = 0.3
+reveal_keys = PackedStringArray("title", "description", "poi_kind")
+
+[sub_resource type="Resource" id="Resource_poi_monolith"]
+script = ExtResource("2_signature")
+id = "poi_monolith"
+kind = "poi_monolith"
+uncertain_kind = "unknown_signal"
+groups = PackedStringArray("poi_monolith")
+strength = 0.85
+detect_at = 0.05
+identify_at = 0.3
+reveal_keys = PackedStringArray("title", "description", "poi_kind")
+
+[sub_resource type="Resource" id="Resource_poi_husk"]
+script = ExtResource("2_signature")
+id = "poi_husk"
+kind = "poi_husk"
+uncertain_kind = "unknown_signal"
+groups = PackedStringArray("poi_husk")
+strength = 0.7
+detect_at = 0.05
+identify_at = 0.3
+reveal_keys = PackedStringArray("title", "description", "poi_kind")
+
+[sub_resource type="Resource" id="Resource_poi_story_beacon"]
+script = ExtResource("2_signature")
+id = "poi_story_beacon"
+kind = "poi_story_beacon"
+uncertain_kind = "unknown_signal"
+groups = PackedStringArray("poi_story_beacon")
+strength = 1.0
+detect_at = 0.05
+identify_at = 0.3
+reveal_keys = PackedStringArray("title", "description", "poi_kind")
+
+[sub_resource type="Resource" id="Resource_poi_pelagia"]
+script = ExtResource("2_signature")
+id = "poi_pelagia"
+kind = "poi_pelagia"
+uncertain_kind = "unknown_signal"
+groups = PackedStringArray("poi_pelagia")
+strength = 1.0
+detect_at = 0.05
+identify_at = 0.3
+reveal_keys = PackedStringArray("title", "description", "poi_kind")
+
+[sub_resource type="Resource" id="Resource_poi_resonance_node"]
+script = ExtResource("2_signature")
+id = "poi_resonance_node"
+kind = "poi_resonance_node"
+uncertain_kind = "unknown_signal"
+groups = PackedStringArray("poi_resonance_node")
+strength = 1.0
+detect_at = 0.05
+identify_at = 0.3
+reveal_keys = PackedStringArray("title", "description", "poi_kind")
+
+[sub_resource type="Resource" id="Resource_poi_source"]
+script = ExtResource("2_signature")
+id = "poi_source"
+kind = "poi_source"
+uncertain_kind = "unknown_signal"
+groups = PackedStringArray("poi_source")
+strength = 1.0
+detect_at = 0.05
+identify_at = 0.3
+reveal_keys = PackedStringArray("title", "description", "poi_kind")
+
+[sub_resource type="Resource" id="Resource_poi_leviathan"]
+script = ExtResource("2_signature")
+id = "poi_leviathan"
+kind = "poi_leviathan"
+uncertain_kind = "leviathan"
+groups = PackedStringArray("poi_leviathan")
+strength = 0.9
+detect_at = 0.05
+identify_at = 2.0
+reveal_keys = PackedStringArray("title", "description", "poi_kind")
+
 [resource]
 script = ExtResource("1_profile")
 range_px = 1100.0
@@ -130,5 +274,5 @@ sweep_seconds = 3.5
 sweep_energy_cost = 12.0
 max_contacts = 48
 candidate_factor = 8
-signatures = Array[ExtResource("2_signature")]([SubResource("Resource_asteroid"), SubResource("Resource_debris"), SubResource("Resource_derelict"), SubResource("Resource_structure"), SubResource("Resource_beacon"), SubResource("Resource_hazard"), SubResource("Resource_research"), SubResource("Resource_resonance"), SubResource("Resource_distress")])
+signatures = Array[ExtResource("2_signature")]([SubResource("Resource_poi_wreck_fragment"), SubResource("Resource_poi_hull_section"), SubResource("Resource_poi_ring_segment"), SubResource("Resource_poi_crystal"), SubResource("Resource_poi_signal_buoy"), SubResource("Resource_poi_alien_orb"), SubResource("Resource_poi_monolith"), SubResource("Resource_poi_husk"), SubResource("Resource_poi_story_beacon"), SubResource("Resource_poi_pelagia"), SubResource("Resource_poi_resonance_node"), SubResource("Resource_poi_source"), SubResource("Resource_poi_leviathan"), SubResource("Resource_asteroid"), SubResource("Resource_debris"), SubResource("Resource_derelict"), SubResource("Resource_structure"), SubResource("Resource_beacon"), SubResource("Resource_hazard"), SubResource("Resource_research"), SubResource("Resource_resonance"), SubResource("Resource_distress")])
 title = "survey scanner"

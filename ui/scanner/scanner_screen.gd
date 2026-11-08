@@ -1,8 +1,16 @@
-extends UiViewportPolicy
+extends InterfaceScreen
 class_name ScannerScreen
 
-## Visual-only scanner interface. All values come from local demonstration
-## snapshots. No gameplay system or scanner implementation is referenced here.
+## The scanner interface.
+##
+## In the flight scene the screen is fed by `ScannerConsole` with the real
+## scanner's picture (`ScannerSnapshot`): the scope shows the contacts of the
+## last real sweep, the progress bar shows the real sweep, and the button asks
+## the real scanner for a real sweep. The demonstration table is still here for
+## the preview scene, where there is no ship to read.
+##
+## The screen itself decides nothing: it shows what it is given and reports
+## the pilot's wish.
 
 enum DemoState { READY, SCANNING, CONTACTS_FOUND, NO_CONTACTS, LOW_ENERGY, MALFUNCTION }
 signal scan_requested
@@ -35,6 +43,12 @@ const CONTACT_CARD_SCENE := preload("res://scenes/ui/components/ScannerContactCa
 var _demo_state := DemoState.READY
 var _contacts: Array[ScannerContact] = []
 var _cards: Dictionary = {}
+## True when the screen is fed by the real ship rather than by the
+## demonstration table.
+var _live := false
+## The live picture: state, progress, remaining time, readiness and the
+## contacts of the last sweep.
+var _live_state: Dictionary = {}
 
 
 func _ready() -> void:
@@ -48,8 +62,34 @@ func _ready() -> void:
 		select_contact(_contacts[0].id)
 
 
+## The real scanner's picture. The screen shows it and nothing else: the state
+## word, the sweep's own progress, the reserve's own share and the contacts of
+## the last real sweep.
+func set_live_state(snapshot: Dictionary) -> void:
+	_live = true
+	_live_state = snapshot
+	_demo.visible = false
+	var contacts: Array[ScannerContact] = []
+	var raw: Variant = snapshot.get("contacts", [])
+	if raw is Array:
+		for item in (raw as Array):
+			if item is ScannerContact:
+				contacts.append(item as ScannerContact)
+	_rebuild(contacts)
+	_apply_state_presentation()
+
+
 func set_demo_state(state: DemoState, contacts: Array[ScannerContact] = []) -> void:
 	_demo_state = state
+	_contacts = contacts
+	_rebuild(contacts)
+	_apply_state_presentation()
+	_apply_safe_insets()
+
+
+## The contact list, rebuilt from scratch. The cards are the screen's own; the
+## contacts inside them are the ones the console handed over.
+func _rebuild(contacts: Array[ScannerContact]) -> void:
 	_contacts = contacts
 	_cards.clear()
 	for child in _contact_list.get_children():
@@ -62,8 +102,6 @@ func set_demo_state(state: DemoState, contacts: Array[ScannerContact] = []) -> v
 		_cards[contact.id] = card
 	_scope.set_contacts(_contacts)
 	_scope.selected_contact_id = ""
-	_apply_state_presentation()
-	_apply_safe_insets()
 
 
 func select_contact(contact_id: String) -> void:
@@ -89,6 +127,9 @@ func set_demo_contacts(contacts: Array[ScannerContact]) -> void:
 
 
 func _apply_state_presentation() -> void:
+	if _live:
+		_apply_live_presentation()
+		return
 	var accent := Color(0.36, 0.86, 0.9, 1.0)
 	var warning := Color(1.0, 0.68, 0.3, 1.0)
 	var critical := Color(1.0, 0.4, 0.34, 1.0)
@@ -156,6 +197,38 @@ func _apply_state_presentation() -> void:
 			accent = critical
 	_state_label.add_theme_color_override("font_color", accent)
 	_contact_count.text = "РЕЕСТР КОНТАКТОВ / %02d" % _contacts.size()
+
+
+## The live presentation: every line comes from the snapshot the console
+## built out of the real scanner. Nothing here is invented - the state word,
+## the progress, the remaining time and the reserve share are the ship's own.
+func _apply_live_presentation() -> void:
+	var accent := Color(0.36, 0.86, 0.9, 1.0)
+	var warning := Color(1.0, 0.68, 0.3, 1.0)
+	var critical := Color(1.0, 0.4, 0.34, 1.0)
+	var state := int(_live_state.get("state", ScannerSnapshot.State.READY))
+	var progress := clampf(float(_live_state.get("progress", 0.0)), 0.0, 1.0)
+	var readiness := clampf(float(_live_state.get("readiness", 1.0)), 0.0, 1.0)
+	var remaining := maxf(float(_live_state.get("remaining", 0.0)), 0.0)
+	_progress.value = progress * 100.0
+	_progress_text.text = "ХОД %03d%%" % int(roundf(progress * 100.0))
+	_remaining.text = "ОСТАЛОСЬ %02d:%02d" % [int(remaining) / 60, int(remaining) % 60]
+	_readiness.text = "ГОТОВНОСТЬ %d%%" % int(roundf(readiness * 100.0))
+	_state_label.text = "— %s" % str(_live_state.get("state_name", "ГОТОВ"))
+	_scan_status.text = str(_live_state.get("status_text", ""))
+	_scope.scanning = state == ScannerSnapshot.State.SCANNING
+	_scope.progress = progress
+	_scope_caption.text = "РЕШЕТО / %s" % str(_live_state.get("state_name", "ГОТОВ"))
+	_action.text = str(_live_state.get("action_label", "НАЧАТЬ ОБХОД"))
+	_action.disabled = not bool(_live_state.get("can_scan", false))
+	_empty.visible = _contacts.is_empty()
+	_detail.visible = false
+	if state == ScannerSnapshot.State.LOW_ENERGY:
+		accent = warning
+	elif state == ScannerSnapshot.State.MALFUNCTION:
+		accent = critical
+	_state_label.add_theme_color_override("font_color", accent)
+	_contact_count.text = "КОНТАКТОВ / %02d" % _contacts.size()
 
 
 func _apply_safe_insets() -> void:

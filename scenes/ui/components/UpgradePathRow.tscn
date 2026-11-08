@@ -1,0 +1,69 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://ui/theme/echo_theme.tres" id="1_theme"]
+[ext_resource type="Script" path="res://ui/upgrades/upgrade_path_row.gd" id="2_row"]
+
+[node name="UpgradePathRow" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+mouse_filter = 0
+theme = ExtResource("1_theme")
+script = ExtResource("2_row")
+
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="TopRow" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="Content/TopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.82, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 10
+text = "ВЕТКА"
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="Level" type="Label" parent="Content/TopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 8
+text = "УР. 0/4"
+vertical_alignment = 1
+
+[node name="Status" type="Label" parent="Content/TopRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(88, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 8
+text = "МАКСИМУМ"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="BottomRow" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Change" type="Label" parent="Content/BottomRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.82, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 9
+text = "0 → 0"
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="Cost" type="Label" parent="Content/BottomRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(58, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 9
+text = "—"
+horizontal_alignment = 2

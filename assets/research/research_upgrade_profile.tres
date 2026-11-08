@@ -8,7 +8,7 @@
 [sub_resource type="Resource" id="R_scanner_range_1"]
 script = ExtResource("2_upgrade")
 upgrade_id = "scanner.range"
-display_name = "Scanner: Detection Range"
+display_name = "Сканер: дальность"
 description = "Increases the scanner's detection radius."
 device_id = "scanner"
 device_type = "ShipScanner"
@@ -22,7 +22,7 @@ cost_xp = 50
 [sub_resource type="Resource" id="R_scanner_range_2"]
 script = ExtResource("2_upgrade")
 upgrade_id = "scanner.range"
-display_name = "Scanner: Detection Range II"
+display_name = "Сканер: дальность II"
 description = "Increases the scanner's detection radius further."
 device_id = "scanner"
 device_type = "ShipScanner"
@@ -36,7 +36,7 @@ cost_xp = 100
 [sub_resource type="Resource" id="R_scanner_range_3"]
 script = ExtResource("2_upgrade")
 upgrade_id = "scanner.range"
-display_name = "Scanner: Detection Range III"
+display_name = "Сканер: дальность III"
 description = "Increases the scanner's detection radius further."
 device_id = "scanner"
 device_type = "ShipScanner"
@@ -50,7 +50,7 @@ cost_xp = 200
 [sub_resource type="Resource" id="R_scanner_range_4"]
 script = ExtResource("2_upgrade")
 upgrade_id = "scanner.range"
-display_name = "Scanner: Detection Range IV"
+display_name = "Сканер: дальность IV"
 description = "Maximum detection range for the survey scanner."
 device_id = "scanner"
 device_type = "ShipScanner"
@@ -64,7 +64,7 @@ cost_xp = 400
 [sub_resource type="Resource" id="R_scanner_time_1"]
 script = ExtResource("2_upgrade")
 upgrade_id = "scanner.scan_time"
-display_name = "Scanner: Faster Sweep"
+display_name = "Сканер: скорость обхода"
 description = "Reduces the time a survey sweep takes."
 device_id = "scanner"
 device_type = "ShipScanner"
@@ -78,7 +78,7 @@ cost_xp = 50
 [sub_resource type="Resource" id="R_scanner_time_2"]
 script = ExtResource("2_upgrade")
 upgrade_id = "scanner.scan_time"
-display_name = "Scanner: Faster Sweep II"
+display_name = "Сканер: скорость обхода II"
 description = "Reduces the time a survey sweep takes further."
 device_id = "scanner"
 device_type = "ShipScanner"
@@ -92,7 +92,7 @@ cost_xp = 100
 [sub_resource type="Resource" id="R_scanner_time_3"]
 script = ExtResource("2_upgrade")
 upgrade_id = "scanner.scan_time"
-display_name = "Scanner: Faster Sweep III"
+display_name = "Сканер: скорость обхода III"
 description = "Reduces the time a survey sweep takes further."
 device_id = "scanner"
 device_type = "ShipScanner"
@@ -106,7 +106,7 @@ cost_xp = 200
 [sub_resource type="Resource" id="R_scanner_time_4"]
 script = ExtResource("2_upgrade")
 upgrade_id = "scanner.scan_time"
-display_name = "Scanner: Faster Sweep IV"
+display_name = "Сканер: скорость обхода IV"
 description = "Minimum sweep time for the survey scanner."
 device_id = "scanner"
 device_type = "ShipScanner"
@@ -120,7 +120,7 @@ cost_xp = 400
 [sub_resource type="Resource" id="R_scanner_sensitivity_1"]
 script = ExtResource("2_upgrade")
 upgrade_id = "scanner.sensitivity"
-display_name = "Scanner: Anomaly Detection"
+display_name = "Сканер: чувствительность"
 description = "Improves detection of weak and anomalous signatures."
 device_id = "scanner"
 device_type = "ShipScanner"
@@ -134,7 +134,7 @@ cost_xp = 50
 [sub_resource type="Resource" id="R_scanner_sensitivity_2"]
 script = ExtResource("2_upgrade")
 upgrade_id = "scanner.sensitivity"
-display_name = "Scanner: Anomaly Detection II"
+display_name = "Сканер: чувствительность II"
 description = "Improves detection of weak and anomalous signatures further."
 device_id = "scanner"
 device_type = "ShipScanner"
@@ -148,7 +148,7 @@ cost_xp = 100
 [sub_resource type="Resource" id="R_scanner_sensitivity_3"]
 script = ExtResource("2_upgrade")
 upgrade_id = "scanner.sensitivity"
-display_name = "Scanner: Anomaly Detection III"
+display_name = "Сканер: чувствительность III"
 description = "Improves detection of weak and anomalous signatures further."
 device_id = "scanner"
 device_type = "ShipScanner"
@@ -162,7 +162,7 @@ cost_xp = 200
 [sub_resource type="Resource" id="R_scanner_sensitivity_4"]
 script = ExtResource("2_upgrade")
 upgrade_id = "scanner.sensitivity"
-display_name = "Scanner: Anomaly Detection IV"
+display_name = "Сканер: чувствительность IV"
 description = "Maximum anomaly detection for the survey scanner."
 device_id = "scanner"
 device_type = "ShipScanner"
@@ -178,7 +178,7 @@ cost_xp = 400
 [sub_resource type="Resource" id="R_signal_radius_1"]
 script = ExtResource("2_upgrade")
 upgrade_id = "signal_light.radius"
-display_name = "Signal Light: Signal Radius"
+display_name = "Огни: радиус"
 description = "Increases the radius of the signal beacon."
 device_id = "signal_light"
 device_type = "ShipSignalLight"
@@ -192,7 +192,7 @@ cost_xp = 50
 [sub_resource type="Resource" id="R_signal_radius_2"]
 script = ExtResource("2_upgrade")
 upgrade_id = "signal_light.radius"
-display_name = "Signal Light: Signal Radius II"
+display_name = "Огни: радиус II"
 description = "Increases the radius of the signal beacon further."
 device_id = "signal_light"
 device_type = "ShipSignalLight"
@@ -206,7 +206,7 @@ cost_xp = 100
 [sub_resource type="Resource" id="R_signal_radius_3"]
 script = ExtResource("2_upgrade")
 upgrade_id = "signal_light.radius"
-display_name = "Signal Light: Signal Radius III"
+display_name = "Огни: радиус III"
 description = "Increases the radius of the signal beacon further."
 device_id = "signal_light"
 device_type = "ShipSignalLight"
@@ -220,7 +220,7 @@ cost_xp = 200
 [sub_resource type="Resource" id="R_signal_radius_4"]
 script = ExtResource("2_upgrade")
 upgrade_id = "signal_light.radius"
-display_name = "Signal Light: Signal Radius IV"
+display_name = "Огни: радиус IV"
 description = "Maximum signal beacon radius."
 device_id = "signal_light"
 device_type = "ShipSignalLight"
@@ -234,7 +234,7 @@ cost_xp = 400
 [sub_resource type="Resource" id="R_signal_duration_1"]
 script = ExtResource("2_upgrade")
 upgrade_id = "signal_light.duration"
-display_name = "Signal Light: Duration"
+display_name = "Огни: длительность"
 description = "Increases how long the signal beacon burns."
 device_id = "signal_light"
 device_type = "ShipSignalLight"
@@ -248,7 +248,7 @@ cost_xp = 50
 [sub_resource type="Resource" id="R_signal_duration_2"]
 script = ExtResource("2_upgrade")
 upgrade_id = "signal_light.duration"
-display_name = "Signal Light: Duration II"
+display_name = "Огни: длительность II"
 description = "Increases how long the signal beacon burns further."
 device_id = "signal_light"
 device_type = "ShipSignalLight"
@@ -262,7 +262,7 @@ cost_xp = 100
 [sub_resource type="Resource" id="R_signal_duration_3"]
 script = ExtResource("2_upgrade")
 upgrade_id = "signal_light.duration"
-display_name = "Signal Light: Duration III"
+display_name = "Огни: длительность III"
 description = "Increases how long the signal beacon burns further."
 device_id = "signal_light"
 device_type = "ShipSignalLight"
@@ -276,7 +276,7 @@ cost_xp = 200
 [sub_resource type="Resource" id="R_signal_duration_4"]
 script = ExtResource("2_upgrade")
 upgrade_id = "signal_light.duration"
-display_name = "Signal Light: Duration IV"
+display_name = "Огни: длительность IV"
 description = "Maximum signal beacon burn time."
 device_id = "signal_light"
 device_type = "ShipSignalLight"
@@ -290,7 +290,7 @@ cost_xp = 400
 [sub_resource type="Resource" id="R_signal_intensity_1"]
 script = ExtResource("2_upgrade")
 upgrade_id = "signal_light.intensity"
-display_name = "Signal Light: Intensity"
+display_name = "Огни: интенсивность"
 description = "Increases the signal beacon's intensity."
 device_id = "signal_light"
 device_type = "ShipSignalLight"
@@ -304,7 +304,7 @@ cost_xp = 50
 [sub_resource type="Resource" id="R_signal_intensity_2"]
 script = ExtResource("2_upgrade")
 upgrade_id = "signal_light.intensity"
-display_name = "Signal Light: Intensity II"
+display_name = "Огни: интенсивность II"
 description = "Increases the signal beacon's intensity further."
 device_id = "signal_light"
 device_type = "ShipSignalLight"
@@ -318,7 +318,7 @@ cost_xp = 100
 [sub_resource type="Resource" id="R_signal_intensity_3"]
 script = ExtResource("2_upgrade")
 upgrade_id = "signal_light.intensity"
-display_name = "Signal Light: Intensity III"
+display_name = "Огни: интенсивность III"
 description = "Increases the signal beacon's intensity further."
 device_id = "signal_light"
 device_type = "ShipSignalLight"
@@ -332,7 +332,7 @@ cost_xp = 200
 [sub_resource type="Resource" id="R_signal_intensity_4"]
 script = ExtResource("2_upgrade")
 upgrade_id = "signal_light.intensity"
-display_name = "Signal Light: Intensity IV"
+display_name = "Огни: интенсивность IV"
 description = "Maximum signal beacon intensity."
 device_id = "signal_light"
 device_type = "ShipSignalLight"
@@ -348,7 +348,7 @@ cost_xp = 400
 [sub_resource type="Resource" id="R_decoy_lifetime_1"]
 script = ExtResource("2_upgrade")
 upgrade_id = "decoy.lifetime"
-display_name = "Decoy: Lifetime"
+display_name = "Ложные цели: время жизни"
 description = "Increases how long a decoy stays in flight."
 device_id = "decoy_launcher"
 device_type = "ShipDecoyLauncher"
@@ -362,7 +362,7 @@ cost_xp = 50
 [sub_resource type="Resource" id="R_decoy_lifetime_2"]
 script = ExtResource("2_upgrade")
 upgrade_id = "decoy.lifetime"
-display_name = "Decoy: Lifetime II"
+display_name = "Ложные цели: время жизни II"
 description = "Increases how long a decoy stays in flight further."
 device_id = "decoy_launcher"
 device_type = "ShipDecoyLauncher"
@@ -376,7 +376,7 @@ cost_xp = 100
 [sub_resource type="Resource" id="R_decoy_lifetime_3"]
 script = ExtResource("2_upgrade")
 upgrade_id = "decoy.lifetime"
-display_name = "Decoy: Lifetime III"
+display_name = "Ложные цели: время жизни III"
 description = "Increases how long a decoy stays in flight further."
 device_id = "decoy_launcher"
 device_type = "ShipDecoyLauncher"
@@ -390,7 +390,7 @@ cost_xp = 200
 [sub_resource type="Resource" id="R_decoy_lifetime_4"]
 script = ExtResource("2_upgrade")
 upgrade_id = "decoy.lifetime"
-display_name = "Decoy: Lifetime IV"
+display_name = "Ложные цели: время жизни IV"
 description = "Maximum decoy flight time."
 device_id = "decoy_launcher"
 device_type = "ShipDecoyLauncher"
@@ -404,7 +404,7 @@ cost_xp = 400
 [sub_resource type="Resource" id="R_decoy_signal_1"]
 script = ExtResource("2_upgrade")
 upgrade_id = "decoy.signal"
-display_name = "Decoy: Signal Strength"
+display_name = "Ложные цели: сигнал"
 description = "Increases the decoy's signal strength."
 device_id = "decoy_launcher"
 device_type = "ShipDecoyLauncher"
@@ -418,7 +418,7 @@ cost_xp = 50
 [sub_resource type="Resource" id="R_decoy_signal_2"]
 script = ExtResource("2_upgrade")
 upgrade_id = "decoy.signal"
-display_name = "Decoy: Signal Strength II"
+display_name = "Ложные цели: сигнал II"
 description = "Increases the decoy's signal strength further."
 device_id = "decoy_launcher"
 device_type = "ShipDecoyLauncher"
@@ -432,7 +432,7 @@ cost_xp = 100
 [sub_resource type="Resource" id="R_decoy_signal_3"]
 script = ExtResource("2_upgrade")
 upgrade_id = "decoy.signal"
-display_name = "Decoy: Signal Strength III"
+display_name = "Ложные цели: сигнал III"
 description = "Increases the decoy's signal strength further."
 device_id = "decoy_launcher"
 device_type = "ShipDecoyLauncher"
@@ -446,7 +446,7 @@ cost_xp = 200
 [sub_resource type="Resource" id="R_decoy_signal_4"]
 script = ExtResource("2_upgrade")
 upgrade_id = "decoy.signal"
-display_name = "Decoy: Signal Strength IV"
+display_name = "Ложные цели: сигнал IV"
 description = "Maximum decoy signal strength."
 device_id = "decoy_launcher"
 device_type = "ShipDecoyLauncher"
@@ -460,7 +460,7 @@ cost_xp = 400
 [sub_resource type="Resource" id="R_decoy_speed_1"]
 script = ExtResource("2_upgrade")
 upgrade_id = "decoy.speed"
-display_name = "Decoy: Speed"
+display_name = "Ложные цели: скорость"
 description = "Increases the decoy's flight speed."
 device_id = "decoy_launcher"
 device_type = "ShipDecoyLauncher"
@@ -474,7 +474,7 @@ cost_xp = 50
 [sub_resource type="Resource" id="R_decoy_speed_2"]
 script = ExtResource("2_upgrade")
 upgrade_id = "decoy.speed"
-display_name = "Decoy: Speed II"
+display_name = "Ложные цели: скорость II"
 description = "Increases the decoy's flight speed further."
 device_id = "decoy_launcher"
 device_type = "ShipDecoyLauncher"
@@ -488,7 +488,7 @@ cost_xp = 100
 [sub_resource type="Resource" id="R_decoy_speed_3"]
 script = ExtResource("2_upgrade")
 upgrade_id = "decoy.speed"
-display_name = "Decoy: Speed III"
+display_name = "Ложные цели: скорость III"
 description = "Increases the decoy's flight speed further."
 device_id = "decoy_launcher"
 device_type = "ShipDecoyLauncher"
@@ -502,7 +502,7 @@ cost_xp = 200
 [sub_resource type="Resource" id="R_decoy_speed_4"]
 script = ExtResource("2_upgrade")
 upgrade_id = "decoy.speed"
-display_name = "Decoy: Speed IV"
+display_name = "Ложные цели: скорость IV"
 description = "Maximum decoy flight speed."
 device_id = "decoy_launcher"
 device_type = "ShipDecoyLauncher"
@@ -512,6 +512,161 @@ max_level = 4
 modifier_type = "multiply"
 value = 1.2
 cost_xp = 400
+
+
+[sub_resource type="Resource" id="R_decoy_capacity_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "decoy.capacity"
+display_name = "Ложные цели: магазин"
+description = "Ещё одно место в пусковом магазине."
+device_id = "decoy_launcher"
+device_type = "ShipDecoyLauncher"
+attribute = "max_charges"
+level = 1
+max_level = 2
+modifier_type = "add"
+value = 1.0
+cost_xp = 80
+
+[sub_resource type="Resource" id="R_decoy_capacity_2"]
+script = ExtResource("2_upgrade")
+upgrade_id = "decoy.capacity"
+display_name = "Ложные цели: магазин II"
+description = "Ещё одно место в пусковом магазине."
+device_id = "decoy_launcher"
+device_type = "ShipDecoyLauncher"
+attribute = "max_charges"
+level = 2
+max_level = 2
+modifier_type = "add"
+value = 1.0
+cost_xp = 160
+
+[sub_resource type="Resource" id="R_signal_light_capacity_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "signal_light.capacity"
+display_name = "Огни: стойка"
+description = "Ещё одно место на стойке сигнальных огней."
+device_id = "signal_light"
+device_type = "ShipSignalLight"
+attribute = "max_charges"
+level = 1
+max_level = 2
+modifier_type = "add"
+value = 1.0
+cost_xp = 80
+
+[sub_resource type="Resource" id="R_signal_light_capacity_2"]
+script = ExtResource("2_upgrade")
+upgrade_id = "signal_light.capacity"
+display_name = "Огни: стойка II"
+description = "Ещё одно место на стойке сигнальных огней."
+device_id = "signal_light"
+device_type = "ShipSignalLight"
+attribute = "max_charges"
+level = 2
+max_level = 2
+modifier_type = "add"
+value = 1.0
+cost_xp = 160
+
+[sub_resource type="Resource" id="R_research_speed_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "research.speed"
+display_name = "Стол: скорость анализа"
+description = "Сокращает время любого анализа."
+device_id = "research"
+device_type = "ResearchSystem"
+attribute = "time_multiplier"
+level = 1
+max_level = 3
+modifier_type = "multiply"
+value = 0.8
+cost_xp = 60
+
+[sub_resource type="Resource" id="R_research_speed_2"]
+script = ExtResource("2_upgrade")
+upgrade_id = "research.speed"
+display_name = "Стол: скорость анализа II"
+description = "Сокращает время любого анализа."
+device_id = "research"
+device_type = "ResearchSystem"
+attribute = "time_multiplier"
+level = 2
+max_level = 3
+modifier_type = "multiply"
+value = 0.8
+cost_xp = 120
+
+[sub_resource type="Resource" id="R_research_speed_3"]
+script = ExtResource("2_upgrade")
+upgrade_id = "research.speed"
+display_name = "Стол: скорость анализа III"
+description = "Сокращает время любого анализа."
+device_id = "research"
+device_type = "ResearchSystem"
+attribute = "time_multiplier"
+level = 3
+max_level = 3
+modifier_type = "multiply"
+value = 0.8
+cost_xp = 240
+
+[sub_resource type="Resource" id="R_research_range_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "research.range"
+display_name = "Стол: дальность связи"
+description = "Анализ продолжается дальше от объекта."
+device_id = "research"
+device_type = "ResearchSystem"
+attribute = "max_range_px"
+level = 1
+max_level = 2
+modifier_type = "multiply"
+value = 1.35
+cost_xp = 70
+
+[sub_resource type="Resource" id="R_research_range_2"]
+script = ExtResource("2_upgrade")
+upgrade_id = "research.range"
+display_name = "Стол: дальность связи II"
+description = "Анализ продолжается дальше от объекта."
+device_id = "research"
+device_type = "ResearchSystem"
+attribute = "max_range_px"
+level = 2
+max_level = 2
+modifier_type = "multiply"
+value = 1.35
+cost_xp = 140
+
+[sub_resource type="Resource" id="R_scanner_threat_sense_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "scanner.threat_sense"
+display_name = "Сканер: модуль угроз"
+description = "Одноразовый модуль: пеленг крупной массы на радаре."
+device_id = "scanner"
+device_type = "ShipScanner"
+attribute = "threat_sense"
+level = 1
+max_level = 1
+modifier_type = "set"
+value = 1.0
+cost_xp = 150
+
+[sub_resource type="Resource" id="R_scanner_silent_1"]
+script = ExtResource("2_upgrade")
+upgrade_id = "scanner.silent"
+display_name = "Сканер: тихий обход"
+description = "Одноразовый модуль: обход вдвое тише для того, что слушает."
+device_id = "scanner"
+device_type = "ShipScanner"
+attribute = "noise_factor"
+level = 1
+max_level = 1
+modifier_type = "set"
+value = 0.5
+cost_xp = 120
 
 [resource]
 script = ExtResource("1_profile")
@@ -552,4 +707,15 @@ upgrades = Array[ExtResource("2_upgrade")]([
     SubResource("R_decoy_speed_2"),
     SubResource("R_decoy_speed_3"),
     SubResource("R_decoy_speed_4"),
+    SubResource("R_decoy_capacity_1"),
+    SubResource("R_decoy_capacity_2"),
+    SubResource("R_signal_light_capacity_1"),
+    SubResource("R_signal_light_capacity_2"),
+    SubResource("R_research_speed_1"),
+    SubResource("R_research_speed_2"),
+    SubResource("R_research_speed_3"),
+    SubResource("R_research_range_1"),
+    SubResource("R_research_range_2"),
+    SubResource("R_scanner_threat_sense_1"),
+    SubResource("R_scanner_silent_1"),
 ])

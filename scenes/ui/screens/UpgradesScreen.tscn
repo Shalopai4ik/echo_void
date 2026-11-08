@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Theme" path="res://ui/theme/echo_theme.tres" id="1_theme"]
-[ext_resource type="Script" path="res://ui/core/viewport_policy.gd" id="2_policy"]
+[ext_resource type="Script" path="res://ui/upgrades/upgrades_screen.gd" id="2_screen"]
+[ext_resource type="PackedScene" path="res://scenes/ui/components/ResearchXpBadge.tscn" id="3_badge"]
+[ext_resource type="Script" path="res://ui/core/window_mode_button.gd" id="4_mode"]
 
 [node name="UpgradesScreen" type="Control"]
 layout_mode = 3
@@ -11,7 +13,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_theme")
-script = ExtResource("2_policy")
+process_mode = 3
+script = ExtResource("2_screen")
 
 [node name="Backdrop" type="ColorRect" parent="."]
 layout_mode = 1
@@ -20,113 +23,235 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.004, 0.018, 0.03, 0.92)
+mouse_filter = 2
+color = Color(0.004, 0.018, 0.03, 0.94)
 
 [node name="SafeArea" type="MarginContainer" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 18
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
 
 [node name="Layout" type="VBoxContainer" parent="SafeArea"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
 [node name="Header" type="HBoxContainer" parent="SafeArea/Layout"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
 [node name="Title" type="Label" parent="SafeArea/Layout/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 24
-text = "УЛУЧШЕНИЯ"
+theme_override_colors/font_color = Color(0.82, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 16
+text = "УЛУЧШЕНИЯ ОБОРУДОВАНИЯ / UPGRADE DESK"
+text_overrun_behavior = 3
+clip_text = true
 
-[node name="Currency" type="Label" parent="SafeArea/Layout/Header"]
+[node name="XpBadge" parent="SafeArea/Layout/Header" instance=ExtResource("3_badge")]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
-theme_override_font_sizes/font_size = 12
-text = "МАТЕРИАЛЫ 000"
-vertical_alignment = 1
+size_flags_vertical = 4
+
+[node name="DisplayMode" type="Button" parent="SafeArea/Layout/Header"]
+layout_mode = 2
+text = "РЕЖИМ: ОКНО"
+script = ExtResource("4_mode")
+
+[node name="Close" type="Button" parent="SafeArea/Layout/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ЗАКРЫТЬ"
 
 [node name="Rule" type="HSeparator" parent="SafeArea/Layout"]
 layout_mode = 2
 
-[node name="Scroll" type="ScrollContainer" parent="SafeArea/Layout"]
+[node name="Body" type="HBoxContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="DevicePanel" type="PanelContainer" parent="SafeArea/Layout/Body"]
+custom_minimum_size = Vector2(208, 0)
+layout_mode = 2
+
+[node name="Content" type="VBoxContainer" parent="SafeArea/Layout/Body/DevicePanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="DeviceCount" type="Label" parent="SafeArea/Layout/Body/DevicePanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 9
+text = "УСТРОЙСТВА КОРАБЛЯ / 00"
+
+[node name="Scroll" type="ScrollContainer" parent="SafeArea/Layout/Body/DevicePanel/Content"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="List" type="VBoxContainer" parent="SafeArea/Layout/Scroll"]
+[node name="DeviceList" type="VBoxContainer" parent="SafeArea/Layout/Body/DevicePanel/Content/Scroll"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="Empty" type="Label" parent="SafeArea/Layout/Body/DevicePanel/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
+theme_override_colors/font_color = Color(0.42, 0.56, 0.6, 1)
+theme_override_font_sizes/font_size = 9
+text = "УСТРОЙСТВА НЕ НАЙДЕНЫ"
+horizontal_alignment = 1
+
+[node name="Detail" type="PanelContainer" parent="SafeArea/Layout/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Scroll" type="ScrollContainer" parent="SafeArea/Layout/Body/Detail"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="DetailContent" type="VBoxContainer" parent="SafeArea/Layout/Body/Detail/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="DetailHeader" type="HBoxContainer" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent"]
+layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Scanner" type="PanelContainer" parent="SafeArea/Layout/Scroll/List"]
+[node name="DeviceIcon" type="Label" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent/DetailHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(26, 0)
 layout_mode = 2
-
-[node name="Content" type="HBoxContainer" parent="SafeArea/Layout/Scroll/List/Scanner"]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="Index" type="Label" parent="SafeArea/Layout/Scroll/List/Scanner/Content"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
-theme_override_font_sizes/font_size = 11
-text = "01"
-
-[node name="Info" type="VBoxContainer" parent="SafeArea/Layout/Scroll/List/Scanner/Content"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 3
-
-[node name="Title" type="Label" parent="SafeArea/Layout/Scroll/List/Scanner/Content/Info"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "УСИЛЕНИЕ СКАНЕРА"
-
-[node name="Description" type="Label" parent="SafeArea/Layout/Scroll/List/Scanner/Content/Info"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
-theme_override_font_sizes/font_size = 11
-text = "Расширяет дальность обхода и снижает энергопотребление."
-
-[node name="Cost" type="Label" parent="SafeArea/Layout/Scroll/List/Scanner/Content"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
-theme_override_font_sizes/font_size = 12
-text = "УРОВЕНЬ 0 / 1\nЦЕНА 040"
-horizontal_alignment = 2
+theme_override_colors/font_color = Color(0.36, 0.86, 0.9, 1)
+theme_override_font_sizes/font_size = 22
+text = "◇"
 vertical_alignment = 1
 
-[node name="Empty" type="PanelContainer" parent="SafeArea/Layout/Scroll/List"]
+[node name="Info" type="VBoxContainer" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent/DetailHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="DeviceRole" type="Label" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent/DetailHeader/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 8
+text = "MODULE"
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="DeviceName" type="Label" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent/DetailHeader/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.95, 0.98, 1)
+theme_override_font_sizes/font_size = 14
+text = "УСТРОЙСТВО"
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="DeviceLevel" type="Label" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent/DetailHeader/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 8
+text = "УР. 0 / 0"
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="Description" type="Label" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 9
+text = "ОПИСАНИЕ"
+autowrap_mode = 2
+
+[node name="Rule1" type="HSeparator" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="SafeArea/Layout/Scroll/List/Empty"]
+[node name="StatsCaption" type="Label" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 8
+text = "ТЕКУЩИЕ ХАРАКТЕРИСТИКИ"
+
+[node name="Stats" type="GridContainer" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 2
+columns = 2
+
+[node name="Rule2" type="HSeparator" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent"]
+layout_mode = 2
+
+[node name="PathCaption" type="Label" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.82, 0.87, 1)
+theme_override_font_sizes/font_size = 8
+text = "ВЕТКИ УЛУЧШЕНИЙ / 00"
+
+[node name="PathList" type="VBoxContainer" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="SelectedPanel" type="PanelContainer" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent"]
+layout_mode = 2
+
+[node name="SelectedInfo" type="Label" parent="SafeArea/Layout/Body/Detail/Scroll/DetailContent/SelectedPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
+theme_override_font_sizes/font_size = 9
+text = "ВЫБЕРИТЕ ВЕТКУ УЛУЧШЕНИЯ"
+autowrap_mode = 2
+
+[node name="Placeholder" type="Label" parent="SafeArea/Layout/Body/Detail/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+visible = false
 theme_override_colors/font_color = Color(0.42, 0.56, 0.6, 1)
-theme_override_font_sizes/font_size = 11
-text = "ДРУГИЕ ВЕТКИ УЛУЧШЕНИЙ ОТКРЫВАЮТСЯ ПОСЛЕ ИССЛЕДОВАНИЙ"
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 9
+text = "УСТРОЙСТВО НЕ ВЫБРАНО"
 
 [node name="Footer" type="HBoxContainer" parent="SafeArea/Layout"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
 [node name="Hint" type="Label" parent="SafeArea/Layout/Footer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
-theme_override_font_sizes/font_size = 11
-text = "[ESC] ЗАКРЫТЬ"
+theme_override_font_sizes/font_size = 8
+text = "[ESC] ЗАКРЫТЬ  •  [U] ОТКРЫТЬ/ЗАКРЫТЬ  •  ДЕМО-ДАННЫЕ"
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="DemoXp" type="Button" parent="SafeArea/Layout/Footer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ДЕМО: +150 XP"
 
 [node name="Action" type="Button" parent="SafeArea/Layout/Footer"]
+unique_name_in_owner = true
 layout_mode = 2
 disabled = true
-text = "НЕДОСТАТОЧНО МАТЕРИАЛОВ"
+text = "ВЫБЕРИТЕ УСТРОЙСТВО"

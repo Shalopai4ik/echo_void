@@ -6,11 +6,12 @@ tells you what happened here.
 
 * **Engine:** Godot 4.7.2 (`v4.7.2.stable.official.ed1daf0bf`), GDScript,
   GL Compatibility renderer, 960x540 viewport.
-* **Status:** in development. The ship flight model, world generation and HUD are
-  complete and tested; the internal systems architecture (power, condition, damage,
-  equipment) landed in stage 4.1 and carries its first mechanic, the survey scanner
-  (stage 5.1). Its visual interface is now available as an unconnected UI screen.
-  Combat, the upgrade system and audio content are still in development.
+* **Status:** playable demo (15-20 minutes, five chapters, ending). The flight
+  model, the endless world, the ship systems, the scanner, research and upgrades
+  carry a full storyline: research objects to study, a creature that hears the
+  ship, its brood, decoys and signal flares, atmospheric events, music and sound.
+  `docs/stage8_13_report.md` is the report for that work; `promo/` holds the
+  trailer and the presentation; `build/echo_of_void.exe` is the Windows build.
 
 ## Requirements
 
@@ -46,7 +47,7 @@ echo_void/
     space_background/        infinite parallax background
     audio/audio_mixer.gd
     hud.gd                   the glass of the one hull
-  tests/                     27 suites (21 logic, 6 visual) + experiments/ benches
+  tests/                     40 suites (32 logic, 8 visual) + experiments/ benches
   tools/                     the art pipeline, the validator and the test runner
   docs/                      architecture, testing, audio, scanner, space background, cleanup log
   test-output/               NOT IN GIT - what a run writes, .gdignore'd so Godot never imports it
@@ -65,15 +66,27 @@ last; if the 2D view does not match what F5 runs, check the scene tab first.
 ## Play
 
 `W` / `S` thrust and brake, `A` / `D` yaw, `Q` / `E` strafe, `Shift` boost,
-`Space` emergency brake, `R` radar sweep and survey sweep, `F1` debug overlay.
+`Space` emergency brake, `R` radar sweep and survey sweep, `U` equipment upgrades
+panel, `F1` debug overlay.
+
+The stage 7 interface layer adds: `I` equipment panel, `C` scanner scope, `N`
+research desk, `1`-`4` the four equipment slots, `Esc` closes a panel or opens
+the pause menu. Every panel holds the world while it is up - the hull, the
+stones and the ship timers stop exactly where they were, and the velocities
+come back unchanged. `docs/stage7_report.md` says how and why.
+
+The demo binds slot `3` to the decoy launcher and slot `4` to the signal flares.
+The game opens at the main menu; `Esc` in flight opens the pause menu with the
+sound settings. Noise draws the creature: speed, boost, scanner sweeps and
+analyses are heard, a quiet hull is lost.
 
 ## Run the tests
 
 ```powershell
-tools\testing\run_tests.ps1                 # the 21 headless suites
+tools\testing\run_tests.ps1                 # the 32 headless suites
 tools\testing\run_tests.ps1 -List           # every suite and its kind
 tools\testing\run_tests.ps1 -Suite hud_test # one
-tools\testing\run_tests.ps1 -Visual         # the 6 that screenshot (needs a GPU)
+tools\testing\run_tests.ps1 -Visual         # the 8 that screenshot (needs a GPU)
 tools\testing\run_tests.ps1 -Full
 ```
 

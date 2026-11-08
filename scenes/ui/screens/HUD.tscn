@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Theme" path="res://ui/theme/echo_theme.tres" id="1_theme"]
 [ext_resource type="Script" path="res://ui/hud/hud_screen.gd" id="2_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/components/ShipStatusPanel.tscn" id="3_status"]
 [ext_resource type="PackedScene" path="res://scenes/ui/components/SystemNotificationFeed.tscn" id="4_feed"]
 [ext_resource type="Resource" path="res://ui/hud/hud_demo_data.tres" id="5_demo"]
+[ext_resource type="PackedScene" path="res://scenes/ui/components/ResearchXpBadge.tscn" id="6_xp"]
 
 [node name="HUD" type="Control"]
 layout_mode = 3
@@ -34,6 +35,17 @@ theme_override_constants/margin_bottom = 14
 [node name="Layout" type="VBoxContainer" parent="SafeArea"]
 layout_mode = 2
 mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="TopRow" type="HBoxContainer" parent="SafeArea/Layout"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 2
+
+[node name="XpBadge" parent="SafeArea/Layout/TopRow" instance=ExtResource("6_xp")]
+unique_name_in_owner = true
+layout_mode = 2
 
 [node name="TopSpacer" type="Control" parent="SafeArea/Layout"]
 layout_mode = 2

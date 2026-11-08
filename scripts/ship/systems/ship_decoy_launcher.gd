@@ -27,6 +27,20 @@ class_name ShipDecoyLauncher
 @export_range(0.0, 4096.0, 10.0, "suffix:px") var signal_radius: float = 900.0
 ## Максимум приманок одновременно в полёте.
 @export_range(1, 20, 1) var max_concurrent_decoys: int = 3
+## Ёмкость магазина приманок. Отрицательное значение - без ограничения (так
+## прибор вели себя до введения зарядов, и так его проверяют старые сьюты).
+## Хранится как float, потому что улучшение пишет его через `set()`.
+@export_range(-1.0, 20.0, 1.0) var max_charges: float = -1.0:
+	set(value):
+		var grown := value > max_charges and max_charges >= 0.0
+		max_charges = value
+		if grown:
+			add_charges(1)
+## Сколько приманок в магазине сейчас.
+@export_range(0, 20, 1) var charges: int = 0
+
+## Изменилось число зарядов.
+signal charges_changed(charges: int, max_charges: int)
 ## Сцена приманки. Если пуста, создаётся Decoy.new() прямо в коде.
 @export var decoy_scene: PackedScene
 
@@ -44,6 +58,25 @@ var _cooldown_until: float = 0.0
 
 func _ready() -> void:
 	super._ready()
+	if has_charge_limit() and charges <= 0:
+		charges = int(max_charges)
+
+
+## Ограничен ли магазин.
+func has_charge_limit() -> bool:
+	return max_charges >= 0.0
+
+
+## Положить заряды в магазин (награда за исследование). Возвращает сколько
+## легло на самом деле.
+func add_charges(amount: int) -> int:
+	if not has_charge_limit() or amount <= 0:
+		return 0
+	var before := charges
+	charges = mini(charges + amount, int(max_charges))
+	if charges != before:
+		charges_changed.emit(charges, int(max_charges))
+	return charges - before
 
 ## Пуск приманки. direction - вектор направления (по умолчанию нос корабля, +X).
 ## Возвращает true, если приманка запущена, и false с decoy_refused при отказе.
@@ -52,6 +85,10 @@ func launch(direction: Vector2 = Vector2(1, 0)) -> bool:
 
 	if now < _cooldown_until:
 		_refuse("cooldown")
+		return false
+
+	if has_charge_limit() and charges <= 0:
+		_refuse("no_charges")
 		return false
 
 	var hub_node := _systems()
@@ -103,10 +140,16 @@ func launch(direction: Vector2 = Vector2(1, 0)) -> bool:
 	decoy.texture = null
 
 	decoy.finished.connect(_on_decoy_finished.bind(decoy))
-	get_tree().get_root().add_child(decoy)
+	var host: Node = get_tree().current_scene
+	if host == null:
+		host = get_tree().get_root()
+	host.add_child(decoy)
 	decoy.start(dir)
 
 	_active_decoys.append(decoy)
+	if has_charge_limit():
+		charges = maxi(charges - 1, 0)
+		charges_changed.emit(charges, int(max_charges))
 	_cooldown_until = now + maxf(cooldown_sec, 0.0)
 	decoy_cooldown_changed.emit(cooldown_remaining())
 
@@ -125,6 +168,8 @@ func launch(direction: Vector2 = Vector2(1, 0)) -> bool:
 func can_launch_now() -> bool:
 	var now := ShipSystemEvent.now()
 	if now < _cooldown_until:
+		return false
+	if has_charge_limit() and charges <= 0:
 		return false
 	var hub_node := _systems()
 	if hub_node == null:
@@ -216,4 +261,8 @@ func status() -> Dictionary:
 	out["decoy_lifetime"] = decoy_lifetime
 	out["signal_intensity"] = signal_intensity
 	out["signal_radius"] = signal_radius
+	out["charges"] = charges if has_charge_limit() else -1
+	out["max_charges"] = int(max_charges)
+	if has_charge_limit() and charges <= 0:
+		out["can_launch"] = false
 	return out

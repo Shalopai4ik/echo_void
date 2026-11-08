@@ -69,13 +69,45 @@ func _init(event_kind: int = Kind.CUSTOM, id: String = "") -> void:
 	at = now()
 
 
-## Physics seconds since the tree started. Static because an event created in a
-## test before the tree exists still deserves a timestamp.
+## Physics frames that passed while an interface panel held the world. The
+## engine keeps counting physics frames during a hold (the tree is not paused,
+## only the physics server and the world nodes are), so without this every
+## cooldown, burn and decoy lifetime would run out behind a closed menu.
+static var _held_frames: int = 0
+## The physics frame a hold started on, or -1 when the world is running.
+static var _hold_started: int = -1
+
+
+## Physics seconds of *game* time since the tree started: the engine's physics
+## frames minus the frames spent behind a panel. Static because an event created
+## in a test before the tree exists still deserves a timestamp.
 static func now() -> float:
 	var ticks := float(Engine.physics_ticks_per_second)
 	if ticks <= 0.0:
 		return 0.0
-	return float(Engine.get_physics_frames()) / ticks
+	var frames := Engine.get_physics_frames()
+	if _hold_started >= 0:
+		frames = _hold_started
+	return float(frames - _held_frames) / ticks
+
+
+## Stop the game clock: called by the interface when a panel takes the world.
+static func hold_clock() -> void:
+	if _hold_started < 0:
+		_hold_started = Engine.get_physics_frames()
+
+
+## Start the game clock again where it stopped.
+static func release_clock() -> void:
+	if _hold_started < 0:
+		return
+	_held_frames += maxi(Engine.get_physics_frames() - _hold_started, 0)
+	_hold_started = -1
+
+
+## Is the game clock stopped by a panel right now?
+static func clock_held() -> bool:
+	return _hold_started >= 0
 
 
 static func state_changed(id: String, previous: int, current: int) -> ShipSystemEvent:

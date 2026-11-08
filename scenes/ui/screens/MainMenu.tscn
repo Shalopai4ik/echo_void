@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Theme" path="res://ui/theme/echo_theme.tres" id="1_theme"]
-[ext_resource type="Script" path="res://ui/core/viewport_policy.gd" id="2_policy"]
+[ext_resource type="Script" path="res://ui/menu/main_menu_screen.gd" id="2_screen"]
 [ext_resource type="Script" path="res://ui/core/window_mode_button.gd" id="3_mode"]
 
 [node name="MainMenu" type="Control"]
@@ -12,7 +12,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_theme")
-script = ExtResource("2_policy")
+process_mode = 3
+script = ExtResource("2_screen")
 
 [node name="Backdrop" type="ColorRect" parent="."]
 layout_mode = 1
@@ -89,16 +90,14 @@ theme_override_constants/v_separation = 8
 columns = 2
 
 [node name="Continue" type="Button" parent="SafeArea/Layout/Center/Panel/Content"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "ПРОДОЛЖИТЬ"
 
 [node name="New" type="Button" parent="SafeArea/Layout/Center/Panel/Content"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "НОВОЕ ИССЛЕДОВАНИЕ"
-
-[node name="Settings" type="Button" parent="SafeArea/Layout/Center/Panel/Content"]
-layout_mode = 2
-text = "НАСТРОЙКИ"
 
 [node name="DisplayMode" type="Button" parent="SafeArea/Layout/Center/Panel/Content"]
 layout_mode = 2
@@ -106,6 +105,7 @@ script = ExtResource("3_mode")
 text = "РЕЖИМ: ОКНО"
 
 [node name="Quit" type="Button" parent="SafeArea/Layout/Center/Panel/Content"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "ЗАВЕРШИТЬ СЕАНС"
@@ -115,6 +115,7 @@ layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="Status" type="Label" parent="SafeArea/Layout/Footer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.42, 0.56, 0.6, 1)
@@ -122,6 +123,7 @@ theme_override_font_sizes/font_size = 10
 text = "СВЯЗЬ: НЕТ   ·   ОТКРЫТЫЙ КАНАЛ: 09   ·   ВЕРСИЯ 0.1"
 
 [node name="Hint" type="Label" parent="SafeArea/Layout/Footer"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.48, 0.68, 0.73, 1)
 theme_override_font_sizes/font_size = 10

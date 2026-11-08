@@ -8,12 +8,14 @@ class_name ShipHudScreen
 
 @onready var _ship_status: ShipStatusPanel = %ShipStatus
 @onready var _notifications: Control = %Notifications
+@onready var _xp_badge: ResearchXpBadge = %XpBadge
 
 
 func _ready() -> void:
 	super._ready()
 	if demo_data != null:
 		_ship_status.apply_data(demo_data)
+		_xp_badge.set_value(demo_data.research_xp, false)
 	_configure_demo_notifications()
 
 

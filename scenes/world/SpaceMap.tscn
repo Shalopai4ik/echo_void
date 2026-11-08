@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://cg7npbojw3qge"]
+[gd_scene load_steps=24 format=3 uid="uid://cg7npbojw3qge"]
 
 [ext_resource type="PackedScene" path="res://scenes/ship/Ship.tscn" id="1_ship"]
 [ext_resource type="PackedScene" path="res://scenes/InfiniteSpaceBackground.tscn" id="2_bg"]
@@ -12,6 +12,29 @@
 [ext_resource type="Script" path="res://scripts/research/research_system.gd" id="10_research_system"]
 [ext_resource type="Resource" path="res://assets/research/research_profile.tres" id="11_research_profile"]
 [ext_resource type="Script" path="res://scripts/ship/systems/ship_decoy_launcher.gd" id="12_decoy_launcher"]
+[ext_resource type="Script" path="res://scripts/research/research_upgrade_manager.gd" id="13_upgrade_manager"]
+[ext_resource type="Resource" path="res://assets/research/research_upgrade_profile.tres" id="14_upgrade_profile"]
+[ext_resource type="PackedScene" path="res://scenes/ui/UpgradesConsole.tscn" id="15_upgrades_console"]
+[ext_resource type="Script" path="res://scripts/ship/systems/equipment_slots.gd" id="16_slots"]
+[ext_resource type="PackedScene" path="res://scenes/ui/EquipmentConsole.tscn" id="17_equipment_console"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ScannerConsole.tscn" id="18_scanner_console"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ResearchConsole.tscn" id="19_research_console"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PauseMenuConsole.tscn" id="20_pause_console"]
+[ext_resource type="PackedScene" path="res://scenes/ui/MainMenuConsole.tscn" id="21_main_menu_console"]
+[ext_resource type="Script" path="res://ui/menu/session_clock.gd" id="22_session_clock"]
+[ext_resource type="Script" path="res://scripts/ship/systems/signal_light_system.gd" id="23_signal_light"]
+[ext_resource type="Script" path="res://scripts/research/research_rewards.gd" id="24_rewards"]
+[ext_resource type="Script" path="res://scripts/world/poi_field.gd" id="25_poi_field"]
+[ext_resource type="Script" path="res://scripts/threat/threat_attention.gd" id="26_attention"]
+[ext_resource type="Script" path="res://scripts/threat/leviathan.gd" id="27_leviathan"]
+[ext_resource type="Script" path="res://scripts/threat/atmosphere_director.gd" id="28_atmosphere"]
+[ext_resource type="Script" path="res://scripts/mission/mission_director.gd" id="29_mission"]
+[ext_resource type="Script" path="res://scripts/game/ship_notifier.gd" id="30_notifier"]
+[ext_resource type="Script" path="res://scripts/audio/sound_bank.gd" id="31_sound_bank"]
+[ext_resource type="Script" path="res://scripts/audio/music_director.gd" id="32_music"]
+[ext_resource type="Script" path="res://scripts/threat/screen_fx.gd" id="33_screen_fx"]
+[ext_resource type="Script" path="res://ui/hud/flight_overlay.gd" id="34_overlay"]
+[ext_resource type="Script" path="res://ui/menu/run_end_layer.gd" id="35_run_end"]
 
 [node name="SpaceMap" type="Node2D" unique_id=455158461]
 
@@ -26,12 +49,28 @@ settings = ExtResource("5_set")
 [node name="ChunkDebug" type="Node2D" parent="Field" unique_id=534431792]
 script = ExtResource("7_chunks")
 
+[node name="POIField" type="Node2D" parent="."]
+script = ExtResource("25_poi_field")
+
+[node name="Threats" type="Node2D" parent="."]
+
+[node name="Attention" type="Node" parent="Threats"]
+script = ExtResource("26_attention")
+
+[node name="Leviathan" type="Node2D" parent="Threats"]
+position = Vector2(9000, -9000)
+script = ExtResource("27_leviathan")
+
+[node name="Atmosphere" type="Node2D" parent="Threats"]
+script = ExtResource("28_atmosphere")
+
 [node name="Ship" parent="." unique_id=1241449712 instance=ExtResource("1_ship")]
 continuous_cd = 2
 
 [node name="Scanner" type="Node" parent="Ship/Systems"]
 script = ExtResource("8_scanner")
 profile = ExtResource("9_profile")
+range_multiplier = 1.5
 component_id = "scanner"
 title = "Survey Scanner"
 power_priority = 20
@@ -41,6 +80,7 @@ starts_enabled = false
 [node name="Research" type="Node" parent="Ship/Systems"]
 script = ExtResource("10_research_system")
 profile = ExtResource("11_research_profile")
+max_range_px = 1500.0
 component_id = "research"
 title = "Research Desk"
 power_priority = 15
@@ -54,14 +94,72 @@ title = "Decoy Launcher"
 power_priority = 10
 nominal_power_draw = 0.0
 activation_cost = 30.0
-cooldown_sec = 15.0
-decoy_speed = 150.0
-decoy_lifetime = 20.0
+cooldown_sec = 6.0
+decoy_speed = 260.0
+decoy_lifetime = 18.0
 signal_intensity = 1.2
-signal_radius = 900.0
+signal_radius = 1500.0
 max_concurrent_decoys = 3
+max_charges = 3.0
+charges = 2
 starts_enabled = false
 
+[node name="SignalLight" type="Node" parent="Ship/Systems"]
+script = ExtResource("23_signal_light")
+activation_cost = 15.0
+duration_sec = 25.0
+cooldown_sec = 8.0
+intensity = 1.4
+radius_px = 2400.0
+max_charges = 4.0
+charges = 3
+component_id = "signal_light"
+title = "Signal Lights"
+power_priority = 8
+starts_enabled = false
+
+[node name="Rewards" type="Node" parent="Ship/Systems"]
+script = ExtResource("24_rewards")
+
+[node name="UpgradeDesk" type="Node" parent="Ship/Systems"]
+script = ExtResource("13_upgrade_manager")
+profile = ExtResource("14_upgrade_profile")
+research_component_id = "research"
+
+[node name="Slots" type="Node" parent="Ship/Systems"]
+script = ExtResource("16_slots")
+slot_bindings = PackedStringArray("scanner", "research", "decoy_launcher", "signal_light")
+
+[node name="Mission" type="Node" parent="."]
+script = ExtResource("29_mission")
+
+[node name="ShipNotifier" type="Node" parent="."]
+script = ExtResource("30_notifier")
+
+[node name="SoundBank" type="Node2D" parent="."]
+script = ExtResource("31_sound_bank")
+
+[node name="Music" type="Node" parent="."]
+script = ExtResource("32_music")
+
+[node name="ScreenFx" type="CanvasLayer" parent="."]
+script = ExtResource("33_screen_fx")
+
 [node name="HUD" parent="." unique_id=840427716 instance=ExtResource("6_hud")]
+
+[node name="FlightOverlay" type="CanvasLayer" parent="."]
+script = ExtResource("34_overlay")
+
+[node name="RunEnd" type="CanvasLayer" parent="."]
+script = ExtResource("35_run_end")
+
+[node name="SessionClock" type="Node" parent="."]
+script = ExtResource("22_session_clock")
+[node name="UpgradesConsole" parent="." instance=ExtResource("15_upgrades_console")]
+[node name="EquipmentConsole" parent="." instance=ExtResource("17_equipment_console")]
+[node name="ScannerConsole" parent="." instance=ExtResource("18_scanner_console")]
+[node name="ResearchConsole" parent="." instance=ExtResource("19_research_console")]
+[node name="PauseMenuConsole" parent="." instance=ExtResource("20_pause_console")]
+[node name="MainMenuConsole" parent="." instance=ExtResource("21_main_menu_console")]
 
 [editable path="Ship"]

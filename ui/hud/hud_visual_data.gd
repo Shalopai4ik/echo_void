@@ -10,6 +10,9 @@ class_name HudVisualData
 @export var energy_maximum := 100.0
 @export var speed := 128.0
 @export var speed_unit := "м/с"
+## Research XP the flight HUD shows. A demonstration value until stage 7 wires
+## the research desk's `xp_gained` signal onto the badge.
+@export var research_xp := 340
 @export_enum("НОРМА", "ПОВРЕЖДЕНИЕ", "КРИТИЧЕСКОЕ") var ship_state := "НОРМА"
 @export var hull_warning_ratio := 0.5
 @export var hull_critical_ratio := 0.25
